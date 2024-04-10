@@ -17566,17 +17566,17 @@ var require_router = __commonJS({
     var toString = Object.prototype.toString;
     var proto = module2.exports = function(options) {
       var opts = options || {};
-      function router(req, res, next) {
-        router.handle(req, res, next);
+      function router2(req, res, next) {
+        router2.handle(req, res, next);
       }
-      setPrototypeOf(router, proto);
-      router.params = {};
-      router._params = [];
-      router.caseSensitive = opts.caseSensitive;
-      router.mergeParams = opts.mergeParams;
-      router.strict = opts.strict;
-      router.stack = [];
-      return router;
+      setPrototypeOf(router2, proto);
+      router2.params = {};
+      router2._params = [];
+      router2.caseSensitive = opts.caseSensitive;
+      router2.mergeParams = opts.mergeParams;
+      router2.strict = opts.strict;
+      router2.stack = [];
+      return router2;
     };
     proto.param = function param(name, fn) {
       if (typeof name === "function") {
@@ -20262,17 +20262,17 @@ var require_application = __commonJS({
       }
     };
     app2.handle = function handle(req, res, callback) {
-      var router = this._router;
+      var router2 = this._router;
       var done = callback || finalhandler(req, res, {
         env: this.get("env"),
         onerror: logerror.bind(this)
       });
-      if (!router) {
+      if (!router2) {
         debug("no routes defined on app");
         done();
         return;
       }
-      router.handle(req, res, done);
+      router2.handle(req, res, done);
     };
     app2.use = function use(fn) {
       var offset = 0;
@@ -20292,15 +20292,15 @@ var require_application = __commonJS({
         throw new TypeError("app.use() requires a middleware function");
       }
       this.lazyrouter();
-      var router = this._router;
+      var router2 = this._router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router.use(path, fn2);
+          return router2.use(path, fn2);
         }
         debug(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router.use(path, function mounted_app(req, res, next) {
+        router2.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             setPrototypeOf(req, orig.request);
@@ -22193,12 +22193,20 @@ var require_express2 = __commonJS({
 });
 
 // backend/server.ts
+var import_express2 = __toESM(require_express2());
+
+// backend/routes/root.ts
 var import_express = __toESM(require_express2());
-var app = (0, import_express.default)();
-var PORT = process.env.PORT || 3e3;
-app.get("/", (_request, response, _next) => {
-  response.send("Hello CSC 667");
+var router = import_express.default.Router();
+router.get("/", (_request, response, _next) => {
+  response.send("Hello CSC 667 from inside a route");
 });
+var root_default = router;
+
+// backend/server.ts
+var app = (0, import_express2.default)();
+var PORT = process.env.PORT || 3e3;
+app.use("/", root_default);
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
