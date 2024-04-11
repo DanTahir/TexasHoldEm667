@@ -22200,7 +22200,8 @@ var import_express2 = __toESM(require_express2());
 var import_express = __toESM(require_express2());
 var router = import_express.default.Router();
 router.get("/", (_request, response, _next) => {
-  response.send("Hello CSC 667 from inside a route");
+  const name = "Steve";
+  response.render("root", { name });
 });
 var root_default = router;
 
@@ -22216,6 +22217,8 @@ var requestTime = (request, response, next) => {
 // backend/server.ts
 var app = (0, import_express2.default)();
 var PORT = process.env.PORT || 3e3;
+app.set("views", import_path.default.join("backend", "views"));
+app.set("view engine", "ejs");
 app.use(import_express2.default.static(import_path.default.join("backend", "static")));
 app.use(requestTime);
 app.use("/", root_default);

@@ -7,6 +7,9 @@ import {requestTime} from "./middleware/timestamp"
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set("views", path.join("backend", "views"));
+app.set("view engine", "ejs");
+
 app.use(express.static(path.join("backend", "static")));
 
 app.use(requestTime);
