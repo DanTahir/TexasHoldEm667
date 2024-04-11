@@ -2,10 +2,20 @@ import path from "path";
 import express from 'express';
 import rootRoutes from './routes/root';
 import createError from "http-errors";
-import {requestTime} from "./middleware/timestamp"
+import {requestTime} from "./middleware/timestamp";
+import {setUpDevEnv} from "./utilities/set-up-dev-env";
+import connectLiveReload from "connect-livereload";
+import morgan from "morgan";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+if(process.env.NODE_ENV == 'development'){
+    setUpDevEnv();
+    connectLiveReload();
+}
+
+app.use(morgan("dev"));
 
 app.set("views", path.join("backend", "views"));
 app.set("view engine", "ejs");

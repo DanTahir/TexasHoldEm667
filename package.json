@@ -2,7 +2,8 @@
   "dependencies": {
     "ejs": "^3.1.9",
     "express": "^4.19.2",
-    "http-errors": "^2.0.0"
+    "http-errors": "^2.0.0",
+    "morgan": "^1.10.0"
   },
   "name": "term-project-tp_jvda_holdem",
   "description": "Team Members",
@@ -11,7 +12,10 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.7",
+    "concurrently": "^8.2.2",
+    "connect-livereload": "^0.6.1",
     "esbuild": "^0.20.2",
+    "livereload": "^0.9.3",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5"
@@ -19,8 +23,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "esbuild backend/server.ts --bundle --platform=node --target=node20.12 --outfile=build/server.js",
-    "build:dev": "esbuild backend/server.ts --watch --bundle --platform=node --target=node20.12 --outfile=build/server.js",
-    "build:dev:frontend": "esbuild frontend/index.ts --watch --bundle --platform=node --target=node20.12 --outfile=build/server.js",
+    "build:dev": "concurrently \"npm run build:dev:backend\" \"npm run build:dev:frontend\"",
+    "build:dev:backend": "esbuild backend/server.ts --watch --bundle --platform=node --target=node20.12 --outfile=build/server.js",
+    "build:dev:frontend": "esbuild frontend/index.ts --watch --bundle --outfile=backend/static/js/index.js",
     "start:server": "nodemon ./build/server.js"
   },
   "repository": {
