@@ -754,14 +754,14 @@ var require_http_errors = __commonJS({
     var statuses = require_statuses();
     var inherits = require_inherits();
     var toIdentifier = require_toidentifier();
-    module2.exports = createError;
+    module2.exports = createError2;
     module2.exports.HttpError = createHttpErrorConstructor();
     module2.exports.isHttpError = createIsHttpErrorFunction(module2.exports.HttpError);
     populateConstructorExports(module2.exports, statuses.codes, module2.exports.HttpError);
     function codeClass(status) {
       return Number(String(status).charAt(0) + "00");
     }
-    function createError() {
+    function createError2() {
       var err;
       var msg;
       var status = 500;
@@ -788,10 +788,10 @@ var require_http_errors = __commonJS({
       if (typeof status !== "number" || !statuses.message[status] && (status < 400 || status >= 600)) {
         status = 500;
       }
-      var HttpError = createError[status] || createError[codeClass(status)];
+      var HttpError = createError2[status] || createError2[codeClass(status)];
       if (!err) {
         err = HttpError ? new HttpError(msg) : new Error(msg || statuses.message[status]);
-        Error.captureStackTrace(err, createError);
+        Error.captureStackTrace(err, createError2);
       }
       if (!HttpError || !(err instanceof HttpError) || err.status !== status) {
         err.expose = status < 500;
@@ -4923,7 +4923,7 @@ var require_raw_body = __commonJS({
     "use strict";
     var asyncHooks = tryRequireAsyncHooks();
     var bytes = require_bytes();
-    var createError = require_http_errors();
+    var createError2 = require_http_errors();
     var iconv = require_lib();
     var unpipe = require_unpipe();
     module2.exports = getRawBody;
@@ -4936,7 +4936,7 @@ var require_raw_body = __commonJS({
       } catch (e) {
         if (!ICONV_ENCODING_MESSAGE_REGEXP.test(e.message))
           throw e;
-        throw createError(415, "specified encoding unsupported", {
+        throw createError2(415, "specified encoding unsupported", {
           encoding,
           type: "encoding.unsupported"
         });
@@ -4989,7 +4989,7 @@ var require_raw_body = __commonJS({
       var complete = false;
       var sync = true;
       if (limit !== null && length !== null && length > limit) {
-        return done(createError(413, "request entity too large", {
+        return done(createError2(413, "request entity too large", {
           expected: length,
           length,
           limit,
@@ -4998,12 +4998,12 @@ var require_raw_body = __commonJS({
       }
       var state = stream._readableState;
       if (stream._decoder || state && (state.encoding || state.decoder)) {
-        return done(createError(500, "stream encoding should not be set", {
+        return done(createError2(500, "stream encoding should not be set", {
           type: "stream.encoding.set"
         }));
       }
       if (typeof stream.readable !== "undefined" && !stream.readable) {
-        return done(createError(500, "stream is not readable", {
+        return done(createError2(500, "stream is not readable", {
           type: "stream.not.readable"
         }));
       }
@@ -5043,7 +5043,7 @@ var require_raw_body = __commonJS({
       function onAborted() {
         if (complete)
           return;
-        done(createError(400, "request aborted", {
+        done(createError2(400, "request aborted", {
           code: "ECONNABORTED",
           expected: length,
           length,
@@ -5056,7 +5056,7 @@ var require_raw_body = __commonJS({
           return;
         received += chunk.length;
         if (limit !== null && received > limit) {
-          done(createError(413, "request entity too large", {
+          done(createError2(413, "request entity too large", {
             limit,
             received,
             type: "entity.too.large"
@@ -5073,7 +5073,7 @@ var require_raw_body = __commonJS({
         if (err)
           return done(err);
         if (length !== null && received !== length) {
-          done(createError(400, "request size did not match content length", {
+          done(createError2(400, "request size did not match content length", {
             expected: length,
             length,
             received,
@@ -5282,7 +5282,7 @@ var require_on_finished = __commonJS({
 var require_read = __commonJS({
   "node_modules/body-parser/lib/read.js"(exports2, module2) {
     "use strict";
-    var createError = require_http_errors();
+    var createError2 = require_http_errors();
     var destroy = require_destroy();
     var getBody = require_raw_body();
     var iconv = require_lib();
@@ -5307,7 +5307,7 @@ var require_read = __commonJS({
       opts.length = length;
       opts.encoding = verify ? null : encoding;
       if (opts.encoding === null && encoding !== null && !iconv.encodingExists(encoding)) {
-        return next(createError(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
+        return next(createError2(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
           charset: encoding.toLowerCase(),
           type: "charset.unsupported"
         }));
@@ -5317,19 +5317,19 @@ var require_read = __commonJS({
         if (error) {
           var _error;
           if (error.type === "encoding.unsupported") {
-            _error = createError(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
+            _error = createError2(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
               charset: encoding.toLowerCase(),
               type: "charset.unsupported"
             });
           } else {
-            _error = createError(400, error);
+            _error = createError2(400, error);
           }
           if (stream !== req) {
             unpipe(req);
             destroy(stream, true);
           }
           dump(req, function onfinished() {
-            next(createError(400, _error));
+            next(createError2(400, _error));
           });
           return;
         }
@@ -5338,7 +5338,7 @@ var require_read = __commonJS({
             debug("verify body");
             verify(req, res, body, encoding);
           } catch (err) {
-            next(createError(403, err, {
+            next(createError2(403, err, {
               body,
               type: err.type || "entity.verify.failed"
             }));
@@ -5351,7 +5351,7 @@ var require_read = __commonJS({
           str = typeof body !== "string" && encoding !== null ? iconv.decode(body, encoding) : body;
           req.body = parse(str);
         } catch (err) {
-          next(createError(400, err, {
+          next(createError2(400, err, {
             body: str,
             type: err.type || "entity.parse.failed"
           }));
@@ -5366,7 +5366,7 @@ var require_read = __commonJS({
       var stream;
       debug('content-encoding "%s"', encoding);
       if (inflate === false && encoding !== "identity") {
-        throw createError(415, "content encoding unsupported", {
+        throw createError2(415, "content encoding unsupported", {
           encoding,
           type: "encoding.unsupported"
         });
@@ -5387,7 +5387,7 @@ var require_read = __commonJS({
           stream.length = length;
           break;
         default:
-          throw createError(415, 'unsupported content encoding "' + encoding + '"', {
+          throw createError2(415, 'unsupported content encoding "' + encoding + '"', {
             encoding,
             type: "encoding.unsupported"
           });
@@ -14263,7 +14263,7 @@ var require_json = __commonJS({
     "use strict";
     var bytes = require_bytes();
     var contentType = require_content_type();
-    var createError = require_http_errors();
+    var createError2 = require_http_errors();
     var debug = require_src()("body-parser:json");
     var read = require_read();
     var typeis = require_type_is();
@@ -14325,7 +14325,7 @@ var require_json = __commonJS({
         var charset = getCharset(req) || "utf-8";
         if (charset.slice(0, 4) !== "utf-") {
           debug("invalid charset");
-          next(createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
+          next(createError2(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
             charset,
             type: "charset.unsupported"
           }));
@@ -16627,7 +16627,7 @@ var require_urlencoded = __commonJS({
     "use strict";
     var bytes = require_bytes();
     var contentType = require_content_type();
-    var createError = require_http_errors();
+    var createError2 = require_http_errors();
     var debug = require_src()("body-parser:urlencoded");
     var deprecate = require_depd()("body-parser");
     var read = require_read();
@@ -16673,7 +16673,7 @@ var require_urlencoded = __commonJS({
         var charset = getCharset(req) || "utf-8";
         if (charset !== "utf-8") {
           debug("invalid charset");
-          next(createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
+          next(createError2(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
             charset,
             type: "charset.unsupported"
           }));
@@ -16701,7 +16701,7 @@ var require_urlencoded = __commonJS({
         var paramCount = parameterCount(body, parameterLimit);
         if (paramCount === void 0) {
           debug("too many parameters");
-          throw createError(413, "too many parameters", {
+          throw createError2(413, "too many parameters", {
             type: "parameters.too.many"
           });
         }
@@ -16763,7 +16763,7 @@ var require_urlencoded = __commonJS({
         var paramCount = parameterCount(body, parameterLimit);
         if (paramCount === void 0) {
           debug("too many parameters");
-          throw createError(413, "too many parameters", {
+          throw createError2(413, "too many parameters", {
             type: "parameters.too.many"
           });
         }
@@ -18661,7 +18661,7 @@ var require_range_parser = __commonJS({
 var require_send = __commonJS({
   "node_modules/send/index.js"(exports2, module2) {
     "use strict";
-    var createError = require_http_errors();
+    var createError2 = require_http_errors();
     var debug = require_src()("send");
     var deprecate = require_depd()("send");
     var destroy = require_destroy();
@@ -19140,9 +19140,9 @@ var require_send = __commonJS({
     }
     function createHttpError(status, err) {
       if (!err) {
-        return createError(status);
+        return createError2(status);
       }
-      return err instanceof Error ? createError(status, err, { expose: false }) : createError(status, err);
+      return err instanceof Error ? createError2(status, err, { expose: false }) : createError2(status, err);
     }
     function decode(path2) {
       try {
@@ -21465,7 +21465,7 @@ var require_response = __commonJS({
     "use strict";
     var Buffer2 = require_safe_buffer().Buffer;
     var contentDisposition = require_content_disposition();
-    var createError = require_http_errors();
+    var createError2 = require_http_errors();
     var deprecate = require_depd()("express");
     var encodeUrl = require_encodeurl();
     var escapeHtml = require_escape_html();
@@ -21769,7 +21769,7 @@ var require_response = __commonJS({
       } else if (obj.default) {
         obj.default(req, this, next);
       } else {
-        next(createError(406, {
+        next(createError2(406, {
           types: normalizeTypes(keys).map(function(o) {
             return o.value;
           })
@@ -22204,9 +22204,13 @@ router.get("/", (_request, response, _next) => {
 var root_default = router;
 
 // backend/server.ts
+var import_http_errors = __toESM(require_http_errors());
 var app = (0, import_express2.default)();
 var PORT = process.env.PORT || 3e3;
 app.use("/", root_default);
+app.use((_request, _response, next) => {
+  next((0, import_http_errors.default)(404));
+});
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
