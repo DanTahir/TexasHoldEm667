@@ -21,8 +21,10 @@
     "connect-livereload": "^0.6.1",
     "esbuild": "^0.20.2",
     "livereload": "^0.9.3",
+    "node-pg-migrate": "^6.2.2",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
   "scripts": {
@@ -32,9 +34,11 @@
     "build:dev:backend": "esbuild backend/server.ts --watch --bundle --platform=node --target=node20.12 --outfile=build/server.js",
     "build:dev:frontend": "esbuild frontend/index.ts --watch --bundle --outfile=backend/static/js/index.js",
     "start:server:dev": "NODE_ENV=development nodemon ./build/server.js",
-    "db:create": "node-pg-migrate create -j=js -- ",
-    "db:migrate": "node-pg-migrate up",
-    "db:rollback": "node-pg-migrate down"
+    "migrate": "node-pg-migrate up -m ./migrations -j ts --tsconfig ./tsconfig.json",
+    "migrate:create": "node-pg-migrate create -j=ts",
+    "migrate:rollback": "node-pg-migrate down -m ./migrations -j ts --tsconfig ./tsconfig.json",
+    "db:init": "./scripts/init-postgres.sh",
+    "db:start": "./scripts/start-postgres.sh"
   },
   "repository": {
     "type": "git",
