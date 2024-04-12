@@ -1,10 +1,14 @@
 {
   "dependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/morgan": "^1.9.9",
     "cookie-parser": "^1.4.6",
+    "dayjs": "^1.11.10",
     "ejs": "^3.1.9",
     "express": "^4.19.2",
     "http-errors": "^2.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pg-promise": "^11.6.0"
   },
   "name": "term-project-tp_jvda_holdem",
   "description": "Team Members",
@@ -29,8 +33,8 @@
     "build:dev:frontend": "esbuild frontend/index.ts --watch --bundle --outfile=backend/static/js/index.js",
     "start:server:dev": "NODE_ENV=development nodemon ./build/server.js",
     "db:create": "node-pg-migrate create -j=js -- ",
-"db:migrate": "node-pg-migrate up",
-"db:rollback": "node-pg-migrate down"
+    "db:migrate": "node-pg-migrate up",
+    "db:rollback": "node-pg-migrate down"
   },
   "repository": {
     "type": "git",

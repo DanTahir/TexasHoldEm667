@@ -4,11 +4,10 @@ import express from 'express';
 import rootRoutes from './routes/root';
 import createError from "http-errors";
 import {requestTime} from "./middleware/timestamp";
+import morgan from "morgan";
+import cookieParser from 'cookie-parser';
 import {setUpDevEnv} from "./utilities/set-up-dev-env";
 import connectLiveReload from "connect-livereload";
-import morgan from "morgan";
-import cookieParser from 'cookie-parser'
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
