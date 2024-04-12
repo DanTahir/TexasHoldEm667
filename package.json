@@ -34,7 +34,9 @@
     "start:server:dev": "NODE_ENV=development nodemon ./build/server.js",
     "db:create": "node-pg-migrate create -j=js -- ",
     "db:migrate": "node-pg-migrate up",
-    "db:rollback": "node-pg-migrate down"
+    "db:rollback": "node-pg-migrate down",
+    "db:init": "./scripts/init-postgres.sh",
+    "db:start": "./scripts/start-postgres.sh"
   },
   "repository": {
     "type": "git",

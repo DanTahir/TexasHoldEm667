@@ -19,6 +19,14 @@
             nodejs_18
             postgresql # PostgreSQL 15
           ];
+          shellHook = ''
+            root_dir="$(git rev-parse --show-toplevel)"
+
+            export PGHOST="$root_dir/.postgres"
+            export PGDATA="$PGHOST/data"
+            export PGDATABASE="jvda-poker"
+            export PGLOG="$PGHOST/postgres.log"
+          '';
         };
       };
     };
