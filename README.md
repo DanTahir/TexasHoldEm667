@@ -11,4 +11,4 @@ Team Members
 
 | Dan Tahir | DanTahir |
 
-| Anthony | - |
+| Anthony Benjamin | stackanthony |
