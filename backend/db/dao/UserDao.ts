@@ -27,10 +27,7 @@ async function createUser(user: User): Promise<boolean> | never {
   }
 }
 
-async function readUser(
-  username?: string,
-  id?: string,
-): Promise<boolean> | never {
+async function readUser(username?: string, id?: string): Promise<User> | never {
   try {
     if (!username && !id) {
       throw new Error("No Parameters to query with.");
