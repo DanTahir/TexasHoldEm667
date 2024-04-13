@@ -9,8 +9,6 @@ interface User {
   profile_image?: string;
 }
 
-//TODO: Delete, Update fn's need to be added
-
 async function createUser(user: User): Promise<boolean> | never {
   try {
     if (await readUser(user.username)) {
@@ -70,7 +68,7 @@ async function updateUserBalance(
 async function updateProfileImage(
   username: string,
   newProfileImage: string,
-): Promise<Boolean> | never {
+): Promise<boolean> | never {
   try {
     const user = await readUser(username);
 
@@ -82,6 +80,22 @@ async function updateProfileImage(
       newProfileImage,
       username,
     ]);
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function deleteUser(username: string): Promise<boolean> | never {
+  try {
+    const user = await readUser(username);
+
+    if (!user) {
+      throw new Error("User doesn't exist");
+    }
+
+    await db.none("DELETE FROM users WHERE username = $1", [username]);
 
     return true;
   } catch (error) {
