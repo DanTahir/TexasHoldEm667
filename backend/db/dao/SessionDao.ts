@@ -54,3 +54,15 @@ async function updateSession(
     throw error;
   }
 }
+
+async function deleteSession(user_id: string): Promise<boolean> | never {
+  try {
+    await getSession(user_id);
+
+    await db.none("DELETE FROM sessions WHERE user_id = $1", [user_id]);
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}
