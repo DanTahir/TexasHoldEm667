@@ -25,23 +25,23 @@ async function createUser(user: User): Promise<boolean> | never {
   } catch (error) {
     throw error;
   }
+}
 
-  async function readUser(
-    username?: string,
-    id?: string,
-  ): Promise<boolean> | never {
-    try {
-      if (!username && !id) {
-        throw new Error("No Parameters to query with.");
-      }
-      const user = await db.one(
-        "SELECT * FROM users WHERE username = $1 OR id = $2",
-        [username || null, id || null],
-      );
-
-      return user;
-    } catch (error) {
-      throw error;
+async function readUser(
+  username?: string,
+  id?: string,
+): Promise<boolean> | never {
+  try {
+    if (!username && !id) {
+      throw new Error("No Parameters to query with.");
     }
+    const user = await db.one(
+      "SELECT * FROM users WHERE username = $1 OR id = $2",
+      [username || null, id || null],
+    );
+
+    return user;
+  } catch (error) {
+    throw error;
   }
 }
