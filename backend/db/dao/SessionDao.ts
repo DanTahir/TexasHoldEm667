@@ -8,9 +8,7 @@ interface Session {
 
 async function createSession(session: Session): Promise<boolean> | never {
   try {
-    if (await getSession(session.user_id)) {
-      throw new Error("Session for user already exists");
-    }
+    await getSession(session.user_id);
 
     await db.none("INSERT INTO sessions(user_id, cookie) VALUES ($1, $2)", [
       session.user_id,
@@ -33,7 +31,7 @@ async function getSession(user_id: string): Promise<Session> | never {
 
     return session;
   } catch (error) {
-    throw error;
+    throw new Error("Session for user already exists");
   }
 }
 
