@@ -238,7 +238,28 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
+    pgm.dropColumns('game_lobbies', [
+        'dealer', 
+        'current_player', 
+        'flop_1', 
+        'flop_2', 
+        'flop_3', 
+        'turn', 
+        'river'
+    ]);
+    pgm.dropColumns('players', [
+        'user_id', 
+        'game_lobby_id', 
+        'card_1', 
+        'card_2'
+    ]);
+    pgm.dropColumns('cards', [
+        'game_lobby_id', 
+    ]);
     pgm.dropTable("game_lobbies");
     pgm.dropTable("players");
     pgm.dropTable("cards");
+    pgm.dropType('game_stage_enum');
+    pgm.dropType('status_enum');
+    pgm.dropType('suit_enum');
 }
