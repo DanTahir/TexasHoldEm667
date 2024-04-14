@@ -8,8 +8,6 @@ interface Session {
 
 async function createSession(session: Session): Promise<boolean> | never {
   try {
-    await getSession(session.user_id);
-
     await db.none("INSERT INTO sessions(user_id, cookie) VALUES ($1, $2)", [
       session.user_id,
       session.cookie,
@@ -31,7 +29,7 @@ async function getSession(user_id: string): Promise<Session> | never {
 
     return session;
   } catch (error) {
-    throw new Error("Session for user already exists");
+    throw error;
   }
 }
 
@@ -40,7 +38,11 @@ async function updateSession(
   newCookie: string,
 ): Promise<boolean> | never {
   try {
-    await getSession(user_id);
+    const session = await getSession(user_id);
+
+    if (!session) {
+      throw new Error("Session doesn't exist");
+    }
 
     await db.none("UPDATE sessions SET cookie = $1 WHERE user_id = $2", [
       newCookie,
