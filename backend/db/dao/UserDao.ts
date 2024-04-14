@@ -9,9 +9,9 @@ interface User {
   profile_image?: string;
 }
 
-async function createUser(user: User): Promise<boolean> | never {
+export async function createUser(user: User): Promise<boolean | null> {
   try {
-    if (await readUser(user.username)) {
+    if (await readUserFromUsername(user.username)) {
       throw new Error("User already exists.");
     }
     await db.none(
@@ -27,7 +27,7 @@ async function createUser(user: User): Promise<boolean> | never {
   }
 }
 
-async function readUserFromID(id: string): Promise<User> | null {
+export async function readUserFromID(id: string): Promise<User | null> {
   try {
     const user = await db.one("SELECT * FROM users WHERE id = $1", [id]);
 
@@ -37,7 +37,9 @@ async function readUserFromID(id: string): Promise<User> | null {
   }
 }
 
-async function readUserFromUsername(username: string): Promise<User> | null {
+export async function readUserFromUsername(
+  username: string,
+): Promise<User | null> {
   try {
     const user = await db.one("SELECT * FROM users WHERE username = $1", [
       username,
@@ -49,12 +51,12 @@ async function readUserFromUsername(username: string): Promise<User> | null {
   }
 }
 
-async function updateUserBalance(
+export async function updateUserBalance(
   username: string,
   depositAmount: number,
-): Promise<Boolean> | never {
+): Promise<void> {
   try {
-    const user = await readUser(username);
+    const user = await readUserFromUsername(username);
 
     if (!user) {
       throw new Error("User doesn't exist.");
@@ -64,19 +66,17 @@ async function updateUserBalance(
       user.balance + depositAmount,
       username,
     ]);
-
-    return true;
   } catch (error) {
     throw error;
   }
 }
 
-async function updateProfileImage(
+export async function updateProfileImage(
   username: string,
   newProfileImage: string,
-): Promise<boolean> | never {
+): Promise<void> {
   try {
-    const user = await readUser(username);
+    const user = await readUserFromUsername(username);
 
     if (!user) {
       throw new Error("User doesn't exist");
@@ -86,16 +86,14 @@ async function updateProfileImage(
       newProfileImage,
       username,
     ]);
-
-    return true;
   } catch (error) {
     throw error;
   }
 }
 
-async function deleteUser(username: string): Promise<boolean> | never {
+export async function deleteUser(username: string): Promise<boolean | null> {
   try {
-    const user = await readUser(username);
+    const user = await readUserFromUsername(username);
 
     if (!user) {
       throw new Error("User doesn't exist");
