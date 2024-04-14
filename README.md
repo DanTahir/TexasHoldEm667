@@ -4,12 +4,9 @@
 
 Team Members
 
-| Name | Github Name |
-
-| Jake Klopukh | - |
-
-| Varun Narravula | water-sucks |
-
-| Dan Tahir | DanTahir |
-
+| Name             | Github Name  |
+| ---------------- | ------------ |
+| Jake Klopukh     | jklopukh     |
+| Varun Narravula  | -            |
+| Dan Tahir        | DanTahir     |
 | Anthony Benjamin | stackanthony |
