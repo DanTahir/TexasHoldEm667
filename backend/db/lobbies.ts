@@ -4,6 +4,7 @@ import db from './connection';
 const CREATE = 'INSERT INTO game_lobbies DEFAULT RETURNING id';
 const DESTROY = 'DELETE FROM game_lobbies where id=$1';
 const GET_GAME = 'SELECT * FROM game_lobbies where id=$1';
+const GET_RECENT_GAMES = 'SELECT * FROM game_lobbies ORDER BY created_at DESC LIMIT 10'
 const SET_PLAYER = 'UPDATE game_lobbies SET current_player=$2 WHERE id=$1';
 const SET_DEALER = 'UPDATE game_lobbies SET dealer=$2 WHERE id=$1';
 const SET_GAME_STAGE = 'UPDATE game_lobbies SET game_stage=$2 WHERE id=$1';
@@ -21,6 +22,8 @@ const create = (): Promise<any> => db.one(CREATE);
 const destroy = (lobbyId: UUID): Promise<any> => db.one(DESTROY, [lobbyId]);
 
 const get_game = (lobbyId: UUID): Promise<any> => db.one(GET_GAME, [lobbyId]);
+
+const get_recent_games = (): Promise<any> => db.manyOrNone(GET_RECENT_GAMES);
 
 const set_current_player = (lobbyId: UUID, nextPlayerId: UUID): Promise<any> => db.one(SET_PLAYER, [lobbyId, nextPlayerId]);
 
@@ -44,6 +47,7 @@ module.exports = {
     create,
     destroy,
     get_game,
+    get_recent_games,
     set_current_player,
     set_dealer,
     set_game_stage,
