@@ -4,11 +4,8 @@
 Team Members
 
 | Name | Github Name |
-
-| Jake Klopukh | - |
-
+|-|-|
+| Jake Klopukh | jklopukh |
 | Varun Narravula | - |
-
 | Dan Tahir | DanTahir |
-
 | Anthony Benjamin | stackanthony |
