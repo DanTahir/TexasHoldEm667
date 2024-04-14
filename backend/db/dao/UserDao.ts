@@ -27,15 +27,21 @@ async function createUser(user: User): Promise<boolean> | never {
   }
 }
 
-async function readUser(username?: string, id?: string): Promise<User> | never {
+async function readUserFromID(id: string): Promise<User> | null {
   try {
-    if (!username && !id) {
-      throw new Error("No Parameters to query with.");
-    }
-    const user = await db.one(
-      "SELECT * FROM users WHERE username = $1 OR id = $2",
-      [username || null, id || null],
-    );
+    const user = await db.one("SELECT * FROM users WHERE id = $1", [id]);
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function readUserFromUsername(username: string): Promise<User> | null {
+  try {
+    const user = await db.one("SELECT * FROM users WHERE username = $1", [
+      username,
+    ]);
 
     return user;
   } catch (error) {
