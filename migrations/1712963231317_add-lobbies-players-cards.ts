@@ -80,7 +80,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
             notNull: true,
         },
         shuffled_order: {
-            type: "INT"
+            type: "INT",
+            notNull: true
         },
         value: {
             type: "INT",
