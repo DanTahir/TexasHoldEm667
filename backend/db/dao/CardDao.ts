@@ -23,11 +23,11 @@ export async function getCardsByGame(game_lobby_id: String): Promise<Card[] | nu
 }
 
 export async function deleteCard(game_card_id: String): Promise<Boolean | null> {
-    await db.one('DELETE FROM cards WHERE game_card_id=$1', [game_card_id]);
+    await db.none('DELETE FROM cards WHERE game_card_id=$1', [game_card_id]);
     return true;
 }
 
 export async function updatePlayOrder(game_card_id: Number, play_order: Number): Promise<Boolean | null> {
-    await db.one('UPDATE cards SET play_order=$2 WHERE game_card_id=$1', [game_card_id, play_order]);
+    await db.none('UPDATE cards SET play_order=$2 WHERE game_card_id=$1', [game_card_id, play_order]);
     return true;
 } 
