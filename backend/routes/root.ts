@@ -8,6 +8,6 @@ router.get("/", (_request, response, _next) => {
 });
 
 router.get("/chat", (_request, response, _next) => {
-  const name: string = "Steve";
+  const name = "Steve";
   response.render("chatboxtest", { name });
 });
