@@ -46426,6 +46426,10 @@ router.get("/", (_request, response, _next) => {
   const name = "Steve";
   response.render("root", { name });
 });
+router.get("/chat", (_request, response, _next) => {
+  const name = "Steve";
+  response.render("chatboxtest", { name });
+});
 var root_default = router;
 
 // backend/routes/test.ts
