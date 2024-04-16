@@ -75,7 +75,7 @@ export async function updateDealer(game_lobby_id: String, player_id: String): Pr
     }
 }
 
-export async function updateGameStage(game_lobby_id: String, game_stage: string): Promise<Boolean| null> {\
+export async function updateGameStage(game_lobby_id: String, game_stage: string): Promise<Boolean| null> {
     try {
         await db.none('UPDATE game_lobbies SET game_stage=$2 WHERE game_lobby_id=$1', [game_lobby_id, game_stage]);
         return true;
