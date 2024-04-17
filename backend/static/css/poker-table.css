@@ -1,3 +1,62 @@
 .poker-table {
+  position: relative;
   display: inline-block;
+}
+
+.actions-grid {
+  position: absolute;
+  display: grid;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr 0.8fr 1fr;
+  grid-template-rows: 1.1fr 0.5fr 1.5fr 0.5fr 2fr 0.5fr 1fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    ". . . . . . ."
+    ". . action-1 . action-2 . ."
+    ". . . . . . ."
+    "action-6 . . . . . action-3"
+    ". . . . . . ."
+    ". . action-5 . action-4 . ."
+    ". . . . . . .";
+}
+
+.action-1 {
+  grid-area: action-1;
+}
+
+.action-2 {
+  grid-area: action-2;
+}
+
+.action-3 {
+  grid-area: action-3;
+}
+
+.action-4 {
+  grid-area: action-4;
+}
+
+.action-5 {
+  grid-area: action-5;
+}
+
+.action-6 {
+  grid-area: action-6;
+  /* padding-left: 18%; */
+}
+
+.seat {
+  display: flex;
+  justify-content: center;
+}
+
+.poker-button {
+  width: 80%;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
