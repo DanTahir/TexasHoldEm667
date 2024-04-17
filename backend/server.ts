@@ -3,6 +3,7 @@ import "dotenv/config.js";
 import express from "express";
 import routesRoot from "./routes/root";
 import routesTest from "./routes/test";
+import { router as routesGame } from "./routes/game";
 import createError from "http-errors";
 import { requestTime } from "./middleware/timestamp";
 import morgan from "morgan";
@@ -41,4 +42,3 @@ app.use((_request, _response, next) => {
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
-
