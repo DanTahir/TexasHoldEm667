@@ -33,9 +33,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// ../../node_modules/dotenv/package.json
+// node_modules/dotenv/package.json
 var require_package = __commonJS({
-  "../../node_modules/dotenv/package.json"(exports2, module2) {
+  "node_modules/dotenv/package.json"(exports2, module2) {
     module2.exports = {
       name: "dotenv",
       version: "16.4.5",
@@ -104,9 +104,9 @@ var require_package = __commonJS({
   }
 });
 
-// ../../node_modules/dotenv/lib/main.js
+// node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
-  "../../node_modules/dotenv/lib/main.js"(exports2, module2) {
+  "node_modules/dotenv/lib/main.js"(exports2, module2) {
     var fs = require("fs");
     var path3 = require("path");
     var os = require("os");
@@ -371,9 +371,9 @@ var require_main = __commonJS({
   }
 });
 
-// ../../node_modules/dotenv/lib/env-options.js
+// node_modules/dotenv/lib/env-options.js
 var require_env_options = __commonJS({
-  "../../node_modules/dotenv/lib/env-options.js"(exports2, module2) {
+  "node_modules/dotenv/lib/env-options.js"(exports2, module2) {
     var options = {};
     if (process.env.DOTENV_CONFIG_ENCODING != null) {
       options.encoding = process.env.DOTENV_CONFIG_ENCODING;
@@ -394,9 +394,9 @@ var require_env_options = __commonJS({
   }
 });
 
-// ../../node_modules/dotenv/lib/cli-options.js
+// node_modules/dotenv/lib/cli-options.js
 var require_cli_options = __commonJS({
-  "../../node_modules/dotenv/lib/cli-options.js"(exports2, module2) {
+  "node_modules/dotenv/lib/cli-options.js"(exports2, module2) {
     var re = /^dotenv_config_(encoding|path|debug|override|DOTENV_KEY)=(.+)$/;
     module2.exports = function optionMatcher(args) {
       return args.reduce(function(acc, cur) {
@@ -46405,7 +46405,7 @@ var require_connect_livereload = __commonJS({
 // backend/server.ts
 var import_path2 = __toESM(require("path"));
 
-// ../../node_modules/dotenv/config.js
+// node_modules/dotenv/config.js
 (function() {
   require_main().config(
     Object.assign(
@@ -46464,8 +46464,8 @@ var test_default = router2;
 var import_http_errors = __toESM(require_http_errors());
 
 // backend/middleware/timestamp.ts
-var requestTime = (request, response, next) => {
-  console.log(`Request received at ${Date.now()}: ${request.method}`);
+var requestTime = (req, _res, next) => {
+  console.log(`Request received at ${Date.now()}: ${req.method}`);
   next();
 };
 
