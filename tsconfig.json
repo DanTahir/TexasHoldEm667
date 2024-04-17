@@ -1,18 +1,26 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2020", "dom"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["es2020", "dom"],
     "noEmit": true,
-    "esModuleInterop": true,
-    "sourceMap": false,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
     "noImplicitAny": true,
-    "noUnusedLocals": true,
     "noImplicitOverride": true,
-    "skipLibCheck": true
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "strict": true,
+    "target": "esnext",
+    "paths": {
+      "@backend/*": ["./backend/*"]
+    }
   },
   "exclude": ["node_modules"]
 }

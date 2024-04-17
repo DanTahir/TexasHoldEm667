@@ -5,6 +5,7 @@
     "@types/signale": "^1.4.7",
     "cookie-parser": "^1.4.6",
     "dayjs": "^1.11.10",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
     "express": "^4.19.2",
     "http-errors": "^2.0.0",
@@ -17,18 +18,25 @@
   "version": "1.0.0",
   "main": "index.js",
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/connect-livereload": "^0.6.3",
     "@types/express": "^4.17.21",
+    "@types/livereload": "^0.9.5",
     "@types/node": "^20.12.7",
     "concurrently": "^8.2.2",
     "connect-livereload": "^0.6.1",
     "esbuild": "^0.20.2",
+    "eslint": "^8.57.0",
+    "lefthook": "^1.6.10",
     "livereload": "^0.9.3",
     "node-pg-migrate": "^6.2.2",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "prettier-plugin-ejs": "^1.0.3",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.7.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -53,5 +61,15 @@
   "bugs": {
     "url": "https://github.com/sfsu-csc-667-spring-2024-roberts/term-project-tp_jvda_holdem/issues"
   },
-  "homepage": "https://github.com/sfsu-csc-667-spring-2024-roberts/term-project-tp_jvda_holdem#readme"
+  "homepage": "https://github.com/sfsu-csc-667-spring-2024-roberts/term-project-tp_jvda_holdem#readme",
+  "prettier": {
+    "experimentalTernaries": true,
+    "printWidth": 80,
+    "tabWidth": 2,
+    "useTabs": false,
+    "proseWrap": "always",
+    "plugins": [
+      "prettier-plugin-ejs"
+    ]
+  }
 }

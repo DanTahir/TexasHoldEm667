@@ -1,9 +1,16 @@
+# VSCode configuration dir
 .vscode/
-node_modules/*
+
+# The behemoth
 node_modules/
-build/
-build/*
+
+# Environment variables
 .env
-dist/
 .direnv
+
+# Postgres test DB dir
 .postgres/
+
+# Generated build files
+dist/
+build/

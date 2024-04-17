@@ -1,0 +1,9 @@
+# Tailwind stuff
+backend/static/css/
+
+# The behemoth
+node_modules/
+
+# Generated build files
+dist/
+build/
