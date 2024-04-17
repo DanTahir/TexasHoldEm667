@@ -1,8 +1,7 @@
 import path from "path";
 import "dotenv/config.js";
 import express from "express";
-import routesRoot from "./routes/root";
-import routesTest from "./routes/test";
+import * as routes from "./routes";
 import createError from "http-errors";
 import { requestTime } from "./middleware/timestamp";
 import morgan from "morgan";
@@ -29,8 +28,8 @@ app.use(express.static(path.join("backend", "static")));
 
 app.use(requestTime);
 
-app.use("/", routesRoot);
-app.use("/test", routesTest);
+app.use("/", routes.rootRoutes);
+app.use("/test", routes.testRoutes);
 
 app.use((_request, _response, next) => {
   next(createError(404));

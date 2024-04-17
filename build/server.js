@@ -46426,7 +46426,6 @@ router.get("/", (_request, response, _next) => {
   const name = "Steve";
   response.render("root", { name });
 });
-var root_default = router;
 
 // backend/routes/test.ts
 var import_dayjs = __toESM(require_dayjs_min());
@@ -46460,7 +46459,6 @@ router2.get("/", async (_request, response) => {
     response.json({ error });
   }
 });
-var test_default = router2;
 
 // backend/server.ts
 var import_http_errors = __toESM(require_http_errors());
@@ -46507,8 +46505,8 @@ app.set("views", import_path2.default.join("backend", "views"));
 app.set("view engine", "ejs");
 app.use(import_express3.default.static(import_path2.default.join("backend", "static")));
 app.use(requestTime);
-app.use("/", root_default);
-app.use("/test", test_default);
+app.use("/", router);
+app.use("/test", router2);
 app.use((_request, _response, next) => {
   next((0, import_http_errors.default)(404));
 });
