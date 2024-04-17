@@ -19,7 +19,7 @@
     "strict": true,
     "target": "esnext",
     "paths": {
-      "@*": ["./backend/*"]
+      "@backend/*": ["./backend/*"]
     }
   },
   "exclude": ["node_modules"]

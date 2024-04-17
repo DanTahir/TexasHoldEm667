@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import express from "express";
-import { db } from "@db/connection";
+import { db } from "@backend/db/connection";
 
 export const router = express.Router();
 
