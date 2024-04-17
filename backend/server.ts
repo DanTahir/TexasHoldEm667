@@ -30,6 +30,8 @@ app.use(requestTime);
 
 app.use("/", routes.rootRoutes);
 app.use("/test", routes.testRoutes);
+app.use("/login", routes.loginRoutes);
+app.use("/register", routes.registerRoutes);
 
 app.use((_request, _response, next) => {
   next(createError(404));
