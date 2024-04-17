@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 
-const router: Router = express.Router();
+export const router: Router = express.Router();
 
 router.get("/", (_request, response, _next) => {
   // response.send("hello");
@@ -8,5 +8,3 @@ router.get("/", (_request, response, _next) => {
     buttonText: "test",
   });
 });
-
-export default router;

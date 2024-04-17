@@ -3,7 +3,6 @@ import "dotenv/config.js";
 import express from "express";
 import routesRoot from "./routes/root";
 import routesTest from "./routes/test";
-import routesGame from "./routes/game";
 import createError from "http-errors";
 import { requestTime } from "./middleware/timestamp";
 import morgan from "morgan";
