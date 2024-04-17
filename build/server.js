@@ -46441,17 +46441,19 @@ var pgp = (0, import_pg_promise.default)({
     import_signale.default.success("Connected to database: ", cp.database);
   }
 });
-var db = pgp(process.env.DATABASE_URL || "");
-var connection_default = db;
+if (!process.env.DATABASE_URL) {
+  throw Error("DATABASE_URL is not defined");
+}
+var db = pgp(process.env.DATABASE_URL);
 
 // backend/routes/test.ts
 var router2 = import_express2.default.Router();
 router2.get("/", async (_request, response) => {
   try {
-    await connection_default.any(`INSERT INTO test_table ("test_string") VALUES ($1)`, [
+    await db.any(`INSERT INTO test_table ("test_string") VALUES ($1)`, [
       `Hello on ${(0, import_dayjs.default)().format("MMM D, YYYY @ HH:mm:ss")}`
     ]);
-    const dbResponse = await connection_default.any(`SELECT * FROM test_table`);
+    const dbResponse = await db.any(`SELECT * FROM test_table`);
     response.json(dbResponse);
   } catch (error) {
     console.error(error);

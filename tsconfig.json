@@ -17,7 +17,10 @@
     "skipLibCheck": true,
     "sourceMap": false,
     "strict": true,
-    "target": "esnext"
+    "target": "esnext",
+    "paths": {
+      "@*": ["./backend/*"]
+    }
   },
   "exclude": ["node_modules"]
 }

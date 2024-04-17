@@ -1,5 +1,5 @@
-import db from "../connection";
 import signale from "signale";
+import { db } from "@db/connection";
 
 interface User {
   username: string;
