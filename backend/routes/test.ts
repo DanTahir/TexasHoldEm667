@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import express from "express";
-import db from "../db/connection.js";
-const router = express.Router();
+import { db } from "@backend/db/connection";
+
+export const router = express.Router();
 
 router.get("/", async (_request, response) => {
   try {
@@ -18,5 +19,3 @@ router.get("/", async (_request, response) => {
     response.json({ error });
   }
 });
-
-export default router;
