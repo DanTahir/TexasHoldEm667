@@ -13,8 +13,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 if (process.env.NODE_ENV == "development") {
-    setUpDevEnv();
-    connectLiveReload();
+  setUpDevEnv();
+  connectLiveReload();
 }
 
 app.use(morgan("dev"));
@@ -33,10 +33,9 @@ app.use("/", routesRoot);
 app.use("/test", routesTest);
 
 app.use((_request, _response, next) => {
-    next(createError(404));
+  next(createError(404));
 });
 
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
+  console.log(`Server started on port ${PORT}`);
 });
-

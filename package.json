@@ -29,6 +29,7 @@
     "node-pg-migrate": "^6.2.2",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "prettier-plugin-ejs": "^1.0.3",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
@@ -56,5 +57,15 @@
   "bugs": {
     "url": "https://github.com/sfsu-csc-667-spring-2024-roberts/term-project-tp_jvda_holdem/issues"
   },
-  "homepage": "https://github.com/sfsu-csc-667-spring-2024-roberts/term-project-tp_jvda_holdem#readme"
+  "homepage": "https://github.com/sfsu-csc-667-spring-2024-roberts/term-project-tp_jvda_holdem#readme",
+  "prettier": {
+    "experimentalTernaries": true,
+    "printWidth": 80,
+    "tabWidth": 2,
+    "useTabs": false,
+    "proseWrap": "always",
+    "plugins": [
+      "prettier-plugin-ejs"
+    ]
+  }
 }

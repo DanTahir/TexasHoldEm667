@@ -10,4 +10,3 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 }
 
 export async function down(_pgm: MigrationBuilder): Promise<void> {}
-
