@@ -44,7 +44,7 @@
     "dev": "concurrently \"npm run build:dev:frontend\" \"npm run build:dev:css\" \"npm run start:dev\"",
     "build:dev:frontend": "npx cross-env NODE_ENV=development node esbuild.mjs",
     "build:dev:css": "npx cross-env NODE_ENV=development tailwindcss -i ./frontend/styles/main.css -o ./backend/static/css/main.css --watch",
-    "start:dev": "npx cross-env NODE_ENV=development tsx ./backend/server.ts",
+    "start:dev": "npx cross-env NODE_ENV=development tsx watch ./backend/server.ts",
     "migrate": "node-pg-migrate up -m ./migrations -j ts --tsconfig ./tsconfig.json",
     "migrate:create": "node-pg-migrate create -j=ts",
     "migrate:rollback": "node-pg-migrate down -m ./migrations -j ts --tsconfig ./tsconfig.json",
