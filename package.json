@@ -1,4 +1,8 @@
 {
+  "name": "term-project-tp_jvda_holdem",
+  "description": "Team Members",
+  "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "@types/cookie-parser": "^1.4.7",
     "@types/morgan": "^1.9.9",
@@ -13,10 +17,6 @@
     "pg-promise": "^11.6.0",
     "signale": "^1.4.0"
   },
-  "name": "term-project-tp_jvda_holdem",
-  "description": "Team Members",
-  "version": "1.0.0",
-  "main": "index.js",
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "@types/connect-livereload": "^0.6.3",
@@ -35,16 +35,16 @@
     "prettier-plugin-ejs": "^1.0.3",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
+    "tsx": "^4.7.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.7.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild backend/server.ts --bundle --platform=node --target=node20.12 --outfile=build/server.js",
-    "start:dev": "concurrently \"npm run start:server:dev\" \"npm run build:dev:backend\" \"npm run build:dev:frontend\"",
-    "build:dev:backend": "esbuild backend/server.ts --watch --bundle --platform=node --target=node20.12 --outfile=build/server.js",
-    "build:dev:frontend": "esbuild frontend/index.ts --watch --bundle --outfile=backend/static/js/index.js",
-    "start:server:dev": "NODE_ENV=development nodemon ./build/server.js",
+    "build": "node esbuild.mjs",
+    "dev": "concurrently \"npm run build:dev:frontend\" \"npm run build:dev:css\" \"npm run start:dev\"",
+    "build:dev:frontend": "npx cross-env NODE_ENV=development node esbuild.mjs",
+    "build:dev:css": "npx cross-env NODE_ENV=development tailwindcss -i ./frontend/styles/main.css -o ./backend/static/css/main.css --watch",
+    "start:dev": "npx cross-env NODE_ENV=development tsx ./backend/server.ts",
     "migrate": "node-pg-migrate up -m ./migrations -j ts --tsconfig ./tsconfig.json",
     "migrate:create": "node-pg-migrate create -j=ts",
     "migrate:rollback": "node-pg-migrate down -m ./migrations -j ts --tsconfig ./tsconfig.json",
