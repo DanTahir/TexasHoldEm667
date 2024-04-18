@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@material-tailwind/html": "^2.2.2",
     "@types/cookie-parser": "^1.4.7",
     "@types/morgan": "^1.9.9",
     "@types/signale": "^1.4.7",
