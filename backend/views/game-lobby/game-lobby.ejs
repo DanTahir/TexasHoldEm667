@@ -64,10 +64,13 @@
         <div class="left-interactions">
 
           <div class="bet-amount">
-            <label for="bet-amount" class="block mb-2 font-medium text-gray-900 dark:text-white">Bet:</label>
-                <input type="text" id="bet-amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <label for="bet-amount">Bet: </label>
+            <input id="bet-amount" name="bet-amount" type="text" placeholder="Amount" />
           </div>
 
+          <div class="quit-button">
+            <%- include("../partials/CustomButton.ejs", {buttonText: "Quit Game"}) %>
+          </div>
         </div>
 
       </div>
