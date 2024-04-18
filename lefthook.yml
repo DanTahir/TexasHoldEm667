@@ -11,7 +11,7 @@ pre-commit:
   commands:
     prettier:
       glob: "*.{js,ts,css,md,ejs}"
-      run: npx prettier -w {staged_files}
+      run: npx prettier -w {staged_files} && git add {staged_files}
     tsc:
       glob: "*.ts"
       run: npx tsc --noEmit
