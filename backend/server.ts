@@ -1,12 +1,12 @@
 import path from "path";
 import "dotenv/config.js";
 import express from "express";
-import * as routes from "./routes";
+import * as routes from "@backend/routes/index.js";
 import createError from "http-errors";
-import { requestTime } from "./middleware/timestamp";
+import { requestTime } from "@backend/middleware/timestamp.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { setUpDevEnv } from "./utilities/set-up-dev-env";
+import { setUpDevEnv } from "@backend/utilities/set-up-dev-env.js";
 import connectLiveReload from "connect-livereload";
 const app = express();
 const PORT = process.env.PORT || 3000;

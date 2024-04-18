@@ -14,7 +14,7 @@ pre-commit:
       run: npx prettier -w {staged_files}
     tsc:
       glob: "*.ts"
-      run: tsc --noEmit
+      run: npx tsc --noEmit
     eslint:
       glob: "*.{js,ts}"
       run: npx eslint {staged_files} --no-warn-ignored
