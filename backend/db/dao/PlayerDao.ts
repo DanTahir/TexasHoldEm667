@@ -1,4 +1,4 @@
-import {db} from "@backend/db/connection.js";
+import { db } from "@backend/db/connection.js";
 
 export interface Player {
   player_id?: string;

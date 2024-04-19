@@ -8,6 +8,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { setUpDevEnv } from "@backend/utilities/set-up-dev-env.js";
 import connectLiveReload from "connect-livereload";
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -30,6 +31,7 @@ app.use(requestTime);
 
 app.use("/", routes.rootRoutes);
 app.use("/test", routes.testRoutes);
+app.use("/game", routes.gameRoutes);
 
 app.use((_request, _response, next) => {
   next(createError(404));

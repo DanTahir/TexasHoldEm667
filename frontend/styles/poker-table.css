@@ -1,0 +1,106 @@
+.game-lobby {
+  margin-left: 1%;
+  margin-top: 1%;
+  position: relative;
+  display: flex;
+  width: 76.7rem;
+  height: 55rem;
+  flex-direction: column;
+}
+
+.actions-grid {
+  position: absolute;
+  display: grid;
+  top: 0;
+  left: 0;
+  width: 98%;
+  height: 77%;
+  grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr 0.8fr 1fr;
+  grid-template-rows: 1.1fr 0.5fr 1.5fr 0.5fr 2fr 0.5fr 1fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    ". . . . . . ."
+    ". . action-1 . action-2 . ."
+    ". . . . . . ."
+    "action-6 . . . . . action-3"
+    ". . . . . . ."
+    ". . action-5 . action-4 . ."
+    ". . . . . . .";
+}
+
+.action-1 {
+  grid-area: action-1;
+}
+
+.action-2 {
+  grid-area: action-2;
+}
+
+.action-3 {
+  grid-area: action-3;
+}
+
+.action-4 {
+  grid-area: action-4;
+}
+
+.action-5 {
+  grid-area: action-5;
+}
+
+.action-6 {
+  grid-area: action-6;
+  /* padding-left: 18%; */
+}
+
+.seat {
+  display: flex;
+  justify-content: center;
+}
+
+.game-name {
+  display: flex;
+  justify-content: center;
+  outline: solid;
+  outline-width: 1px;
+}
+
+.game-interactions {
+  display: flex;
+  margin-top: 0.5em;
+  justify-content: space-between;
+}
+
+.left-interactions {
+  display: flex;
+  flex-direction: column;
+}
+
+.bet-amount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quit-button {
+  margin-top: 7rem;
+}
+
+.right-interactions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.poker-button {
+  width: 8rem;
+}
+input {
+  width: 50%;
+}
+
+label + input {
+  margin-left: 10%;
+  padding-left: 8%;
+}
