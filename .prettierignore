@@ -7,3 +7,4 @@ node_modules/
 # Generated build files
 dist/
 build/
+**/*.ejs # Prettier formatting for HTML breaks EJS

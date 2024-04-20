@@ -10,7 +10,7 @@ pre-commit:
   parallel: false
   commands:
     prettier:
-      glob: "*.{js,ts,css,md,ejs}"
+      glob: "*.{js,ts,css,md}"
       run: npx prettier -w {staged_files} && git add {staged_files}
     tsc:
       glob: "*.ts"
