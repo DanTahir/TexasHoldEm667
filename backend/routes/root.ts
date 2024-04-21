@@ -11,3 +11,5 @@ router.get("/chat", (_request, response, _next) => {
   //response.send()
   response.render("chatboxtest", { name });
 });
+
+export default router;
