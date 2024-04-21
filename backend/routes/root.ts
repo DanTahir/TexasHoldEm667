@@ -7,7 +7,7 @@ router.get("/", (_req, res) => {
 });
 
 router.get("/chat", (_request, response, _next) => {
-  const name: string = "Steve";
+  const name: string = "Josh";
   //response.send()
   response.render("chatboxtest", { name });
 });
