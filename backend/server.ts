@@ -12,6 +12,7 @@ import expressSession from "express-session";
 import { User } from "@backend/db/dao/UserDao";
 import { authenticated } from "@backend/middleware/authenticated";
 import connectPgSimple from "connect-pg-simple";
+import { sessionLocals } from "@backend/middleware/session-locals";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,7 +56,7 @@ app.use("/auth", routes.authRoutes);
 app.use(authenticated);
 app.use("/home", routes.homeRoutes);
 app.use("/game", routes.gameRoutes);
-
+app.use(sessionLocals);
 app.use((_request, _response, next) => {
   next(createError(404));
 });
