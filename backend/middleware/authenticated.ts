@@ -1,3 +1,4 @@
+import { Screens } from "@backend/views";
 import { Request, Response, NextFunction } from "express";
 
 export function authenticated(
@@ -12,6 +13,6 @@ export function authenticated(
 
     next();
   } else {
-    response.redirect("/auth/login");
+    response.redirect(Screens.Login);
   }
 }
