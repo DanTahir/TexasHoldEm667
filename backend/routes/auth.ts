@@ -1,14 +1,18 @@
-import { createUser } from "@backend/db/dao/UserDao.js";
-import { User, readUserFromUsername } from "@backend/db/dao/UserDao";
+import {
+  createUser,
+  User,
+  readUserFromUsername,
+} from "@backend/db/dao/UserDao";
 import { TypedRequestBody } from "@backend/types";
 import express, { Router } from "express";
 import bcrypt from "bcrypt";
 import signale from "signale";
+import { Screens, Views } from "@backend/views";
 
 export const router: Router = express.Router();
 
 router.get("/register", (_req, res) => {
-  res.render("auth/register");
+  res.render(Views.Register);
 });
 
 type NewUserPayload = {
@@ -32,24 +36,24 @@ router.post("/register", async (req: TypedRequestBody<NewUserPayload>, res) => {
     signale.info(`created user ${username}`);
   } catch (error) {
     signale.error("error creating user:", error);
-    res.render("auth/register", {
+    res.render(Views.Register, {
       errorMessage: "Error creating user. Try again.",
     });
     return;
   }
 
-  res.redirect("/auth/login?registered=true");
+  res.redirect(Screens.Login + "?registered=true");
 });
 
 router.get("/login", (req, res) => {
   if (req.session.user) {
-    res.redirect("/home");
+    res.redirect(Screens.Home);
     return;
   }
 
   const registered = req.query.registered === "true";
 
-  res.render("auth/login", { registered });
+  res.render(Views.Login, { registered });
 });
 
 type UsernamePasswordPayload = {
@@ -66,17 +70,17 @@ router.post(
     try {
       user = await readUserFromUsername(username);
     } catch (error) {
-      res.render("auth/login", { message: "Error logging in. Try again." });
+      res.render(Views.Login, { message: "Error logging in. Try again." });
       return;
     }
 
     if (!user) {
-      res.render("auth/login", { message: "Username not found." });
+      res.render(Views.Login, { message: "Username not found." });
       return;
     }
 
     if (!bcrypt.compareSync(password, user.password)) {
-      res.render("auth/login", { message: "Incorrect password." });
+      res.render(Views.Login, { message: "Incorrect password." });
       return;
     }
 
@@ -84,7 +88,7 @@ router.post(
 
     req.session.user = user;
 
-    res.redirect("/home");
+    res.redirect(Screens.Home);
   },
 );
 
@@ -100,7 +104,7 @@ router.get("/logout", (request, response, next) => {
         next(error);
       }
 
-      response.redirect("/auth/login");
+      response.redirect(Screens.Login);
     });
   });
 });

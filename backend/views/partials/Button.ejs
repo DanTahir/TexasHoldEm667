@@ -1,5 +1,5 @@
 <button
-  type="button"
+  type="<%= typeof type !== 'undefined' ? type : 'button' %>"
   class="bg-blue-500 hover:bg-blue-600 text-white text-lg rounded-md px-5 poker-button"
 >
   <% if (typeof link !== 'undefined') { %>
