@@ -15,6 +15,7 @@ import { authenticated } from "@backend/middleware/authenticated";
 import connectPgSimple from "connect-pg-simple";
 import { sessionLocals } from "@backend/middleware/session-locals";
 import { Server } from "socket.io";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,7 @@ declare module "express-session" {
   }
 }
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -56,6 +58,7 @@ app.use(requestTime);
 
 const io = new Server(httpServer);
 io.engine.use(sessionMiddleware);
+app.set("io", io);
 io.on("connection", (socket) => {
   const sessionId = socket.request.session.id;
 
@@ -63,6 +66,7 @@ io.on("connection", (socket) => {
 
   socket.join(sessionId);
 });
+
 
 app.use("/", routes.rootRoutes);
 app.use("/auth", routes.authRoutes);
