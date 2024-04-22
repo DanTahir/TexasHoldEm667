@@ -6,7 +6,7 @@ router.get("/", (_req, res) => {
   res.redirect("/auth/login");
 });
 
-router.get("/chat", (_request, response, _next) => {
+router.get("/chatboxtest", (_request, response, _next) => {
   const name: string = "Josh";
   //response.send()
   response.render("chatboxtest", { name });

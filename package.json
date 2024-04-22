@@ -20,7 +20,9 @@
     "livereload.js": "^2.2.2",
     "morgan": "^1.10.0",
     "pg-promise": "^11.6.0",
-    "signale": "^1.4.0"
+    "signale": "^1.4.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -31,6 +33,7 @@
     "@types/express-session": "^1.18.0",
     "@types/livereload": "^0.9.5",
     "@types/node": "^20.12.7",
+    "@types/socket.io": "^3.0.2",
     "concurrently": "^8.2.2",
     "connect-livereload": "^0.6.1",
     "esbuild": "^0.20.2",
