@@ -1,6 +1,9 @@
+.game-container {
+  display: flex;
+}
+
 .game-lobby {
   margin-left: 1%;
-  margin-top: 1%;
   position: relative;
   display: flex;
   width: 70.3vw;
@@ -48,7 +51,6 @@
 
 .action-6 {
   grid-area: action-6;
-  /* padding-left: 18%; */
 }
 
 .seat {
@@ -101,4 +103,14 @@ input {
 label + input {
   margin-left: 10%;
   padding-left: 8%;
+}
+
+.chat-box {
+  height: 100vh;
+  width: 100vw;
+}
+
+.chat {
+  width: 100%;
+  height: 95%;
 }
