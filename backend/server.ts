@@ -14,7 +14,7 @@ import { User } from "@backend/db/dao/UserDao";
 import { authenticated } from "@backend/middleware/authenticated";
 import connectPgSimple from "connect-pg-simple";
 import { sessionLocals } from "@backend/middleware/session-locals";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import cors from "cors";
 
 const app = express();
@@ -59,14 +59,15 @@ app.use(requestTime);
 const io = new Server(httpServer);
 io.engine.use(sessionMiddleware);
 app.set("io", io);
-io.on("connection", (socket) => {
+
+io.on("connection", (socket: Socket) => {
+  // @ts-expect-error can't get rid of session error
   const sessionId = socket.request.session.id;
 
   console.log("connection: " + sessionId);
 
   socket.join(sessionId);
 });
-
 
 app.use("/", routes.rootRoutes);
 app.use("/auth", routes.authRoutes);
