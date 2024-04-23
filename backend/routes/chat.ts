@@ -9,8 +9,7 @@ router.post("/:id", (request, response) => {
 
 
   io.emit("chat:message:0", {
-    from: request.session.user.username,
-    timestamp: Date.now(),
+    from: request.session.user?.username || '',
     message,
   })
 
