@@ -1,13 +1,10 @@
 import { io } from "socket.io-client";
 
-console.log("Hello from the chat script.");
-
 const chatSocket = io();
 
 const chatWindow = document.querySelector("#chatbox");
 
 chatSocket.on("chat:message:0", ({from, message}) => {
-  console.log("greetings from chatsocket");
   const msgDiv = document.querySelector("#chatMessage")?.content.cloneNode(true);
   const messageUser = msgDiv.querySelector("#chatMessageUser");
   const messageText = msgDiv.querySelector("#chatMessageText");
