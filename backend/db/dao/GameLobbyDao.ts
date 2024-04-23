@@ -1,7 +1,9 @@
 import { db } from "@backend/db/connection.js";
 
 export interface GameLobby {
-  game_lobby_id: string;
+  game_lobby_id: {
+    game_lobby_id: string;
+  };
   name: string;
   game_stage: string;
   buy_in: number;
