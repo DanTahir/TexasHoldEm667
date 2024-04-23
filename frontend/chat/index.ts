@@ -5,9 +5,11 @@ const chatSocket = io();
 const chatWindow = document.querySelector("#chatbox");
 
 chatSocket.on("chat:message:0", ({from, message}) => {
-  const msgDiv = document.querySelector("#chatMessage")?.content.cloneNode(true);
-  const messageUser = msgDiv.querySelector("#chatMessageUser");
-  const messageText = msgDiv.querySelector("#chatMessageText");
+  const msgDiv = document.querySelector("#chatMessage") as HTMLTemplateElement;
+  const msgDivCloneNode = msgDiv.content.cloneNode(true);
+  const msgDivCloneDiv = msgDivCloneNode as HTMLDivElement;
+  const messageUser = msgDivCloneDiv.querySelector("#chatMessageUser") as HTMLParagraphElement ?? new HTMLParagraphElement;
+  const messageText = msgDivCloneDiv.querySelector("#chatMessageText") as HTMLParagraphElement ?? new HTMLParagraphElement;
   messageUser.innerText = from;
   messageText.innerText = message;
 
