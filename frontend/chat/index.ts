@@ -18,7 +18,7 @@ chatSocket.on("chat:message:0", ({from, message}) => {
 
 document.querySelector("#messageInput")?.addEventListener("keydown", (event: Event) => {
     if ((event as KeyboardEvent).key === 'Enter') {
-      const message = (event.target as HTMLInputElement)?.value;
+      const message = (event.target as HTMLInputElement).value;
       
       console.log(message);
       
@@ -30,6 +30,6 @@ document.querySelector("#messageInput")?.addEventListener("keydown", (event: Eve
     
       
 
-      event.target.value = "";
+          (event.target as HTMLInputElement).value = "";
     }
 });
