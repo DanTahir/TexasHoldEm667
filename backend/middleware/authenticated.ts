@@ -13,6 +13,10 @@ export function authenticated(
 
     next();
   } else {
+    if (process.env.NODE_ENV == "api_development") {
+      return next();
+    }
+
     response.redirect(Screens.Login);
   }
 }
