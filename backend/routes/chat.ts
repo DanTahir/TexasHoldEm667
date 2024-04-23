@@ -6,8 +6,7 @@ router.post("/:id", (request, response) => {
   const { message } = request.body;
 
   const io = request.app.get("io");
-  console.log("Hello from chat route");
-  console.log({id, message});
+
 
   io.emit("chat:message:0", {
     from: request.session.user.username,
