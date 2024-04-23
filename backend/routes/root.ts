@@ -1,15 +1,8 @@
+import { Screens } from "@backend/views";
 import express from "express";
 
 export const router = express.Router();
 
 router.get("/", (_req, res) => {
-  res.redirect("/auth/login");
+  res.redirect(Screens.Home);
 });
-
-router.get("/chatboxtest", (_request, response, _next) => {
-  const name: string = "Josh";
-  //response.send()
-  response.render("chatboxtest", { name });
-});
-
-export default router;
