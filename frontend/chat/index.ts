@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 const chatSocket = io();
 
-const chatWindow = document.querySelector("#chatbox");
+const chatWindow = document.querySelector("#chatbox") ?? new HTMLDivElement;
 
 chatSocket.on("chat:message:0", ({from, message}) => {
   const msgDiv = document.querySelector("#chatMessage") as HTMLTemplateElement;
