@@ -19,7 +19,7 @@ chatSocket.on("chat:message:0", ({from, timestamp, message}) => {
 
 });
 
-document.querySelector("#messageInput")?.addEventListener("keydown", (event) => {
+document.querySelector("#messageInput")?.addEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === 'Enter') {
       const message = event.target.value;
       
