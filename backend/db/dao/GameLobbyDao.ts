@@ -1,7 +1,9 @@
 import { db } from "@backend/db/connection.js";
 
 export interface GameLobby {
-  game_lobby_id: string;
+  game_lobby_id: {
+    game_lobby_id: string;
+  };
   name: string;
   game_stage: string;
   buy_in: number;
@@ -16,7 +18,9 @@ export interface GameLobby {
   river?: string;
 }
 
-export async function createLobby(name: string): Promise<string> {
+export async function createLobby(
+  name: string,
+): Promise<GameLobby["game_lobby_id"]> {
   return await db.one(
     "INSERT INTO game_lobbies (name) VALUES ($1) RETURNING game_lobby_id",
     [name],
