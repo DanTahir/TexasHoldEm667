@@ -1,4 +1,3 @@
-<!doctype html>
 <html>
   <head>
     <link rel="stylesheet" href="/css/poker-table.css" />
@@ -24,68 +23,81 @@
     </script>
   </head>
 
-  <body>
-    <div class="game-lobby">
-      <%- include("./PokerTable.ejs") %>
+  <body class="scrollbar-hide">
 
-      <div class="actions-grid">
-        <div class="seat action-1">
-          <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+    <div class="game-container">
+
+      <div class="game-lobby">
+
+        <div class="poker-table-container">
+
+          <%- include("./PokerTable.ejs") %>
+
+          <div class="actions-grid">
+            <div class="seat action-1">
+              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            </div>
+
+            <div class="seat action-2">
+              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            </div>
+
+            <div class="seat action-3">
+              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            </div>
+
+            <div class="seat action-4">
+              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            </div>
+
+            <div class="seat action-5">
+              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            </div>
+
+            <div class="seat action-6">
+              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            </div>
+          </div>
         </div>
 
-        <div class="seat action-2">
-          <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-        </div>
+        <div class="game-name"><%= gameName %></div>
 
-        <div class="seat action-3">
-          <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-        </div>
+        <div class="game-interactions">
+          <div class="left-interactions">
+            <div class="bet-amount">
+              <label for="bet-amount">Bet: </label>
+              <input
+                id="bet-amount"
+                name="bet-amount"
+                type="text"
+                placeholder="Amount"
+              />
+            </div>
 
-        <div class="seat action-4">
-          <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-        </div>
+            <div class="quit-button">
+              <%- include("../partials/Button.ejs", {buttonText: "Quit Game"}) %>
+            </div>
+          </div>
 
-        <div class="seat action-5">
-          <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-        </div>
+          <div class="right-interactions">
+            <div class="call-check-button">
+              <%- include("../partials/Button.ejs", {buttonText: "Call/Check"}) %>
+            </div>
 
-        <div class="seat action-6">
-          <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+            <div class="raise-button">
+              <%- include("../partials/Button.ejs", {buttonText: "Raise"})
+              %>
+            </div>
+
+            <div class="fold-button">
+              <%- include("../partials/Button.ejs", {buttonText: "Fold"}) %>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="game-name"><%= gameName %></div>
-
-      <div class="game-interactions">
-        <div class="left-interactions">
-          <div class="bet-amount">
-            <label for="bet-amount">Bet: </label>
-            <input
-              id="bet-amount"
-              name="bet-amount"
-              type="text"
-              placeholder="Amount"
-            />
-          </div>
-
-          <div class="quit-button">
-            <%- include("../partials/Button.ejs", {buttonText: "Quit Game", link: "/home"}) %>
-          </div>
-        </div>
-
-        <div class="right-interactions">
-          <div class="call-check-button">
-            <%- include("../partials/Button.ejs", {buttonText: "Call/Check"}) %>
-          </div>
-
-          <div class="raise-button">
-            <%- include("../partials/Button.ejs", {buttonText: "Raise"}) %>
-          </div>
-
-          <div class="fold-button">
-            <%- include("../partials/Button.ejs", {buttonText: "Fold"}) %>
-          </div>
-        </div>
+      <div class="chat-box">
+        <%- include("../partials/Chat.ejs") %>
       </div>
     </div>
   </body>
