@@ -1,49 +1,12 @@
 <div
-  class="flex flex-col max-w-md mx-auto bg-white shadow-lg overflow-hidden"
+  class="flex flex-col max-w-md mx-auto bg-white shadow-lg overflow-hidden w-96"
 >
   <h2 class="text-xl font-semibold text-gray-800 pt-4 text-center">Chatbox</h2>
   <div id="chatbox" class="overflow-y-auto p-4 flex-grow">
-    <div class="flex items-start mb-4">
-      <div class="flex-shrink-0">
-        <img
-          src="/img/profile.jpg"
-          alt="User Avatar"
-          class="w-12 h-12 rounded-full"
-        />
-      </div>
-      <div class="ml-3">
-        <p class="text-base font-medium text-gray-900">Username</p>
-        <p class="text-base text-gray-700">Message text goes here</p>
-      </div>
-    </div>
-    <div class="flex items-start mb-4">
-      <div class="flex-shrink-0">
-        <img
-          src="/img/profile.jpg"
-          alt="User Avatar"
-          class="w-12 h-12 rounded-full"
-        />
-      </div>
-      <div class="ml-3">
-        <p class="text-base font-medium text-gray-900">Username</p>
-        <p class="text-base text-gray-700">Message text goes here</p>
-      </div>
-    </div>
-    <div class="flex items-start mb-4">
-      <div class="flex-shrink-0">
-        <img
-          src="/img/profile.jpg"
-          alt="User Avatar"
-          class="w-12 h-12 rounded-full"
-        />
-      </div>
-      <div class="ml-3">
-        <p class="text-base font-medium text-gray-900">Username</p>
-        <p class="text-base text-gray-700">Message text goes here</p>
-      </div>
-    </div>
+
+  
   </div>
-  <form
+  <div
     id="messageForm"
     class="border-t border-gray-200 px-4 py-4 flex items-center mb-0"
   >
@@ -51,8 +14,13 @@
       type="text"
       id="messageInput"
       class="flex-1 appearance-none rounded-full py-2 px-4 bg-gray-100 text-gray-700 focus:outline-none"
-      placeholder="Type your message..."
+      placeholder="Press Enter to send"
     />
-    <%- include("../partials/Button.ejs", {buttonText: "Send", type: 'submit'}) %> 
-  </form>
+  </div>
 </div>
+<template id="chatMessage" class="flex items-start mb-4">
+  <div class="ml-3">
+    <p id="chatMessageUser" class="text-base font-medium text-gray-900"></p>
+    <p id="chatMessageText" lass="text-base text-gray-700"></p>
+  </div>
+</template>
