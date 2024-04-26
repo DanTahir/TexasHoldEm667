@@ -1,9 +1,7 @@
 import { db } from "@backend/db/connection.js";
 
 export interface Player {
-  player_id?: {
-    player_id: string;
-  };
+  player_id?: string;
   status?: string;
   stake: number;
   bet?: number;
@@ -14,20 +12,20 @@ export interface Player {
   card_2?: string;
 }
 
-export async function createPlayer(
-  player: Player,
-): Promise<{ player_id: string }> {
+export async function createPlayer(player: Player): Promise<string> {
   const CREATE_PLAYER_SQL =
     "INSERT INTO players (user_id, status, game_lobby_id, play_order, stake) VALUES ($1, $2, $3, $4, $5) RETURNING player_id";
   const { user_id, status, game_lobby_id, play_order, stake } = player;
 
-  return await db.one(CREATE_PLAYER_SQL, [
+  const { player_id } = await db.one(CREATE_PLAYER_SQL, [
     user_id,
     status,
     game_lobby_id,
     play_order,
     stake,
   ]);
+
+  return player_id;
 }
 
 export async function getPlayersByLobbyId(

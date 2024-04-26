@@ -2,18 +2,17 @@ import { Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import { Player, createPlayer } from "@backend/db/dao/PlayerDao";
 import { createLobby } from "@backend/db/dao/GameLobbyDao";
-import { CreateRequestBody } from "@backend/types";
-import { gameValidation } from "@backend/middleware/game-validation";
+import { TypedRequestBody } from "@backend/types";
+import { validateGameExists } from "@backend/middleware/validate-game-exists";
 export const router: Router = express.Router();
 
-router.get("/", (_request: Request, response: Response, _next) => {
-  response.render(Views.GameLobby, {
-    buttonText: "test",
-    gameName: "Game Name",
-  });
-});
+interface CreateRequestPayload {
+  name: string;
+  stake: number;
+  user_id: string;
+}
 
-router.get("/:id", gameValidation);
+router.get("/:id", validateGameExists);
 
 // Game exists render the page
 router.get(
@@ -31,16 +30,19 @@ router.get(
 
 router.post(
   "/create",
-  async (request: Request, response: Response, _next: NextFunction) => {
+  async (
+    request: TypedRequestBody<CreateRequestPayload>,
+    response: Response,
+    _next: NextFunction,
+  ) => {
     try {
-      const requestBody: CreateRequestBody = request.body;
+      const requestBody: CreateRequestPayload = request.body;
 
       const name: string = requestBody.name;
       const stake: number = requestBody.stake;
       const user_id: string = requestBody.user_id;
 
-      const { game_lobby_id } = await createLobby(name);
-      console.log("GAME LOBBY ID:", game_lobby_id);
+      const game_lobby_id = await createLobby(name);
 
       const playerObject: Player = {
         status: "spectating",

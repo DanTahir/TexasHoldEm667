@@ -1,7 +1,7 @@
 import { GameLobby, getGameLobbyById } from "@backend/db/dao/GameLobbyDao";
 import { Request, Response, NextFunction } from "express";
 
-export async function gameValidation(
+export async function validateGameExists(
   request: Request,
   response: Response,
   next: NextFunction,
