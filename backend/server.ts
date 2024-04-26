@@ -20,10 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const httpServer = createServer(app);
 
-if (
-  process.env.NODE_ENV == "development" ||
-  process.env.NODE_ENV == "api_development"
-) {
+if (process.env.NODE_ENV == "development" || process.env.SKIP_AUTH) {
   setUpDevEnv();
   connectLiveReload();
   app.use(morgan("dev"));
