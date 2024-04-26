@@ -13,7 +13,7 @@ export function authenticated(
 
     next();
   } else {
-    if (process.env.NODE_ENV == "api_development") {
+    if (process.env.SKIP_AUTH) {
       return next();
     }
 
