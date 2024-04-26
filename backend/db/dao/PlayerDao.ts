@@ -12,9 +12,7 @@ export interface Player {
   card_2?: string;
 }
 
-export async function createPlayer(
-  player: Player,
-): Promise<{ player_id: string }> {
+export async function createPlayer(player: Player): Promise<string> {
   const CREATE_PLAYER_SQL =
     "INSERT INTO players (user_id, status, game_lobby_id, play_order, stake) VALUES ($1, $2, $3, $4, $5) RETURNING player_id";
   const { user_id, status, game_lobby_id, play_order, stake } = player;
