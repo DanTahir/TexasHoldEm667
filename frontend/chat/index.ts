@@ -5,6 +5,8 @@ const chatSocket = io();
 const chatWindow = document.querySelector("#chatbox") ?? new HTMLDivElement;
 
 chatSocket.on("chat:message:0", ({from, message}) => {
+  
+  
   const msgDiv = document.querySelector("#chatMessage") as HTMLTemplateElement;
   const msgDivCloneNode = msgDiv.content.cloneNode(true);
   const msgDivCloneDiv = msgDivCloneNode as HTMLDivElement;
@@ -14,8 +16,8 @@ chatSocket.on("chat:message:0", ({from, message}) => {
   messageText.innerText = message;
 
 
-  chatWindow.appendChild(msgDiv);
-
+  chatWindow.appendChild(msgDivCloneNode);
+  
 });
 
 document.querySelector("#messageInput")?.addEventListener("keydown", (event: Event) => {
