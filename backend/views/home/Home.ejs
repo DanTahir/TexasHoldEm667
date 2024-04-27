@@ -40,7 +40,15 @@
         <%- include ('../partials/Chat.ejs') %>
       </div>
     </div>
-    <dialog class="relative z-10" id="create-game-modal" role="dialog" aria-modal="true">
+    <dialog 
+      class="relative z-10" 
+      id="create-game-modal" 
+      role="dialog" 
+      aria-modal="true"
+      <% if (typeof message !== 'undefined') { %>
+        open="true"
+      <% } %>
+    >
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
     
       <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -72,6 +80,9 @@
                       type="text" 
                       id="name" 
                       name="name"
+                      <% if (typeof name !== 'undefined') { %>
+                        value="<%= name %>"
+                      <% } %>
                       autofocus
                       required
                     >
@@ -88,6 +99,9 @@
                       type="number" 
                       id="stake" 
                       name="stake"
+                      <% if (typeof stake !== 'undefined') { %>
+                        value="<%= stake %>"
+                      <% } %>
                       required
                     >
                   </div>
