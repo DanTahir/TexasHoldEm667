@@ -1,10 +1,11 @@
-import { Views } from "@backend/views";
+import { Screens, Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import { Player, createPlayer } from "@backend/db/dao/PlayerDao";
 import { createLobby } from "@backend/db/dao/GameLobbyDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
+import querystring from "querystring";
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -56,19 +57,21 @@ router.post(
 
       response.redirect(`/game/${game_lobby_id}`);
     } catch (error) {
+      let message;
+
       if ((error as ConstraintError)?.constraint == "game_lobbies_name_key") {
-        response.render(Views.Home, {
-          message: "Name already in use",
-          name,
-          stake,
-        });
+        message = "Name already in use";
       } else {
-        response.render(Views.Home, {
-          message: "Failed to create game",
-          name,
-          stake,
-        });
+        message = "Failed to create game";
       }
+
+      const queryData = {
+        message,
+        name,
+        stake,
+      };
+
+      response.redirect(Screens.Home + `?${querystring.stringify(queryData)}`);
     }
   },
 );
