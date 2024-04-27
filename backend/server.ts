@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import { setUpDevEnv } from "@backend/utilities/set-up-dev-env.js";
 import connectLiveReload from "connect-livereload";
 import expressSession from "express-session";
+import { User } from "@backend/db/dao/UserDao";
 import { authenticated } from "@backend/middleware/authenticated";
 import connectPgSimple from "connect-pg-simple";
 import { sessionLocals } from "@backend/middleware/session-locals";
@@ -24,6 +25,12 @@ if (process.env.NODE_ENV == "development") {
   setUpDevEnv();
   connectLiveReload();
   app.use(morgan("dev"));
+}
+
+declare module "express-session" {
+  interface SessionData {
+    user: User;
+  }
 }
 
 app.use(cors());
@@ -54,6 +61,7 @@ io.engine.use(sessionMiddleware);
 app.set("io", io);
 
 io.on("connection", (socket: Socket) => {
+  // @ts-expect-error can't get rid of session error
   const sessionId = socket.request.session.id;
 
   console.log("connection: " + sessionId);
