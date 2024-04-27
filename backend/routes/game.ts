@@ -40,7 +40,7 @@ router.post(
 
       const name: string = requestBody.name;
       const stake: number = requestBody.stake;
-      const user_id: string = requestBody.user_id;
+      const user_id: string = request.session.user.id;
 
       const game_lobby_id = await createLobby(name);
 
