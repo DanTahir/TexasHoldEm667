@@ -19,7 +19,7 @@ chatSocket.on("chat:message:0", ({ from, message }) => {
   messageUser.innerText = from;
   messageText.innerText = message;
 
-  chatWindow.appendChild(msgDiv);
+  chatWindow.appendChild(msgDivCloneNode);
 });
 
 document

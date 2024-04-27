@@ -59,5 +59,5 @@ if (dev) {
   watch();
 } else {
   await esbuild.build(CONFIG);
-  await esbuild.build(CHAT_CONFIG);
+  await esbuild.build(CONFIG_CHAT);
 }
