@@ -4,9 +4,12 @@ import express, { Router } from "express";
 export const router: Router = express.Router();
 
 router.get("/", (req, res) => {
-  const message = req.query?.message;
-  const name = req.query?.name;
-  const stake = req.query?.stake;
+  if (req.session.form) {
+    const { message, name, stake } = req.session.form;
+    req.session.form = undefined;
 
-  res.render(Views.Home, { message, name, stake });
+    res.render(Views.Home, { message, name, stake });
+  } else {
+    res.render(Views.Home);
+  }
 });

@@ -5,7 +5,7 @@ import { createLobby } from "@backend/db/dao/GameLobbyDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
-import querystring from "querystring";
+
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -65,13 +65,15 @@ router.post(
         message = "Failed to create game";
       }
 
-      const queryData = {
+      const formData = {
         message,
         name,
         stake,
       };
 
-      response.redirect(Screens.Home + `?${querystring.stringify(queryData)}`);
+      request.session.form = formData;
+
+      response.redirect(Screens.Home);
     }
   },
 );

@@ -65,10 +65,10 @@ app.use("/", routes.rootRoutes);
 app.use("/auth", routes.authRoutes);
 
 app.use(authenticated);
+app.use(sessionLocals);
 app.use("/home", routes.homeRoutes);
 app.use("/game", routes.gameRoutes);
 app.use("/chat", routes.chatRoutes);
-app.use(sessionLocals);
 app.use((_request, _response, next) => {
   next(createError(404));
 });
