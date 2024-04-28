@@ -1,9 +1,10 @@
+import { getGames } from "@backend/middleware/get-games";
 import { Views } from "@backend/views";
 import express, { Router } from "express";
 
 export const router: Router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/", getGames, (req, res) => {
   if (req.session.form) {
     const { message, name, stake } = req.session.form;
     req.session.form = undefined;

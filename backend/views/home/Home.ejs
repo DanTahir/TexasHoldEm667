@@ -20,20 +20,14 @@
         <h1 class="text-6xl border-x border-b border-black shadow-xl text-black w-full text-center p-6">
           Games
         </h1>
-        <div class="flex bg-neutral-400 flex-col items-center gap-5 p-4 w-full h-full overflow-y-auto scrollbar-hide">
-          <%- include("./GameRow.ejs", {name: "Jake's Game", currentPlayers: 5, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
+        <div class="flex bg-neutral-400 flex-col items-center gap-5 p-4 w-full h-full overflow-x-hidden overflow-y-auto scrollbar-hide">
+          <% if (games.length > 0) { %>
+            <% games.forEach(game => { %>
+              <%- include("./GameRow.ejs", game) %>
+            <% }) %>
+          <% } else { %>
+            <h2 class="text-5xl font-bold text-gray-900">There are no games. Please create one!</p>
+          <% } %>
         </div>
       </div>
       <div class="flex">
