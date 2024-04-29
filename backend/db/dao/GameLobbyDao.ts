@@ -16,11 +16,16 @@ export interface GameLobby {
   river?: string;
 }
 
-export async function createLobby(name: string): Promise<string> {
-  return await db.one(
-    "INSERT INTO game_lobbies (name) VALUES ($1) RETURNING game_lobby_id",
-    [name],
+export async function createLobby(
+  name: string,
+  buy_in: number,
+): Promise<string> {
+  const { game_lobby_id } = await db.one(
+    "INSERT INTO game_lobbies (name, buy_in) VALUES ($1, $2) RETURNING game_lobby_id",
+    [name, buy_in],
   );
+
+  return game_lobby_id;
 }
 
 export async function deleteLobby(game_lobby_id: string) {

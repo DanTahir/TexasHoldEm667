@@ -13,6 +13,10 @@ export function authenticated(
 
     next();
   } else {
+    if (process.env.SKIP_AUTH) {
+      return next();
+    }
+
     response.redirect(Screens.Login);
   }
 }
