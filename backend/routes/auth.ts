@@ -94,12 +94,12 @@ router.post(
 
 router.get("/logout", (request, response, next) => {
   request.session.user = undefined;
-  request.session.save((error) => {
+  request.session.save((error: unknown) => {
     if (error) {
       next(error);
     }
 
-    request.session.regenerate((error) => {
+    request.session.regenerate((error: unknown) => {
       if (error) {
         next(error);
       }

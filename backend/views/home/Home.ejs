@@ -4,13 +4,14 @@
     <title>JVDA Hold'em</title>
     <link rel="stylesheet" href="/css/main.css" />
     <script src="/js/chat/index.js" type="text/javascript" defer></script>
+    <script src="/js/index.js" type="text/javascript" defer></script>
   </head>
   <body class="bg-gray-200">
     <div class="flex h-screen">
       <div class="flex flex-col justify-end items-center px-4">
         <div class="flex flex-col justify-end gap-2 mb-5">
-          <%- include("../partials/Button.ejs", {buttonText: "Create Game"}) %> 
-          <%- include("../partials/Button.ejs", {buttonText: "Settings"}) %> 
+          <%- include("../partials/Button.ejs", {buttonText: "Create Game", id: "create-game"}) %>
+          <%- include("../partials/Button.ejs", {buttonText: "Settings"}) %>
           <%- include("../partials/Button.ejs",
           {buttonText: "Logout", link: "/auth/logout"}) %>
         </div>
@@ -19,25 +20,97 @@
         <h1 class="text-6xl border-x border-b border-black shadow-xl text-black w-full text-center p-6">
           Games
         </h1>
-        <div class="flex bg-neutral-400 flex-col items-center gap-5 p-4 w-full h-full overflow-y-auto scrollbar-hide">
-          <%- include("./GameRow.ejs", {name: "Jake's Game", currentPlayers: 5, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
-          <%- include("./GameRow.ejs", {name: "Varun's Game", currentPlayers: 2, maxPlayers: 8}) %>
+        <div class="flex bg-neutral-400 flex-col items-center gap-5 p-4 w-full h-full overflow-x-hidden overflow-y-auto scrollbar-hide">
+          <% if (games.length > 0) { %>
+            <% games.forEach(game => { %>
+              <%- include("./GameRow.ejs", game) %>
+            <% }) %>
+          <% } else { %>
+            <h2 class="text-5xl font-bold text-gray-900">There are no games. Please create one!</p>
+          <% } %>
         </div>
       </div>
       <div class="flex">
         <%- include ('../partials/Chat.ejs') %>
       </div>
     </div>
+    <dialog 
+      class="relative z-10" 
+      id="create-game-modal" 
+      role="dialog" 
+      aria-modal="true"
+      <% if (typeof message !== 'undefined') { %>
+        open="true"
+      <% } %>
+    >
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    
+      <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4 text-center">
+          <form 
+            class="relative transform overflow-hidden bg-white shadow-md px-8 py-6"
+            action="/game/create"
+            method="POST"
+            id="modal-form"
+          >
+            <div class="flex items-start">
+              <div class="text-center">
+                <h2 
+                  class="text-base font-bold leading-6 text-gray-900" 
+                  id="modal-title"
+                >
+                  Create Game
+                </h2>
+                <div class="flex flex-col mt-2 justify-center">
+                  <div class="mb-4">
+                    <label 
+                      class="block text-gray-700 text-sm font-bold mb-2"
+                      for="name"
+                    >
+                      Game name
+                    </label>
+                    <input 
+                      class="shadow appearance-none border w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" 
+                      type="text" 
+                      id="name" 
+                      name="name"
+                      <% if (typeof name !== 'undefined') { %>
+                        value="<%= name %>"
+                      <% } %>
+                      autofocus
+                      required
+                    >
+                  </div>
+                  <div class="mb-4">
+                    <label 
+                      class="block text-gray-700 text-sm font-bold mb-2" 
+                      for="stake"
+                    >
+                      Minimum stake
+                    </label>
+                    <input 
+                      class="shadow appearance-none border w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      type="number" 
+                      id="stake" 
+                      name="stake"
+                      <% if (typeof stake !== 'undefined') { %>
+                        value="<%= stake %>"
+                      <% } %>
+                      required
+                    >
+                  </div>
+                  <div>
+                    <%- include("../partials/Button.ejs", {buttonText: "Create", type: "submit"}) %>
+                  </div>
+
+                  <% if (typeof message !== 'undefined') { %>
+                    <div class="mt-4 text-red-500"><%= message %></div>
+                  <% } %>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
   </body>
 </html>

@@ -5,6 +5,7 @@ export function sessionLocals(
   response: Response,
   next: NextFunction,
 ) {
+  response.locals.form = request.session?.form;
   response.locals.user = request.session.user;
   next();
 }
