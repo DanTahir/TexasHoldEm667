@@ -5,7 +5,6 @@ import { createLobby } from "@backend/db/dao/GameLobbyDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
-
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {

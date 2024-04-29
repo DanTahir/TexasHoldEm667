@@ -4,7 +4,9 @@ const chatSocket = io();
 
 const chatWindow = document.querySelector("#chatbox") ?? new HTMLDivElement();
 
-chatSocket.on("chat:message:0", ({ from, message }) => {
+const roomID = (document.querySelector("#room-id") as HTMLInputElement).value;
+
+chatSocket.on(`chat:message:${roomID}`, ({ from, message }) => {
   const msgDiv = document.querySelector("#chatMessage") as HTMLTemplateElement;
   const msgDivCloneNode = msgDiv.content.cloneNode(true);
   const msgDivCloneDiv = msgDivCloneNode as HTMLDivElement;
@@ -29,8 +31,8 @@ document
       const message = (event.target as HTMLInputElement).value;
 
       console.log(message);
-
-      fetch("/chat/0", {
+      //const url: string = (event.target as HTMLInputElement).dataset.url ?? ""
+      fetch(`${document.location.pathname}/chat`, {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
