@@ -22,6 +22,7 @@ router.get(
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
+        id: request.params.id,
       });
     } catch (error) {
       next(error);
