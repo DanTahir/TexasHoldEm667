@@ -1,7 +1,7 @@
 <div class="flex w-full rounded-lg shadow-xl bg-white p-4 mx-8">
   <div class="flex flex-col flex-grow text-2xl">
     <p><%= name %></p>
-    <p><%= num_players %>/8 Players</p>
+    <p><%= num_players %>/6 Players</p>
   </div>
   <div class="flex justify-center">
     <%- include("../partials/Button.ejs", {buttonText: "Join", link: `/game/${game_lobby_id}`}) %>

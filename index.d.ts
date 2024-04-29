@@ -1,5 +1,4 @@
 import { User } from "@backend/middleware/db/UserDao";
-import { FormInfo } from "@backend/types";
 import { Session, SessionData } from "express-session";
 
 declare module "express-session" {
@@ -8,7 +7,10 @@ declare module "express-session" {
   }
 
   interface FormRedirect {
-    form: FormInfo;
+    form: {
+      message: string;
+      [key: string]: number | string;
+    };
   }
 }
 
