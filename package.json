@@ -54,9 +54,9 @@
   "scripts": {
     "build": "node esbuild.mjs",
     "dev": "concurrently \"npm run build:dev:frontend\" \"npm run build:dev:css\" \"npm run start:dev\" \"npm run migrate\"",
-    "build:dev:frontend": "npx cross-env NODE_ENV=$(grep NODE_ENV .env | cut -d '=' -f2) node esbuild.mjs",
-    "build:dev:css": "npx cross-env NODE_ENV=$(grep NODE_ENV .env | cut -d '=' -f2) tailwindcss -i ./frontend/styles/main.css -o ./backend/static/css/main.css --watch",
-    "start:dev": "npx cross-env NODE_ENV=$(grep NODE_ENV .env | cut -d '=' -f2) tsx watch ./backend/server.ts",
+    "build:dev:frontend": "npx cross-env NODE_ENV=development node esbuild.mjs",
+    "build:dev:css": "npx cross-env NODE_ENV=development tailwindcss -i ./frontend/styles/main.css -o ./backend/static/css/main.css --watch",
+    "start:dev": "npx cross-env NODE_ENV=development tsx watch ./backend/server.ts",
     "migrate": "node-pg-migrate up -m ./migrations -j ts --tsconfig ./tsconfig.json",
     "migrate:create": "node-pg-migrate create -j=ts",
     "migrate:rollback": "node-pg-migrate down -m ./migrations -j ts --tsconfig ./tsconfig.json",
