@@ -53,15 +53,27 @@ export async function getGameLobbyByName(name: string): Promise<GameLobby> {
   return game_lobby;
 }
 
+type GameLobbyNameAndPlayerCount = {
+  id: string;
+  name: string;
+  players: number;
+};
+
 export async function getRecentGames() {
   const recentGameQuery = `
-  SELECT game_lobbies.*, COUNT(players.game_lobby_id) AS num_players        
-  FROM game_lobbies
-  LEFT JOIN players
-  ON (game_lobbies.game_lobby_id = players.game_lobby_id)
-  GROUP BY game_lobbies.game_lobby_id
-  ORDER BY created_at DESC`;
-  const game_lobbies: GameLobby[] = await db.manyOrNone(recentGameQuery);
+  SELECT l.game_lobby_id, l.name, COUNT(p.game_lobby_id) AS num_players        
+    FROM game_lobbies AS l
+  LEFT JOIN 
+    players AS p
+  ON 
+    (l.game_lobby_id = p.game_lobby_id)
+  GROUP BY 
+    l.game_lobby_id
+  ORDER BY 
+    created_at DESC`;
+
+  const game_lobbies: GameLobbyNameAndPlayerCount[] =
+    await db.manyOrNone(recentGameQuery);
 
   return game_lobbies;
 }
