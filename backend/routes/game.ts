@@ -1,4 +1,4 @@
-import { Views } from "@backend/views";
+import { Screens, Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import { Player, createPlayer } from "@backend/db/dao/PlayerDao";
 import { createLobby } from "@backend/db/dao/GameLobbyDao";
@@ -18,14 +18,13 @@ router.get("/:id", validateGameExists);
 // Game exists render the page
 router.get(
   "/:id",
-  async (request: Request, response: Response, _next: NextFunction) => {
+  async (request: Request, response: Response, next: NextFunction) => {
     try {
-      return response.render(Views.GameLobby, {
+      response.render(Views.GameLobby, {
         gameName: request.body.name,
-        id: request.params.id,
       });
     } catch (error) {
-      return response.status(500).send("error!");
+      next(error);
     }
   },
 );
@@ -44,7 +43,7 @@ router.post(
     const user_id: string = request.session.user.id;
 
     try {
-      const game_lobby_id = await createLobby(name);
+      const game_lobby_id = await createLobby(name, stake);
 
       const playerObject: Player = {
         status: "spectating",
@@ -57,19 +56,23 @@ router.post(
 
       response.redirect(`/game/${game_lobby_id}`);
     } catch (error) {
+      let message;
+
       if ((error as ConstraintError)?.constraint == "game_lobbies_name_key") {
-        response.render(Views.Home, {
-          message: "Name already in use",
-          name,
-          stake,
-        });
+        message = "Name already in use";
       } else {
-        response.render(Views.Home, {
-          message: "Failed to create game",
-          name,
-          stake,
-        });
+        message = "Failed to create game";
       }
+
+      const formData = {
+        message,
+        name,
+        stake,
+      };
+
+      request.session.form = formData;
+
+      response.redirect(Screens.Home);
     }
   },
 );

@@ -5,10 +5,17 @@ declare module "express-session" {
   interface SessionData {
     user: User;
   }
+
+  interface FormRedirect {
+    form: {
+      message: string;
+      [key: string]: number | string;
+    };
+  }
 }
 
 declare module "node:http" {
   interface IncomingMessage {
-    session: Session & Partial<SessionData>;
+    session: Session & Partial<SessionData> & Partial<FormRedirect>;
   }
 }

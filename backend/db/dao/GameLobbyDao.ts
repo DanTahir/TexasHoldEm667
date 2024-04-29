@@ -14,12 +14,16 @@ export interface GameLobby {
   flop_3?: string;
   turn?: string;
   river?: string;
+  num_players?: number;
 }
 
-export async function createLobby(name: string): Promise<string> {
+export async function createLobby(
+  name: string,
+  buy_in: number,
+): Promise<string> {
   const { game_lobby_id } = await db.one(
-    "INSERT INTO game_lobbies (name) VALUES ($1) RETURNING game_lobby_id",
-    [name],
+    "INSERT INTO game_lobbies (name, buy_in) VALUES ($1, $2) RETURNING game_lobby_id",
+    [name, buy_in],
   );
 
   return game_lobby_id;
@@ -32,19 +36,46 @@ export async function deleteLobby(game_lobby_id: string) {
 }
 
 export async function getGameLobbyById(lobbyId: string): Promise<GameLobby> {
-  return await db.one("SELECT * FROM game_lobbies WHERE game_lobby_id=$1", [
-    lobbyId,
-  ]);
+  const { game_lobby_id } = await db.one(
+    "SELECT * FROM game_lobbies WHERE game_lobby_id=$1",
+    [lobbyId],
+  );
+
+  return game_lobby_id;
 }
 
 export async function getGameLobbyByName(name: string): Promise<GameLobby> {
-  return await db.one("SELECT * FROM game_lobbies WHERE name=$1", [name]);
+  const { game_lobby } = await db.one(
+    "SELECT * FROM game_lobbies WHERE name=$1",
+    [name],
+  );
+
+  return game_lobby;
 }
 
-export async function getRecentGames(): Promise<GameLobby[] | null> {
-  return await db.manyOrNone(
-    "SELECT * FROM game_lobbies ORDER BY created_at DESC LIMIT 10",
-  );
+type GameLobbyNameAndPlayerCount = {
+  id: string;
+  name: string;
+  players: number;
+};
+
+export async function getRecentGames() {
+  const recentGameQuery = `
+  SELECT l.game_lobby_id, l.name, COUNT(p.game_lobby_id) AS num_players        
+    FROM game_lobbies AS l
+  LEFT JOIN 
+    players AS p
+  ON 
+    (l.game_lobby_id = p.game_lobby_id)
+  GROUP BY 
+    l.game_lobby_id
+  ORDER BY 
+    created_at DESC`;
+
+  const game_lobbies: GameLobbyNameAndPlayerCount[] =
+    await db.manyOrNone(recentGameQuery);
+
+  return game_lobbies;
 }
 
 export async function updateCurrentPlayer(
