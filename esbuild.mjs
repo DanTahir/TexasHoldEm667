@@ -37,27 +37,13 @@ const CONFIG = {
   ],
 };
 
-const CONFIG_CHAT = {
-  entryPoints: [path.join(FRONTEND_PATH, "chat/index.ts")],
-  bundle: true,
-  outdir: path.join(OUT_PATH, "chat"),
-  minify: !dev,
-  sourcemap: dev,
-  logLevel: "debug",
-  target: "esnext",
-};
-
 if (dev) {
   async function watch() {
     let ctx = await esbuild.context(CONFIG);
     await ctx.watch();
     console.log("Watching...");
-    let ctxChat = await esbuild.context(CONFIG_CHAT);
-    await ctxChat.watch();
-    console.log("Watching chat script...");
   }
   watch();
 } else {
   await esbuild.build(CONFIG);
-  await esbuild.build(CONFIG_CHAT);
 }

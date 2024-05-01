@@ -1,15 +1,14 @@
-const modalDialog = document.getElementById(
-  "create-game-modal",
-) as HTMLDialogElement;
+import { Socket, io } from "socket.io-client";
+import { eventHandlers } from "./events";
+import { messageHandlers } from "./messages";
 
-const modalForm = document.getElementById("modal-form") as HTMLFormElement;
-
-document.getElementById("create-game")?.addEventListener("click", () => {
-  modalDialog.showModal();
-});
-
-modalDialog.addEventListener("click", (event: Event) => {
-  if (!modalForm.contains(event.target as HTMLElement)) {
-    modalDialog.close();
+declare global {
+  interface Window {
+    socket: Socket;
   }
-});
+}
+
+window.socket = io();
+
+eventHandlers.forEach((handle) => handle());
+messageHandlers.forEach((handler) => handler(window.socket));
