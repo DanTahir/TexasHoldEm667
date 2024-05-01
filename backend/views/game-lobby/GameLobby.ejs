@@ -3,37 +3,12 @@
     <link rel="stylesheet" href="/css/poker-table.css" />
     <link rel="stylesheet" href="/css/main.css" />
     <script src="/js/index.js" type="text/javascript" defer></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const seats = document.querySelectorAll(".seat");
-
-        // Loop through each seat and add a click event listener to the button
-        seats.forEach(function (seat) {
-          const button = seat.querySelector("button");
-          button.addEventListener("click", function () {
-            const currentTextContent = this.textContent;
-
-            if (currentTextContent === "Join") {
-              return (this.textContent = "Waiting");
-            }
-
-            this.textContent = "Join";
-          });
-        });
-      });
-    </script>
   </head>
-
   <body class="scrollbar-hide">
-
     <div class="game-container">
-
       <div class="game-lobby">
-
         <div class="poker-table-container">
-
           <%- include("./PokerTable.ejs") %>
-
           <div class="actions-grid">
             <div class="seat action-1">
               <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
