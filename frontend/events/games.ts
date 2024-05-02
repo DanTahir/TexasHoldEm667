@@ -2,9 +2,10 @@ const allSeats = document.querySelectorAll(".seat");
 
 export function handle() {
   allSeats.forEach((seat, i) => {
-    if (seat.hasAttribute(".empty-seat")) {
+    if (!seat.classList.contains("empty-seat")) {
       return;
     }
+    console.log(`hi from seat ${i + 1}`);
 
     const button = seat.querySelector("button");
 
