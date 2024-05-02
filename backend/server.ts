@@ -15,6 +15,7 @@ import connectPgSimple from "connect-pg-simple";
 import { sessionLocals } from "@backend/middleware/session-locals";
 import { Server, Socket } from "socket.io";
 import cors from "cors";
+import signale from "signale";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,7 +57,7 @@ app.set("io", io);
 io.on("connection", (socket: Socket) => {
   const sessionId = socket.request.session.id;
 
-  console.log("connection: " + sessionId);
+  signale.info("connection: " + sessionId);
 
   socket.join(sessionId);
 });
@@ -74,5 +75,5 @@ app.use((_request, _response, next) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+  signale.info(`Server started on port ${PORT}`);
 });

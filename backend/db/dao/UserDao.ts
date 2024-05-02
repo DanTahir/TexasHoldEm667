@@ -30,10 +30,7 @@ export async function readUserFromUsername(username: string) {
   return user;
 }
 
-export async function updateUserBalance(
-  username: string,
-  depositAmount: number,
-) {
+export async function updateUserBalance(username: string, balance: number) {
   const user = await readUserFromUsername(username);
 
   if (!user) {
@@ -41,7 +38,7 @@ export async function updateUserBalance(
   }
 
   await db.none("UPDATE users SET balance = $1 WHERE username = $2", [
-    user.balance + depositAmount,
+    balance,
     username,
   ]);
 }

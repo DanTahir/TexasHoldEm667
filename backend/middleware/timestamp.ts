@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
+import signale from "signale";
 
 export const requestTime: RequestHandler = (req, _res, next) => {
-  console.log(`Request received at ${Date.now()}: ${req.method}`);
+  signale.info(`Request received at ${Date.now()}: ${req.method}`);
 
   next();
 };

@@ -1,40 +1,60 @@
 import { db } from "@backend/db/connection.js";
+import { User } from "./UserDao";
 
-export interface Player {
-  player_id?: string;
-  status?: string;
+export type PlayerStatus = "playing" | "folded" | "all-in" | "spectating";
+
+export type Player = {
+  player_id: string;
+  status: PlayerStatus;
   stake: number;
-  bet?: number;
+  bet: number;
   play_order: number;
   user_id: string;
   game_lobby_id: string;
   card_1?: string;
   card_2?: string;
-}
+};
 
-export async function createPlayer(player: Player): Promise<string> {
+export type CreatePlayerPayload = {
+  userID: string;
+  status: PlayerStatus;
+  gameLobbyID: string;
+  playOrder: number;
+  stake: number;
+};
+
+export type PlayerWithUserInfo = User & Player;
+
+export async function createPlayer(
+  player: CreatePlayerPayload,
+): Promise<string> {
   const CREATE_PLAYER_SQL =
     "INSERT INTO players (user_id, status, game_lobby_id, play_order, stake) VALUES ($1, $2, $3, $4, $5) RETURNING player_id";
-  const { user_id, status, game_lobby_id, play_order, stake } = player;
+  const { userID, status, gameLobbyID, playOrder, stake } = player;
 
   const { player_id } = await db.one(CREATE_PLAYER_SQL, [
-    user_id,
+    userID,
     status,
-    game_lobby_id,
-    play_order,
+    gameLobbyID,
+    playOrder,
     stake,
   ]);
 
   return player_id;
 }
 
-export async function getPlayersByLobbyId(
-  game_lobby_id: string,
-): Promise<Player[] | null> {
-  return await db.manyOrNone(
-    "SELECT * FROM players WHERE game_lobby_id=$1 ORDER by play_order ASC",
-    [game_lobby_id],
+export async function getPlayersByLobbyId(gameLobbyID: string) {
+  const players: Array<PlayerWithUserInfo> = await db.manyOrNone(
+    `
+      SELECT * FROM players AS p
+        INNER JOIN users AS u
+          ON u.id = p.user_id
+        WHERE game_lobby_id=$1
+        ORDER BY play_order ASC
+    `,
+    [gameLobbyID],
   );
+  return players;
 }
 
 export async function getPlayerByUserAndLobbyId(
