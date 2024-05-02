@@ -1,7 +1,11 @@
-const seats = document.querySelectorAll(".seat.empty-seat");
+const allSeats = document.querySelectorAll(".seat");
 
 export function handle() {
-  seats.forEach((seat, i) => {
+  allSeats.forEach((seat, i) => {
+    if (seat.hasAttribute(".empty-seat")) {
+      return;
+    }
+
     const button = seat.querySelector("button");
 
     if (!button) return;
