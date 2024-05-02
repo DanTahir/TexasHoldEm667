@@ -60,17 +60,21 @@ router.post(
     try {
       const gameLobbyID = await createLobby(name, stake);
 
-      const playerObject: CreatePlayerPayload = {
+      const player = await readUserFromID(userID);
+      if (player.balance < stake) {
+        throw Error("Not enough money for stake");
+      }
+
+      await updateUserBalance(player.username, player.balance - stake);
+
+      const playerPayload: CreatePlayerPayload = {
         status: "playing",
         stake,
         playOrder: 1,
         userID,
         gameLobbyID,
       };
-
-      // TODO: remove initial stake from balance
-
-      await createPlayer(playerObject);
+      await createPlayer(playerPayload);
 
       response.redirect(`/game/${gameLobbyID}`);
     } catch (error) {
