@@ -2,7 +2,6 @@ import { Screens, Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import {
   CreatePlayerPayload,
-  Player,
   createPlayer,
   getPlayersByLobbyId,
 } from "@backend/db/dao/PlayerDao";
@@ -24,19 +23,18 @@ interface CreateRequestPayload {
   user_id: string;
 }
 
-router.get("/:id", validateGameExists);
-
-// Game exists render the page
 router.get(
   "/:id",
+  validateGameExists,
   async (request: Request, response: Response, next: NextFunction) => {
     const gameID = request.params.id;
     const players = await getPlayersByLobbyId(gameID);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
-    const player_map: Record<string, Player> = {};
+    const player_map: Record<string, string> = {};
     for (const player of players) {
-      player_map[`player_${player.play_order}`] = player;
+      player_map[`player_${player.play_order}`] =
+        `${player.username}\n$(${player.stake})`;
     }
 
     try {
@@ -171,6 +169,7 @@ router.post(
     io.emit(`game:join:${gameID}`, {
       playOrder,
       player: player.username,
+      stake: game.buy_in,
     });
   },
 );
