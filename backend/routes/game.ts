@@ -38,7 +38,6 @@ router.get(
     for (const player of players) {
       player_map[`player_${player.play_order}`] = player;
     }
-    console.log(player_map);
 
     try {
       response.render(Views.GameLobby, {

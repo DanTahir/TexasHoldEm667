@@ -4,7 +4,7 @@ import { User } from "./UserDao";
 export type PlayerStatus = "playing" | "folded" | "all-in" | "spectating";
 
 export type Player = {
-  player_id?: string;
+  player_id: string;
   status: PlayerStatus;
   stake: number;
   bet: number;
@@ -31,7 +31,6 @@ export async function createPlayer(
   const CREATE_PLAYER_SQL =
     "INSERT INTO players (user_id, status, game_lobby_id, play_order, stake) VALUES ($1, $2, $3, $4, $5) RETURNING player_id";
   const { userID, status, gameLobbyID, playOrder, stake } = player;
-  console.log("game lobby id in create:", gameLobbyID);
 
   const { player_id } = await db.one(CREATE_PLAYER_SQL, [
     userID,

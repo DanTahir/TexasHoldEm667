@@ -2,6 +2,7 @@ import * as esbuild from "esbuild";
 import * as fs from "fs";
 import * as path from "path";
 import * as url from "url";
+import signale from "signale";
 
 import copyStaticFiles from "esbuild-copy-static-files";
 
@@ -30,7 +31,6 @@ const CONFIG = {
       errorOnExist: false,
       recursive: true,
       filter: (filename) => {
-        console.log(filename);
         return filename !== "frontend/styles/main.css";
       },
     }),
@@ -41,7 +41,7 @@ if (dev) {
   async function watch() {
     let ctx = await esbuild.context(CONFIG);
     await ctx.watch();
-    console.log("Watching...");
+    signale.log("Watching...");
   }
   watch();
 } else {
