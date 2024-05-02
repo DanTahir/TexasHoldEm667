@@ -41,7 +41,8 @@ managed using migrations from node-pg-migrate. We wrote our project in
 Typescript, compiled to Javascript using esbuild. We access our database in code
 using pg promise, and use socket.io to push from the server to clients. We use 
 express session to manage user sessions, with connect-pg-simple used to make
-the sessions persistent. User passwords are encrypted using bcrypt.
+the sessions persistent. User passwords are encrypted using bcrypt. We use ejs
+templates to render our pages. We use tailwind css to style our pages.
 
 # Our Data Organization
 
