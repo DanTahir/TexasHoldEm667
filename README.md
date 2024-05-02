@@ -23,11 +23,25 @@ the final cards are shown), the players must show their cards and the best hand
 wins the pot. If only one player is left in the hand at any point before the
 final call, that player wins the pot regardless of their cards.
 
-# Our Project
+# Our Site
+On our site a user can register an account with a username, email and password.
+Once they do that, they can log in. When they log in they can create a new 
+game lobby or join an existing game lobby. Once the player is in a game lobby
+they can take one of six available seats in the game. Once a minimum of four
+players have joined, any player can click Start to start the next hand. Once 
+Start is clicked, cards are dealt and the hand is played. Once the hand 
+concludes, the pot is added to the winner's stake and, if at least four players
+are still in, a new hand can be started. Players can play in multiple game
+lobbies if desired.
+
+# Our Technology
 
 We wrote a node.js express app using a postgresql database, with the database
 managed using migrations from node-pg-migrate. We wrote our project in
-Typescript, compiled to Javascript using esbuild.
+Typescript, compiled to Javascript using esbuild. We access our database in code
+using pg promise, and use socket.io to push from the server to clients. We use 
+express session to manage user sessions, with connect-pg-simple used to make
+the sessions persistent. User passwords are encrypted using bcrypt.
 
 # Our Data Organization
 
