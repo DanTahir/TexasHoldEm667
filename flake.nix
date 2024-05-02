@@ -6,18 +6,34 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = inputs @ {flake-parts, ...}:
+  outputs = inputs @ {
+    nixpkgs,
+    flake-parts,
+    ...
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [];
 
       systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
 
-      perSystem = {pkgs, ...}: {
+      perSystem = {
+        pkgs,
+        system,
+        ...
+      }: {
+        _module.args = {
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
+
         devShells.default = pkgs.mkShell {
           name = "csc667-poker";
           buildInputs = with pkgs; [
             nodejs_18
             postgresql # PostgreSQL 15
+            ngrok
           ];
           shellHook = ''
             root_dir="$(git rev-parse --show-toplevel)"
