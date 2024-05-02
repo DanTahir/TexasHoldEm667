@@ -7,9 +7,7 @@ const handler = (request: Request, response: Response) => {
 
   const io = request.app.get("io");
 
-
   io.emit(`chat:message:${id === undefined ? 0 : id}`, {
-
     from: request.session.user?.username || "",
     message,
   });

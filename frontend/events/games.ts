@@ -1,4 +1,4 @@
-const seats = document.querySelectorAll(".seat");
+const seats = document.querySelectorAll(".seat.empty-seat");
 
 export function handle() {
   seats.forEach(function (seat) {
@@ -6,15 +6,27 @@ export function handle() {
 
     if (!button) return;
 
-    button.addEventListener("click", function () {
-      const currentTextContent = this.textContent;
+    const handler = () => {
+      button.textContent = "Joining...";
+      button.removeEventListener("click", handler);
 
-      if (currentTextContent === "Join") {
-        this.textContent = "Waiting";
-        return;
-      }
+      const gameID = document.location.pathname.split("/")[2];
 
-      this.textContent = "Join";
-    });
+      fetch(`/game/${gameID}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stake: 1001,
+        }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          button.textContent = "Join";
+          button.addEventListener("click", handler);
+          alert(await res.text());
+        }
+      });
+    };
+
+    button.addEventListener("click", handler);
   });
 }

@@ -1,9 +1,17 @@
 import { db } from "@backend/db/connection.js";
 
+export type GameStage =
+  | "waiting"
+  | "preflop"
+  | "flop"
+  | "turn"
+  | "river"
+  | "final";
+
 export interface GameLobby {
   game_lobby_id: string;
   name: string;
-  game_stage: string;
+  game_stage: GameStage;
   buy_in: number;
   pot: number;
   big_blind: number;
@@ -36,12 +44,12 @@ export async function deleteLobby(game_lobby_id: string) {
 }
 
 export async function getGameLobbyById(lobbyId: string): Promise<GameLobby> {
-  const { game_lobby_id } = await db.one(
+  const gameLobby: GameLobby = await db.one(
     "SELECT * FROM game_lobbies WHERE game_lobby_id=$1",
     [lobbyId],
   );
 
-  return game_lobby_id;
+  return gameLobby;
 }
 
 export async function getGameLobbyByName(name: string): Promise<GameLobby> {
@@ -97,7 +105,7 @@ export async function updateDealer(game_lobby_id: string, player_id: string) {
 
 export async function updateGameStage(
   game_lobby_id: string,
-  game_stage: string,
+  game_stage: GameStage,
 ) {
   await db.none(
     "UPDATE game_lobbies SET game_stage=$2 WHERE game_lobby_id=$1",

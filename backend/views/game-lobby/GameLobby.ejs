@@ -10,29 +10,65 @@
         <div class="poker-table-container">
           <%- include("./PokerTable.ejs") %>
           <div class="actions-grid">
-            <div class="seat action-1">
-              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-            </div>
+            <% if (players.at(0)) { %>
+              <div class="seat action-1">
+                <%- include("../partials/Button.ejs", {buttonText: players.at(0).username }) %>
+              </div>
+            <% } else { %>
+              <div class="seat empty-seat action-1">
+                <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+              </div>
+            <% } %>
 
-            <div class="seat action-2">
-              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-            </div>
+            <% if (players.at(1)) { %>
+              <div class="seat action-2">
+                <%- include("../partials/Button.ejs", {buttonText: players.at(1).username }) %>
+              </div>
+            <% } else { %>
+              <div class="seat empty-seat action-2">
+                <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+              </div>
+            <% } %>
 
-            <div class="seat action-3">
-              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-            </div>
+            <% if (players.at(2)) { %>
+              <div class="seat action-3">
+                <%- include("../partials/Button.ejs", {buttonText: players.at(2).username }) %>
+              </div>
+            <% } else { %>
+              <div class="seat empty-seat action-3">
+                <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+              </div>
+            <% } %>
 
-            <div class="seat action-4">
-              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-            </div>
+            <% if (players.at(3)) { %>
+              <div class="seat action-4">
+                <%- include("../partials/Button.ejs", {buttonText: players.at(3).username }) %>
+              </div>
+            <% } else { %>
+              <div class="seat empty-seat action-4">
+                <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+              </div>
+            <% } %>
 
-            <div class="seat action-5">
-              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-            </div>
+            <% if (players.at(4)) { %>
+              <div class="seat action-5">
+                <%- include("../partials/Button.ejs", {buttonText: players.at(4).username }) %>
+              </div>
+            <% } else { %>
+              <div class="seat empty-seat action-5">
+                <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+              </div>
+            <% } %>
 
-            <div class="seat action-6">
-              <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
-            </div>
+            <% if (players.at(5)) { %>
+              <div class="seat action-6">
+                <%- include("../partials/Button.ejs", {buttonText: players.at(5).username }) %>
+              </div>
+            <% } else { %>
+              <div class="seat empty-seat action-6">
+                <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
+              </div>
+            <% } %>
           </div>
         </div>
 
