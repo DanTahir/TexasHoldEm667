@@ -10,9 +10,9 @@
         <div class="poker-table-container">
           <%- include("./PokerTable.ejs") %>
           <div class="actions-grid">
-            <% if (players.at(0)) { %>
+            <% if (players.player_1) { %>
               <div class="seat action-1">
-                <%- include("../partials/Button.ejs", {buttonText: players.at(0).username }) %>
+                <%- include("../partials/Button.ejs", {buttonText: players.player_1.username }) %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-1">
@@ -20,9 +20,9 @@
               </div>
             <% } %>
 
-            <% if (players.at(1)) { %>
+            <% if (players.player_2) { %>
               <div class="seat action-2">
-                <%- include("../partials/Button.ejs", {buttonText: players.at(1).username }) %>
+                <%- include("../partials/Button.ejs", {buttonText: players.player_2.username }) %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-2">
@@ -30,9 +30,9 @@
               </div>
             <% } %>
 
-            <% if (players.at(2)) { %>
+            <% if (players.player_3) { %>
               <div class="seat action-3">
-                <%- include("../partials/Button.ejs", {buttonText: players.at(2).username }) %>
+                <%- include("../partials/Button.ejs", {buttonText: players.player_3.username }) %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-3">
@@ -40,9 +40,9 @@
               </div>
             <% } %>
 
-            <% if (players.at(3)) { %>
+            <% if (players.player_4) { %>
               <div class="seat action-4">
-                <%- include("../partials/Button.ejs", {buttonText: players.at(3).username }) %>
+                <%- include("../partials/Button.ejs", {buttonText: players.player_4.username }) %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-4">
@@ -50,9 +50,9 @@
               </div>
             <% } %>
 
-            <% if (players.at(4)) { %>
+            <% if (players.player_5) { %>
               <div class="seat action-5">
-                <%- include("../partials/Button.ejs", {buttonText: players.at(4).username }) %>
+                <%- include("../partials/Button.ejs", {buttonText: players.player_5.username }) %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-5">
@@ -60,9 +60,9 @@
               </div>
             <% } %>
 
-            <% if (players.at(5)) { %>
+            <% if (players.player_6) { %>
               <div class="seat action-6">
-                <%- include("../partials/Button.ejs", {buttonText: players.at(5).username }) %>
+                <%- include("../partials/Button.ejs", {buttonText: players.player_6.username }) %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-6">

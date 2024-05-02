@@ -1,7 +1,7 @@
 const seats = document.querySelectorAll(".seat.empty-seat");
 
 export function handle() {
-  seats.forEach(function (seat) {
+  seats.forEach((seat, i) => {
     const button = seat.querySelector("button");
 
     if (!button) return;
@@ -16,7 +16,8 @@ export function handle() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          stake: 1001,
+          stake: 1001, // TODO: get stake from input modal
+          playOrder: i + 1,
         }),
       }).then(async (res) => {
         if (!res.ok) {

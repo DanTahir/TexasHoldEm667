@@ -2,6 +2,7 @@ import { Screens, Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import {
   CreatePlayerPayload,
+  Player,
   createPlayer,
   getPlayersByLobbyId,
 } from "@backend/db/dao/PlayerDao";
@@ -32,11 +33,18 @@ router.get(
     const gameID = request.params.id;
     const players = await getPlayersByLobbyId(gameID);
 
+    // This allows for easier access from EJS. I wouldn't do this otherwise.
+    const player_map: Record<string, Player> = {};
+    for (const player of players) {
+      player_map[`player_${player.play_order}`] = player;
+    }
+    console.log(player_map);
+
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
         id: request.params.id,
-        players,
+        players: player_map,
       });
     } catch (error) {
       next(error);
@@ -101,6 +109,7 @@ router.post(
 
 type JoinGamePayload = {
   stake: number;
+  playOrder: number;
 };
 
 router.post(
@@ -108,6 +117,7 @@ router.post(
   async (req: TypedRequestBody<JoinGamePayload>, res) => {
     const gameID = req.params.id;
     const userID = req.session.user.id;
+    const { stake, playOrder } = req.body;
 
     let game: GameLobby;
     try {
@@ -133,7 +143,6 @@ router.post(
       res.status(403).send("You're already in this game!");
       return;
     }
-    const { stake } = req.body;
 
     if (stake < game.buy_in) {
       const message = `unable to join ${gameID}: ${userID} did not specify minimum stake`;
@@ -152,7 +161,6 @@ router.post(
 
     await updateUserBalance(player.username, player.balance - stake);
 
-    const playOrder = players.length + 1;
     const playerPayload: CreatePlayerPayload = {
       userID: req.session.user.id,
       gameLobbyID: gameID,
