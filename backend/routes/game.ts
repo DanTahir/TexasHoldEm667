@@ -108,7 +108,6 @@ router.post(
 );
 
 type JoinGamePayload = {
-  stake: number;
   playOrder: number;
 };
 
@@ -117,7 +116,7 @@ router.post(
   async (req: TypedRequestBody<JoinGamePayload>, res) => {
     const gameID = req.params.id;
     const userID = req.session.user.id;
-    const { stake, playOrder } = req.body;
+    const { playOrder } = req.body;
 
     let game: GameLobby;
     try {
@@ -144,27 +143,20 @@ router.post(
       return;
     }
 
-    if (stake < game.buy_in) {
-      const message = `unable to join ${gameID}: ${userID} did not specify minimum stake`;
-      signale.warn(message);
-      res.status(403).send(`Please specify a stake that's >= ${game.buy_in}.`);
-      return;
-    }
-
     const player = await readUserFromID(userID);
-    if (player.balance < stake) {
+    if (player.balance < game.buy_in) {
       const message = `unable to join ${gameID}: ${userID} does not have enough money`;
       signale.warn(message);
       res.status(403).send("You don't have enough money!");
       return;
     }
 
-    await updateUserBalance(player.username, player.balance - stake);
+    await updateUserBalance(player.username, player.balance - game.buy_in);
 
     const playerPayload: CreatePlayerPayload = {
       userID: req.session.user.id,
       gameLobbyID: gameID,
-      stake,
+      stake: game.buy_in,
       status: game.game_stage === "waiting" ? "playing" : "spectating",
       playOrder,
     };
