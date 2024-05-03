@@ -1,0 +1,34 @@
+<html>
+
+  <head>
+    <link rel="stylesheet" href="/css/poker-card.css" />
+  </head>
+  <body class="poker-card">
+
+    <div class="poker-card-container">
+
+      <div class="card-icon">
+        <% if(suit === "heart" || suit === "diamond") { %>
+          <div class="red">
+            <% if(suit === "heart") { %>
+                ♥
+            <% }else { %>
+                ♦
+            <% } %>
+          </div>
+        <% } else{ %>
+          <div class="black">
+            <% if(suit === "club") { %>
+                ♣
+            <% }else { %>
+                ♠
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      <div class="card-number"></div>
+      <div class="card-number-reversed"></div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+.poker-card-container {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 0.5fr;
+  grid-template-rows: 0.8fr 1.3fr 0.8fr 1.3fr 0.8fr;
+  grid-auto-columns: 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "card-number . ."
+    ". . ."
+    ". card-icon ."
+    ". . ."
+    ". . card-number-reversed";
+  max-height: 1vh;
+}
+
+.card-icon {
+  grid-area: card-icon;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 35px;
+}
+
+.card-number {
+  grid-area: card-number;
+}
+
+.card-number-reversed {
+  grid-area: card-number-reversed;
+}
+
+.black {
+  color: black;
+}
+
+.red {
+  color: red;
+}
