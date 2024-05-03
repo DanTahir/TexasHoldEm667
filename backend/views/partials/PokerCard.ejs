@@ -1,5 +1,5 @@
+<!-- INFO: Make sure to add mappings inside of callee function for the Jack to Ace number to value mappings -->
 <html>
-
   <head>
     <link rel="stylesheet" href="/css/poker-card.css" />
   </head>
@@ -26,8 +26,12 @@
           </div>
         <% } %>
       </div>
-      <div class="card-number"></div>
-      <div class="card-number-reversed"></div>
+      <div class="card-number">
+        <%= number %>
+      </div>
+      <div class="card-number-reversed">
+        <%= number %>
+      </div>
 
     </div>
   </body>
