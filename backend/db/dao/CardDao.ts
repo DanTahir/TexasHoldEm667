@@ -1,4 +1,7 @@
 import { db } from "../connection.js";
+import pgPromise from "pg-promise";
+
+const pgp = pgPromise();
 
 export type suit = "spades" | "clubs" | "hearts" | "diamonds";
 
@@ -49,13 +52,19 @@ function shuffleDeck(deck: Card[]): Card[] {
 export async function createDeck(game_lobby_id: string) {
   try {
     const deck = shuffleDeck(initDeck(game_lobby_id));
-    const values = deck
-      .map(
-        (card) =>
-          `('${card.game_lobby_id}', ${card.card_id}, '${card.suit}', ${card.value}, ${card.shuffled_order})`,
-      )
-      .join(",");
-    const query = `INSERT INTO cards (game_lobby_id, card_id, suit, value, shuffled_order) VALUES ${values};`;
+    const cs = new pgp.helpers.ColumnSet(
+      ["game_lobby_id", "card_id", "suit", "value", "shuffled_order"],
+      { table: "cards" },
+    );
+    const values = deck.map((card) => ({
+      game_lobby_id: card.game_lobby_id,
+      card_id: card.card_id,
+      suit: card.suit,
+      value: card.value,
+      shuffled_order: card.shuffled_order,
+    }));
+
+    const query = pgp.helpers.insert(values, cs);
     // Execute the INSERT statement
     await db.none(query);
 
