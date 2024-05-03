@@ -1,12 +1,74 @@
 import { db } from "../connection.js";
 
+export type suit = "spades" | "clubs" | "hearts" | "diamonds";
+
 export interface Card {
   game_card_id?: string;
   game_lobby_id: string;
   card_id: number;
-  suit: string;
+  suit: suit;
   value: number;
   shuffled_order: number;
+}
+
+function initDeck(gameLobbyID: string): Card[] {
+  const suits: suit[] = ["hearts", "diamonds", "clubs", "spades"];
+  const deck: Card[] = [];
+  let i = 1;
+  for (const suit of suits) {
+    for (let value = 2; value <= 14; value++) {
+      deck.push({
+        game_lobby_id: gameLobbyID,
+        card_id: i,
+        suit,
+        value,
+        shuffled_order: 0,
+      });
+      i++;
+    }
+  }
+  return deck;
+}
+
+function shuffleDeck(deck: Card[]): Card[] {
+  const shuffledDeck = deck.slice();
+
+  for (let i = shuffledDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
+  }
+
+  // Assign random order between 1 and 52 to each card
+  shuffledDeck.forEach((card, index) => {
+    card.shuffled_order = index + 1;
+  });
+
+  return shuffledDeck;
+}
+
+export async function createDeck(game_lobby_id: string) {
+  try {
+    const deck = shuffleDeck(initDeck(game_lobby_id));
+    const values = deck
+      .map(
+        (card) =>
+          `('${card.game_lobby_id}', ${card.card_id}, '${card.suit}', ${card.value}, ${card.shuffled_order})`,
+      )
+      .join(",");
+    const query = `INSERT INTO cards (game_lobby_id, card_id, suit, value, shuffled_order) VALUES ${values};`;
+    // Execute the INSERT statement
+    await db.none(query);
+
+    console.log("Deck of cards inserted successfully.");
+  } catch (error) {
+    console.error("Error inserting deck:", error);
+  }
+}
+
+export async function deleteDeck(gameLobbyID: string) {
+  return await db.none("DELETE FROM cards WHERE game_lobby_id = $1", [
+    gameLobbyID,
+  ]);
 }
 
 export async function createCard(card: Card): Promise<string> {

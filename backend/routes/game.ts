@@ -10,6 +10,7 @@ import {
   createLobby,
   getGameLobbyById,
 } from "@backend/db/dao/GameLobbyDao";
+import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
@@ -173,3 +174,15 @@ router.post(
     });
   },
 );
+
+router.get("/:id/createDeck", async (request: Request, response: Response) => {
+  const gameID = request.params.id;
+
+  try {
+    deleteDeck(gameID);
+    createDeck(gameID);
+    response.status(200);
+  } catch (error) {
+    response.status(500).send("unable to create deck");
+  }
+});
