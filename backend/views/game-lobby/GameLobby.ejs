@@ -2,6 +2,7 @@
   <head>
     <link rel="stylesheet" href="/css/poker-table.css" />
     <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/poker-card.css" />
     <script src="/js/index.js" type="text/javascript" defer></script>
   </head>
   <body class="scrollbar-hide">
@@ -69,6 +70,15 @@
                 <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
               </div>
             <% } %>
+
+            <div class="card-area">
+              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "6", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "7", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: true}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: true}) %>
+
+            </div>
           </div>
         </div>
 
