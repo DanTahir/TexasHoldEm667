@@ -206,34 +206,40 @@ router.post("/:id/quit", async (req: Request, res) => {
   await updateUserBalance(user.username, user.balance + player.stake);
   await updatePot(gameID, game.pot + player.bet);
   if (game.dealer === player.player_id) {
-    let newPlayer = null;
-    let position = player.play_order;
-    while (!newPlayer) {
-      position++;
-      if (position > 6) {
-        position = 1;
+    const players = await getPlayersByLobbyId(gameID);
+    if (players.length > 1) {
+      let newPlayer = null;
+      let position = player.play_order;
+      while (!newPlayer) {
+        position++;
+        if (position > 6) {
+          position = 1;
+        }
+        newPlayer = await getPlayerByGameIDAndPlayOrder(
+          game.game_lobby_id,
+          position,
+        );
       }
-      newPlayer = await getPlayerByGameIDAndPlayOrder(
-        game.game_lobby_id,
-        position,
-      );
+      await updateDealer(game.game_lobby_id, newPlayer.player_id);
     }
-    await updateDealer(game.game_lobby_id, newPlayer.player_id);
   }
   if (game.current_player === player.player_id) {
-    let newPlayer = null;
-    let position = player.play_order;
-    while (!newPlayer) {
-      position++;
-      if (position > 6) {
-        position = 1;
+    const players = await getPlayersByLobbyId(gameID);
+    if (players.length > 1) {
+      let newPlayer = null;
+      let position = player.play_order;
+      while (!newPlayer) {
+        position++;
+        if (position > 6) {
+          position = 1;
+        }
+        newPlayer = await getPlayerByGameIDAndPlayOrder(
+          game.game_lobby_id,
+          position,
+        );
       }
-      newPlayer = await getPlayerByGameIDAndPlayOrder(
-        game.game_lobby_id,
-        position,
-      );
+      await updateCurrentPlayer(game.game_lobby_id, newPlayer.player_id);
     }
-    await updateCurrentPlayer(game.game_lobby_id, newPlayer.player_id);
   }
   await removePlayerByPlayerId(player.player_id);
 
