@@ -42,22 +42,6 @@ svg {
   height: 100%;
   align-items: flex-start;
 }
-/* .actions-grid { */
-/*   position: absolute; */
-/*   display: grid; */
-/*   grid-auto-columns: 1fr; */
-/*   grid-template-columns: 1fr 0.9fr 0.9fr 1.4fr 0.9fr 0.9fr 1fr; */
-/*   grid-template-rows: 0.9fr 1.2fr 1.1fr 1.2fr 0.9fr; */
-/*   grid-template-areas: */
-/*     ". . action-1 . action-2 . ." */
-/*     ". . player-cards-1 . player-cards-2 . ." */
-/*     "action-6 player-cards-6 . card-area . player-cards-3 action-3" */
-/*     ". . player-cards-5 . player-cards-4 . ." */
-/*     ". . action-5 . action-4 . ."; */
-/*   align-items: center; */
-/*   width: auto; */
-/*   height: 100%; */
-/* } */
 
 .card-container {
   display: flex;
