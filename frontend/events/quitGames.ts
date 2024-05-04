@@ -1,7 +1,9 @@
-const quitButtonNull = document.querySelector(".quit-button");
-const quitButton = quitButtonNull ? quitButtonNull : new HTMLButtonElement();
-
 export function handle() {
+  const quitButtonDivNull = document.querySelector(".quit-button");
+  const quitButtonDiv =
+    quitButtonDivNull ? quitButtonDivNull : new HTMLDivElement();
+  const quitButtonNull = quitButtonDiv.querySelector("button");
+  const quitButton = quitButtonNull ? quitButtonNull : new HTMLButtonElement();
   const handler = () => {
     quitButton.textContent = "Quitting...";
     const gameID = document.location.pathname.split("/")[2];
