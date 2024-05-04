@@ -15,8 +15,8 @@
               <div class="seat action-1">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_1 }) %>
                 <div class = "card-container">
-                  <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: false}) %>
-                  <%- include("../partials/PokerCard.ejs", {suit: "spade", number: "5", hidden: false}) %>
+                  <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 14, hidden: false}) %>
+                  <%- include("../partials/PokerCard.ejs", {suit: "spades", number: 5, hidden: false}) %>
                 </div>
               </div>
             <% } else { %>
@@ -76,11 +76,11 @@
             <% } %>
 
             <div class="card-area">
-              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: false}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "10", hidden: false}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "7", hidden: false}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: true}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "heart", number: "5", hidden: true}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "10", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "7", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: true}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: true}) %>
             </div>
 
           </div>
