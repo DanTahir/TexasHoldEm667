@@ -1,5 +1,6 @@
 import { db } from "../connection.js";
 import pgPromise from "pg-promise";
+import signale from "signale";
 
 const pgp = pgPromise();
 
@@ -70,7 +71,7 @@ export async function createDeck(game_lobby_id: string) {
 
     console.log("Deck of cards inserted successfully.");
   } catch (error) {
-    console.error("Error inserting deck:", error);
+    signale.warn("Error inserting deck: " + error);
   }
 }
 
@@ -78,19 +79,6 @@ export async function deleteDeck(gameLobbyID: string) {
   return await db.none("DELETE FROM cards WHERE game_lobby_id = $1", [
     gameLobbyID,
   ]);
-}
-
-export async function createCard(card: Card): Promise<string> {
-  return await db.one(
-    "INSERT INTO cards (game_lobby_id, card_id, suit, value, shuffled_order) VALUES ($1, $2, $3, $4, $5) RETURNING game_card_id",
-    [
-      card.game_lobby_id,
-      card.card_id,
-      card.suit,
-      card.value,
-      card.shuffled_order,
-    ],
-  );
 }
 
 export async function getCardByGameCardId(game_card_id: string): Promise<Card> {
@@ -106,18 +94,4 @@ export async function getCardsByGame(
     "SELECT * FROM cards WHERE game_lobby_id=$1 ORDER BY shuffled_order ASC",
     [game_lobby_id],
   );
-}
-
-export async function deleteCard(game_card_id: string) {
-  await db.none("DELETE FROM cards WHERE game_card_id=$1", [game_card_id]);
-}
-
-export async function updatePlayOrder(
-  game_card_id: number,
-  play_order: number,
-) {
-  await db.none("UPDATE cards SET play_order=$2 WHERE game_card_id=$1", [
-    game_card_id,
-    play_order,
-  ]);
 }
