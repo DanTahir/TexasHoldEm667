@@ -179,8 +179,8 @@ router.get("/:id/createDeck", async (request: Request, response: Response) => {
   const gameID = request.params.id;
 
   try {
-    deleteDeck(gameID);
-    createDeck(gameID);
+    await deleteDeck(gameID);
+    await createDeck(gameID);
     response.status(200);
   } catch (error) {
     response.status(500).send("unable to create deck");
