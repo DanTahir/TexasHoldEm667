@@ -107,6 +107,9 @@ svg {
 }
 
 .poker-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 8rem;
 }
 input {

@@ -17,6 +17,7 @@ import {
   updateDealer,
   updateCurrentPlayer,
 } from "@backend/db/dao/GameLobbyDao";
+import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
@@ -180,6 +181,7 @@ router.post(
     });
   },
 );
+
 router.post("/:id/quit", async (req: Request, res) => {
   const gameID = req.params.id;
   const userID = req.session.user.id;
@@ -251,3 +253,18 @@ router.post("/:id/quit", async (req: Request, res) => {
     return;
   }
 });
+
+
+router.get("/:id/createDeck", async (request: Request, response: Response) => {
+  const gameID = request.params.id;
+
+  try {
+    await deleteDeck(gameID);
+    await createDeck(gameID);
+    response.status(200);
+  } catch (error) {
+    response.status(500).send("unable to create deck");
+  }
+});
+
+
