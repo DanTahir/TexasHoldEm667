@@ -4,7 +4,6 @@ const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
 
 export function handle(socket: Socket) {
   socket.on(`game:join:${roomID}`, ({ playOrder, player, stake }) => {
-    console.log("Hello from player join socket, playOrder = " + playOrder);
     const seats = document.querySelectorAll(".seat");
     const seat = seats.item(playOrder - 1);
 

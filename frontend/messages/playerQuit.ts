@@ -4,7 +4,6 @@ import { Socket } from "socket.io-client";
 
 export function handle(socket: Socket) {
   socket.on(`game:quit:${roomID}`, ({ playOrder }) => {
-    console.log("Hello from the socket, playorder = " + playOrder);
     const seats = document.querySelectorAll(".seat");
 
     const seat = seats.item(playOrder - 1);
