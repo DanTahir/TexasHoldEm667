@@ -2,20 +2,35 @@ import { Screens, Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import {
   CreatePlayerPayload,
+  Player,
   createPlayer,
   getPlayersByLobbyId,
+  removePlayerByPlayerId,
+  updateCards,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
   createLobby,
   getGameLobbyById,
+  updateCommunityCards,
+  updateGameStage,
 } from "@backend/db/dao/GameLobbyDao";
-import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
+import {
+  Card,
+  createDeck,
+  deleteDeck,
+  getCardsByGame,
+} from "@backend/db/dao/CardDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
-import { readUserFromID, updateUserBalance } from "@backend/db/dao/UserDao";
+import {
+  addToUserBalance,
+  readUserFromID,
+  updateUserBalance,
+} from "@backend/db/dao/UserDao";
 import signale from "signale";
+import { Socket } from "socket.io";
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -177,14 +192,108 @@ router.post(
   },
 );
 
-router.get("/:id/createDeck", async (request: Request, response: Response) => {
-  const gameID = request.params.id;
+async function kickPlayer(
+  gameLobbyID: string,
+  player: Player,
+  username: string,
+  socket: Socket,
+) {
+  await removePlayerByPlayerId(player.player_id);
 
+  await addToUserBalance(username, player.stake);
+
+  socket.emit(`game:kick:${gameLobbyID}`, {
+    playerID: player.player_id,
+    username,
+  });
+}
+
+const routesCurrentlyStarting: Record<string, boolean> = {};
+
+router.post("/:id/start", async (req, res) => {
+  const gameID = req.params.id;
   try {
-    await deleteDeck(gameID);
-    await createDeck(gameID);
-    response.status(200);
-  } catch (error) {
-    response.status(500).send("unable to create deck");
+    const io = req.app.get("io");
+
+    // A dumb locking mechanism. But it seems to work.
+    if (routesCurrentlyStarting[gameID]) {
+      res.status(403).send("Starting this game already...please be patient!");
+      return;
+    }
+    routesCurrentlyStarting[gameID] = true;
+
+    // Make sure game has not started.
+    const game = await getGameLobbyById(gameID);
+    if (game.game_stage !== "waiting") {
+      signale.warn(`cannot start game: less than 2 players`);
+      res.status(403).send("This game has already started");
+      return;
+    }
+
+    // Check for player count, just in case people leave before.
+    const players = await getPlayersByLobbyId(gameID);
+    if (players.length < 2) {
+      signale.warn(`cannot start game: less than 2 players`);
+      res
+        .status(403)
+        .send(
+          "Not enough players to start game. You need at least 2 players to start.",
+        );
+      return;
+    }
+
+    // Take money from big blind and small blind.
+    // If not enough money in stake, then kick and abort start.
+    const big_blind = players.at(0)!;
+    const small_blind = players.at(1)!;
+
+    if (big_blind.stake < game.big_blind) {
+      await kickPlayer(gameID, big_blind, big_blind.username, io);
+      res
+        .status(403)
+        .send("Aborting game...big blind did not have enough money");
+      return;
+    }
+    if (small_blind.stake < game.big_blind / 2) {
+      await kickPlayer(gameID, small_blind, small_blind.username, io);
+      res
+        .status(403)
+        .send("Aborting game...small blind did not have enough money");
+      return;
+    }
+
+    // Remove all cards/recreate deck
+    let deck: Array<Card> = [];
+    try {
+      await deleteDeck(gameID);
+      await createDeck(gameID);
+      deck = await getCardsByGame(gameID);
+    } catch (error) {
+      res.status(500).send("Unable to create deck. Try again later");
+      return;
+    }
+
+    // Deal cards
+    for (const player of players) {
+      const card1 = deck.pop()!;
+      const card2 = deck.pop()!;
+
+      updateCards(player.player_id, card1.game_card_id, card2.game_card_id);
+    }
+    const [flop1, flop2, flop3, turn, river] = deck;
+    await updateCommunityCards(
+      gameID,
+      flop1.game_card_id,
+      flop2.game_card_id,
+      flop3.game_card_id,
+      turn.game_card_id,
+      river.game_card_id,
+    );
+
+    // move game state to pre_flop
+    await updateGameStage(gameID, "preflop");
+    io.emit(`game:start:${gameID}`, {});
+  } finally {
+    routesCurrentlyStarting[gameID] = false;
   }
 });

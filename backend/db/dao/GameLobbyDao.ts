@@ -127,30 +127,24 @@ export async function updatePot(game_lobby_id: string, pot: number) {
   ]);
 }
 
-export async function updateFlops(
+export async function updateCommunityCards(
   game_lobby_id: string,
   flop_1: string,
   flop_2: string,
   flop_3: string,
+  turn: string,
+  river: string,
 ) {
   await db.none(
-    "UPDATE game_lobbies SET flop_1=$2, flop_2=$3, flop_3=$4 WHERE game_lobby_id=$1",
-    [game_lobby_id, flop_1, flop_2, flop_3],
+    `UPDATE game_lobbies SET
+      flop_1=$2,
+      flop_2=$3,
+      flop_3=$4,
+      turn=$5,
+      river=$6
+    WHERE game_lobby_id=$1`,
+    [game_lobby_id, flop_1, flop_2, flop_3, turn, river],
   );
-}
-
-export async function updateRiver(game_lobby_id: string, river: string) {
-  await db.none("UPDATE game_lobbies SET river=$2 WHERE game_lobby_id=$1", [
-    game_lobby_id,
-    river,
-  ]);
-}
-
-export async function updateTurn(game_lobby_id: string, turn: string) {
-  await db.none("UPDATE game_lobbies SET turn=$2 WHERE game_lobby_id=$1", [
-    game_lobby_id,
-    turn,
-  ]);
 }
 
 export async function resetGame(game_lobby_id: string) {

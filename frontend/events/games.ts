@@ -43,6 +43,19 @@ export function handle() {
 
     startButton.textContent = "Starting...";
     startButton.removeEventListener("click", startButtonHandler);
+
+    const gameID = document.location.pathname.split("/")[2];
+
+    fetch(`/game/${gameID}/start`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }).then(async (res) => {
+      if (!res.ok) {
+        startButton.textContent = "Start";
+        startButton.addEventListener("click", startButtonHandler);
+        alert(await res.text());
+      }
+    });
   };
 
   if (startButton) {

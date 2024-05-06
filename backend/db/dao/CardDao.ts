@@ -1,13 +1,12 @@
 import { db } from "../connection.js";
 import pgPromise from "pg-promise";
-import signale from "signale";
 
 const pgp = pgPromise();
 
 export type suit = "spades" | "clubs" | "hearts" | "diamonds";
 
 export interface Card {
-  game_card_id?: string;
+  game_card_id: string;
   game_lobby_id: string;
   card_id: number;
   suit: suit;
@@ -15,9 +14,11 @@ export interface Card {
   shuffled_order: number;
 }
 
-function initDeck(gameLobbyID: string): Card[] {
+type CardWithoutID = Omit<Card, "game_card_id">;
+
+function initDeck(gameLobbyID: string) {
   const suits: suit[] = ["hearts", "diamonds", "clubs", "spades"];
-  const deck: Card[] = [];
+  const deck: Array<CardWithoutID> = [];
   let i = 1;
   for (const suit of suits) {
     for (let value = 2; value <= 14; value++) {
@@ -34,7 +35,7 @@ function initDeck(gameLobbyID: string): Card[] {
   return deck;
 }
 
-function shuffleDeck(deck: Card[]): Card[] {
+function shuffleDeck(deck: Array<CardWithoutID>): Array<CardWithoutID> {
   const shuffledDeck = deck.slice();
 
   for (let i = shuffledDeck.length - 1; i > 0; i--) {
@@ -51,28 +52,25 @@ function shuffleDeck(deck: Card[]): Card[] {
 }
 
 export async function createDeck(game_lobby_id: string) {
-  try {
-    const deck = shuffleDeck(initDeck(game_lobby_id));
-    const cs = new pgp.helpers.ColumnSet(
-      ["game_lobby_id", "card_id", "suit", "value", "shuffled_order"],
-      { table: "cards" },
-    );
-    const values = deck.map((card) => ({
-      game_lobby_id: card.game_lobby_id,
-      card_id: card.card_id,
-      suit: card.suit,
-      value: card.value,
-      shuffled_order: card.shuffled_order,
-    }));
+  const deck = shuffleDeck(initDeck(game_lobby_id));
 
-    const query = pgp.helpers.insert(values, cs);
-    // Execute the INSERT statement
-    await db.none(query);
+  const cs = new pgp.helpers.ColumnSet(
+    ["game_lobby_id", "card_id", "suit", "value", "shuffled_order"],
+    { table: "cards" },
+  );
+  const values = deck.map((card) => ({
+    game_lobby_id: card.game_lobby_id,
+    card_id: card.card_id,
+    suit: card.suit,
+    value: card.value,
+    shuffled_order: card.shuffled_order,
+  }));
 
-    console.log("Deck of cards inserted successfully.");
-  } catch (error) {
-    signale.warn("Error inserting deck: " + error);
-  }
+  const query = pgp.helpers.insert(values, cs);
+  // Execute the INSERT statement
+  await db.none(query);
+
+  return deck;
 }
 
 export async function deleteDeck(gameLobbyID: string) {
@@ -87,9 +85,7 @@ export async function getCardByGameCardId(game_card_id: string): Promise<Card> {
   ]);
 }
 
-export async function getCardsByGame(
-  game_lobby_id: string,
-): Promise<Card[] | null> {
+export async function getCardsByGame(game_lobby_id: string): Promise<Card[]> {
   return await db.manyOrNone(
     "SELECT * FROM cards WHERE game_lobby_id=$1 ORDER BY shuffled_order ASC",
     [game_lobby_id],
