@@ -32,11 +32,12 @@ router.get(
     const players = await getPlayersByLobbyId(gameID);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
-    const player_map: Record<string, string> = {};
+    const player_map: Record<string, string | number> = {};
     for (const player of players) {
       player_map[`player_${player.play_order}`] =
         `${player.username}\n$(${player.stake})`;
     }
+    player_map.player_count = players.length;
 
     try {
       response.render(Views.GameLobby, {
@@ -171,6 +172,7 @@ router.post(
       playOrder,
       player: player.username,
       stake: game.buy_in,
+      numPlayers: players.length + 1,
     });
   },
 );

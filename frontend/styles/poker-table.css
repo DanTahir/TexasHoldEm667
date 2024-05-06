@@ -129,6 +129,7 @@ svg {
   justify-content: center;
   width: 8rem;
 }
+
 input {
   width: 50%;
 }
@@ -145,4 +146,8 @@ label + input {
 .chat {
   width: 100%;
   height: 95%;
+}
+
+.hidden {
+  display: none;
 }

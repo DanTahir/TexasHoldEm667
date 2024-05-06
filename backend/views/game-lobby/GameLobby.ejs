@@ -105,6 +105,10 @@
             </div>
           </div>
 
+          <div class="start-button <%= players.player_count < 1 ? 'hidden' : '' %>">
+            <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
+          </div>
+
           <div class="right-interactions">
             <div class="call-check-button">
               <%- include("../partials/Button.ejs", {buttonText: "Call/Check"}) %>
