@@ -26,23 +26,32 @@ svg {
 .actions-grid {
   position: absolute;
   display: grid;
-  width: 100%;
-  height: 100%;
-  grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr 0.8fr 1fr;
-  grid-template-rows: 1.1fr 0.5fr 1.5fr 0.5fr 2fr 0.5fr 1fr;
+  grid-auto-columns: 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1.7fr 1fr 0.8fr 1fr;
+  grid-template-rows: 0.9fr 0.7fr 1fr 0.7fr 1.6fr 0.7fr 1fr;
   gap: 0px 0px;
   grid-template-areas:
     ". . . . . . ."
     ". . action-1 . action-2 . ."
     ". . . . . . ."
-    "action-6 . . . . . action-3"
+    "action-6 . . card-area . . action-3"
     ". . . . . . ."
     ". . action-5 . action-4 . ."
     ". . . . . . .";
+  width: 100%;
+  height: 100%;
+  align-items: flex-start;
+}
+
+.card-container {
+  display: flex;
+  min-height: 8.5vh;
 }
 
 .action-1 {
   grid-area: action-1;
+  display: flex;
+  flex-direction: column;
 }
 
 .action-2 {
@@ -63,11 +72,19 @@ svg {
 
 .action-6 {
   grid-area: action-6;
+  align-items: end;
+}
+
+.card-area {
+  grid-area: card-area;
+  display: flex;
 }
 
 .seat {
   display: flex;
   justify-content: center;
+  align-items: center;
+  flex-direction: column;
   width: 10vw;
 }
 

@@ -1,0 +1,55 @@
+<html>
+  <div class="poker-card">
+      <% if(hidden){ %>
+        <div class="back"></div>
+      <% } else { %>
+        <div class="poker-card-container">
+            <div class="card-icon">
+              <% if(suit === "hearts" || suit === "diamonds") { %>
+                <div class="red">
+                  <% if(suit === "hearts") { %>
+                      ♥
+                  <% }else { %>
+                      ♦
+                  <% } %>
+                </div>
+              <% } else{ %>
+                <div class="black">
+                  <% if(suit === "clubs") { %>
+                      ♣
+                  <% }else { %>
+                      ♠
+                  <% } %>
+                </div>
+              <% } %>
+            </div>
+            <div class="card-number">
+              <% if(number === 11){ %>
+                    J
+              <% }else if(number === 12) { %>
+                    Q
+              <% } else if(number === 13) { %>
+                    K
+              <% } else if(number === 14) { %>
+                    A
+              <% } else { %>
+                    <%= number %>
+              <% } %>
+            </div>
+            <div class="card-number-reversed">
+              <% if(number === 11){ %>
+                    J
+              <% }else if(number === 12) { %>
+                    Q
+              <% } else if(number === 13) { %>
+                    K
+              <% } else if(number === 14) { %>
+                    A
+              <% } else { %>
+                    <%= number %>
+              <% } %>
+            </div>
+        </div>
+      <% } %>
+  </div>
+</html>

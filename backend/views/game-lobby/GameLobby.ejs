@@ -2,6 +2,7 @@
   <head>
     <link rel="stylesheet" href="/css/poker-table.css" />
     <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/poker-card.css" />
     <script src="/js/index.js" type="text/javascript" defer></script>
   </head>
   <body class="scrollbar-hide">
@@ -13,6 +14,10 @@
             <% if (players.player_1) { %>
               <div class="seat action-1">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_1 }) %>
+                <div class = "card-container">
+                  <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 14, hidden: false}) %>
+                  <%- include("../partials/PokerCard.ejs", {suit: "spades", number: 5, hidden: false}) %>
+                </div>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-1">
@@ -69,6 +74,15 @@
                 <%- include("../partials/Button.ejs", {buttonText: "Join"}) %>
               </div>
             <% } %>
+
+            <div class="card-area">
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "10", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "7", hidden: false}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: true}) %>
+              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: true}) %>
+            </div>
+
           </div>
         </div>
 
