@@ -303,7 +303,7 @@ async function startNextRound(gameLobbyID: string): Promise<void> {
 }
 
 
-router.get("/:id/fold", async (request: Request, response: Response) => {
+router.post("/:id/fold", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
   const userID = request.session.user.id;
 
