@@ -4,11 +4,21 @@ import {
   CreatePlayerPayload,
   createPlayer,
   getPlayersByLobbyId,
+  getPlayersNotFolded,
+  getPlayersNotFoldedOrAllIn,
+  PlayerWithUserInfo,
+  getPlayerByUserAndLobbyId,
+  updateStatus,
+  updateStatusUserAndLobby
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
   createLobby,
   getGameLobbyById,
+  updateTurnsByOne,
+  updateGameStage,
+  GameStage,
+  updateCurrentPlayer
 } from "@backend/db/dao/GameLobbyDao";
 import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
 import { TypedRequestBody } from "@backend/types";
@@ -185,4 +195,161 @@ router.get("/:id/createDeck", async (request: Request, response: Response) => {
   } catch (error) {
     response.status(500).send("unable to create deck");
   }
+});
+
+async function getNextPlayer(request: Request, response: Response): Promise<void> {
+  
+  const gameLobbyID = request.params.id;
+  const userID = request.session.user.id;
+
+  let lastPlayer:PlayerWithUserInfo;
+  try{
+    lastPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
+  }catch(error){
+    signale.warn("Last player not found");
+    return;
+  }
+
+  const io = request.app.get("io");
+
+  io.to(lastPlayer.user_id).emit(`game:deactivateoldplayer:${gameLobbyID}`);
+  
+  const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
+  if (playersNotFolded.length === 1){
+    await awardWinner(playersNotFolded[0].player_id);
+    return;
+  }
+  else if (playersNotFolded.length === 0){
+    signale.warn("All players folded, no winner left to select");
+    response.status(403).send("Zero players left");
+    return;
+  }
+
+  const playersNotFoldedOrAllIn = await getPlayersNotFoldedOrAllIn(gameLobbyID);
+  if (playersNotFoldedOrAllIn.length <= 1){
+    await decideWinner(gameLobbyID);
+    return;
+  }
+
+  await updateTurnsByOne(gameLobbyID);
+
+  let gameLobby: GameLobby;
+  try {
+    gameLobby = await getGameLobbyById(gameLobbyID);
+  } catch (error) {
+    // TODO: handle error for game not found
+    signale.warn(`game ${gameLobbyID} not found`);
+    response.redirect(Screens.Home);
+    return;
+  }
+
+  const players = await getPlayersByLobbyId(gameLobbyID);
+
+  if (gameLobby.turns >= players.length){
+    let newRound = true;
+    for (let i = 1; i < players.length; i++){
+      if (players[i].bet != players[i-1].bet){
+        newRound = false;
+      }
+    }
+    if (newRound){
+      await startNextRound(gameLobbyID);
+      return;
+    }
+  }
+
+  let nextPlayer:PlayerWithUserInfo | null = null;
+  for (let i = 0 ; i < players.length; i++){
+    if (lastPlayer.play_order === players[i].play_order){
+      if (i === players.length - 1){
+        nextPlayer = players[0];
+      }
+      else{
+        nextPlayer = players[i + 1];
+      }
+      if (nextPlayer.status != 'playing'){
+        lastPlayer = nextPlayer;
+        i = -1;
+      }
+    }
+  }
+  if (nextPlayer === null){
+    return;
+  }
+
+  await updateCurrentPlayer(gameLobbyID, nextPlayer.player_id);
+
+  io.to(nextPlayer?.user_id).emit(`game:activatenewplayer:${gameLobbyID}`);
+  io.emit(`game:announcenewplayer:${gameLobbyID}`, {
+    newPlayerName: nextPlayer?.username,
+  })
+
+
+
+}
+
+
+async function awardWinner(winnerID: string): Promise<void> {
+  
+  
+}
+
+async function decideWinner(gameLobbyID: string): Promise<void> {
+  
+}
+
+async function startNextRound(gameLobbyID: string): Promise<void> {
+  
+}
+
+
+router.get("/:id/fold", async (request: Request, response: Response) => {
+  const gameLobbyID = request.params.id;
+  const userID = request.session.user.id;
+
+  await updateStatusUserAndLobby(userID, gameLobbyID, "folded");
+
+  let foldedPlayer:PlayerWithUserInfo;
+  try{
+    foldedPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
+  }catch(error){
+    signale.warn("folded player not found");
+    return;
+  }
+  const io = request.app.get("io");
+  io.emit(`game:fold:${gameLobbyID}`, {
+    playOrder: foldedPlayer.play_order,
+    playerName: foldedPlayer.username,
+    stake: foldedPlayer.stake,
+    bet: foldedPlayer.bet,
+    status: foldedPlayer.status
+  });
+
+  await getNextPlayer(request, response);
+
+});
+
+
+router.get("/:id/dummyStart", async (request: Request, response: Response) => {
+  const gameLobbyID = request.params.id;
+  const userID = request.session.user.id
+  const gamestage:GameStage = "preflop";
+  await updateGameStage(gameLobbyID, gamestage);
+
+  const players = await getPlayersByLobbyId(gameLobbyID);
+
+  if (players.length < 4){
+    signale.warn("not enough players");
+    response.status(403).send("Not enough players");
+    return;
+  }
+
+  for (let i = 0; i < players.length ; i++) {
+    await updateStatus(players[i].player_id, "playing");
+    players[i].status = "playing";
+  }
+
+  await getNextPlayer(request, response);
+
+  response.status(200).send();
 });

@@ -55,11 +55,12 @@ io.engine.use(sessionMiddleware);
 app.set("io", io);
 
 io.on("connection", (socket: Socket) => {
-  const sessionId = socket.request.session.id;
+  //const sessionId = socket.request.session.id;
+  const userId = socket.request.session.user.id;
 
-  signale.info("connection: " + sessionId);
+  signale.info("connection: " + userId);
 
-  socket.join(sessionId);
+  socket.join(userId);
 });
 
 app.use("/", routes.rootRoutes);
