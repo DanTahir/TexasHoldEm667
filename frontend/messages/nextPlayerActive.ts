@@ -1,20 +1,24 @@
 import { Socket } from "socket.io-client";
 
-const foldDiv = document.getElementById("fold-button") as HTMLDivElement;
-const raiseDiv = document.getElementById("raise-button") as HTMLDivElement;
-const callCheckDiv = document.getElementById("call-check-button") as HTMLDivElement
-const foldButton = foldDiv.querySelector("button");
-const raiseButton = raiseDiv.querySelector("button");
-const callCheckButton = callCheckDiv.querySelector("button");
 const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
 
 
 
 export function handle(socket: Socket) {
   socket.on(`game:activatenewplayer:${roomID}`, () => {
+    const foldDiv = document.getElementById("fold-button") as HTMLDivElement;
+    const raiseDiv = document.getElementById("raise-button") as HTMLDivElement;
+    const callCheckDiv = document.getElementById("call-check-button") as HTMLDivElement
+    if (!foldDiv || !raiseDiv || !callCheckDiv) {
+        return;
+    }
+    const foldButton = foldDiv.querySelector("button");
+    const raiseButton = raiseDiv.querySelector("button");
+    const callCheckButton = callCheckDiv.querySelector("button");
     if (!foldButton || !raiseButton || !callCheckButton) {
         return;
     }
+
     const raiseHandler = () => {
 
     }

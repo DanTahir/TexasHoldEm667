@@ -56,11 +56,18 @@ app.set("io", io);
 
 io.on("connection", (socket: Socket) => {
   //const sessionId = socket.request.session.id;
-  const userId = socket.request.session.user.id;
+  let id;
+  
+  if (socket.request.session.user){
+    id = socket.request.session.user.id;
+  }
+  else {
+    id = socket.request.session.id;
+  }
 
-  signale.info("connection: " + userId);
+  signale.info("connection: " + id);
 
-  socket.join(userId);
+  socket.join(id);
 });
 
 app.use("/", routes.rootRoutes);
