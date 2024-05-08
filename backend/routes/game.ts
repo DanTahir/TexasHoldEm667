@@ -12,7 +12,7 @@ import {
   updateStatusUserAndLobby,
   getPlayerByMaxBet,
   updateStake,
-  updateBet
+  updateBet,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -22,7 +22,7 @@ import {
   updateTurnsToZero,
   updateGameStage,
   GameStage,
-  updateCurrentPlayer
+  updateCurrentPlayer,
 } from "@backend/db/dao/GameLobbyDao";
 import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
 import { TypedRequestBody } from "@backend/types";
@@ -54,18 +54,15 @@ router.post("/:id/checkCurrentPlayer", async (req: Request, res: Response) => {
     return;
   }
 
-  
   for (const player of players) {
-    if(userID === player.user_id){
-      if(player.player_id === game.current_player){
+    if (userID === player.user_id) {
+      if (player.player_id === game.current_player) {
         console.log("Hello from playerID=currentPlayer");
         io.to(userID).emit(`game:activatenewplayer:${gameID}`);
       }
     }
   }
 });
-
-
 
 router.get(
   "/:id",
@@ -90,11 +87,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-    
-
-
   },
-
 );
 
 router.post(
@@ -154,6 +147,9 @@ router.post(
 
 type JoinGamePayload = {
   playOrder: number;
+};
+type raisePayload = {
+  raiseValue: number;
 };
 
 router.post(
@@ -234,15 +230,17 @@ router.get("/:id/createDeck", async (request: Request, response: Response) => {
   }
 });
 
-async function getNextPlayer(request: Request, response: Response, lastPlayerUserID: string): Promise<void> {
-  
+async function getNextPlayer(
+  request: Request,
+  response: Response,
+  lastPlayerUserID: string,
+): Promise<void> {
   const gameLobbyID = request.params.id;
-  
 
-  let lastPlayer:PlayerWithUserInfo;
-  try{
+  let lastPlayer: PlayerWithUserInfo;
+  try {
     lastPlayer = await getPlayerByUserAndLobbyId(lastPlayerUserID, gameLobbyID);
-  }catch(error){
+  } catch (error) {
     signale.warn("Last player not found");
     return;
   }
@@ -250,25 +248,22 @@ async function getNextPlayer(request: Request, response: Response, lastPlayerUse
   const io = request.app.get("io");
 
   io.to(lastPlayer.user_id).emit(`game:deactivateoldplayer:${gameLobbyID}`);
-  
+
   const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
-  if (playersNotFolded.length === 1){
-    await awardWinner(playersNotFolded[0].player_id);
+  if (playersNotFolded.length === 1) {
+    await awardWinner();
     return;
-  }
-  else if (playersNotFolded.length === 0){
+  } else if (playersNotFolded.length === 0) {
     signale.warn("All players folded, no winner left to select");
     response.status(403).send("Zero players left");
     return;
   }
 
   const playersNotFoldedOrAllIn = await getPlayersNotFoldedOrAllIn(gameLobbyID);
-  if (playersNotFoldedOrAllIn.length <= 1){
-    await decideWinner(gameLobbyID);
+  if (playersNotFoldedOrAllIn.length <= 1) {
+    await decideWinner();
     return;
   }
-
-  
 
   let gameLobby: GameLobby;
   try {
@@ -282,49 +277,41 @@ async function getNextPlayer(request: Request, response: Response, lastPlayerUse
 
   const players = await getPlayersByLobbyId(gameLobbyID);
 
-  if (gameLobby.turns >= players.length){
-
-    
-    try{
+  if (gameLobby.turns >= players.length) {
+    try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       let newRound = true;
-      for (let i = 0; i < playersNotFoldedOrAllIn.length; i++){
-        if (playersNotFoldedOrAllIn[i].bet != playerMaxBet.bet){
+      for (let i = 0; i < playersNotFoldedOrAllIn.length; i++) {
+        if (playersNotFoldedOrAllIn[i].bet != playerMaxBet.bet) {
           newRound = false;
         }
       }
-      if (newRound){
-        await startNextRound(gameLobbyID);
+      if (newRound) {
+        await startNextRound();
         return;
       }
-    } catch (error)
-    {
+    } catch (error) {
       signale.warn(error);
     }
-
-  
-
-
   }
 
   await updateTurnsByOne(gameLobbyID);
 
-  let nextPlayer:PlayerWithUserInfo | null = null;
-  for (let i = 0 ; i < players.length; i++){
-    if (lastPlayer.play_order === players[i].play_order){
-      if (i === players.length - 1){
+  let nextPlayer: PlayerWithUserInfo | null = null;
+  for (let i = 0; i < players.length; i++) {
+    if (lastPlayer.play_order === players[i].play_order) {
+      if (i === players.length - 1) {
         nextPlayer = players[0];
-      }
-      else{
+      } else {
         nextPlayer = players[i + 1];
       }
-      if (nextPlayer.status != 'playing'){
+      if (nextPlayer.status != "playing") {
         lastPlayer = nextPlayer;
         i = -1;
       }
     }
   }
-  if (nextPlayer === null){
+  if (nextPlayer === null) {
     return;
   }
 
@@ -333,26 +320,14 @@ async function getNextPlayer(request: Request, response: Response, lastPlayerUse
   io.to(nextPlayer?.user_id).emit(`game:activatenewplayer:${gameLobbyID}`);
   io.emit(`game:announcenewplayer:${gameLobbyID}`, {
     newPlayerName: nextPlayer?.username,
-  })
-
-
-
+  });
 }
 
+async function awardWinner(): Promise<void> {}
 
-async function awardWinner(winnerID: string): Promise<void> {
-  
-  
-}
+async function decideWinner(): Promise<void> {}
 
-async function decideWinner(gameLobbyID: string): Promise<void> {
-  
-}
-
-async function startNextRound(gameLobbyID: string): Promise<void> {
-  
-}
-
+async function startNextRound(): Promise<void> {}
 
 router.post("/:id/fold", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
@@ -360,10 +335,10 @@ router.post("/:id/fold", async (request: Request, response: Response) => {
 
   await updateStatusUserAndLobby(userID, gameLobbyID, "folded");
 
-  let foldedPlayer:PlayerWithUserInfo;
-  try{
+  let foldedPlayer: PlayerWithUserInfo;
+  try {
     foldedPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
-  }catch(error){
+  } catch (error) {
     signale.warn("folded player not found");
     return;
   }
@@ -373,30 +348,28 @@ router.post("/:id/fold", async (request: Request, response: Response) => {
     playerName: foldedPlayer.username,
     stake: foldedPlayer.stake,
     bet: foldedPlayer.bet,
-    status: foldedPlayer.status
+    status: foldedPlayer.status,
   });
 
   await getNextPlayer(request, response, userID);
-
 });
-
 
 router.get("/:id/dummyStart", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
-  const gamestage:GameStage = "preflop";
+  const gamestage: GameStage = "preflop";
   const userID = request.session.user.id;
   await updateGameStage(gameLobbyID, gamestage);
   await updateTurnsToZero(gameLobbyID);
 
   const players = await getPlayersByLobbyId(gameLobbyID);
 
-  if (players.length < 4){
+  if (players.length < 4) {
     signale.warn("not enough players");
     response.status(403).send("Not enough players");
     return;
   }
 
-  for (let i = 0; i < players.length ; i++) {
+  for (let i = 0; i < players.length; i++) {
     await updateStatus(players[i].player_id, "playing");
     players[i].status = "playing";
   }
@@ -406,42 +379,42 @@ router.get("/:id/dummyStart", async (request: Request, response: Response) => {
   response.status(200).send();
 });
 
-
 router.post("/:id/call", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
   const userID = request.session.user.id;
-  
-  let callingPlayer:PlayerWithUserInfo | null = null;
-  try{
+
+  let callingPlayer: PlayerWithUserInfo | null = null;
+  try {
     callingPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
-  }catch(error){
+  } catch (error) {
     signale.warn("calling player not found");
+    response.status(403).send("calling player not found");
     return;
   }
-  if (!callingPlayer){
+  if (!callingPlayer) {
     return;
   }
 
-  let maxBetPlayer:PlayerWithUserInfo | null = null;
-  try{
+  let maxBetPlayer: PlayerWithUserInfo | null = null;
+  try {
     maxBetPlayer = await getPlayerByMaxBet(gameLobbyID);
-  }catch(error){
+  } catch (error) {
     signale.warn("max bet player not found");
+    response.status(403).send("max bet player not found");
     return;
   }
-  if (!maxBetPlayer){
+  if (!maxBetPlayer) {
     return;
   }
   const difference = maxBetPlayer.bet - callingPlayer.bet;
-  if(difference >= callingPlayer.stake){
+  if (difference >= callingPlayer.stake) {
     callingPlayer.bet += callingPlayer.stake;
     callingPlayer.stake = 0;
     callingPlayer.status = "all-in";
     await updateStake(callingPlayer.player_id, callingPlayer.stake);
     await updateBet(callingPlayer.player_id, callingPlayer.bet);
     await updateStatus(callingPlayer.player_id, callingPlayer.status);
-  }
-  else{
+  } else {
     callingPlayer.bet += difference;
     callingPlayer.stake -= difference;
     await updateStake(callingPlayer.player_id, callingPlayer.stake);
@@ -454,8 +427,69 @@ router.post("/:id/call", async (request: Request, response: Response) => {
     playerName: callingPlayer.username,
     stake: callingPlayer.stake,
     bet: callingPlayer.bet,
-    status: callingPlayer.status
+    status: callingPlayer.status,
   });
 
   await getNextPlayer(request, response, userID);
 });
+
+router.post(
+  "/:id/raise",
+  async (request: TypedRequestBody<raisePayload>, response: Response) => {
+    const gameLobbyID = request.params.id;
+    const userID = request.session.user.id;
+    const { raiseValue } = request.body;
+    console.log("Hello from raise route");
+    let raisingPlayer: PlayerWithUserInfo | null = null;
+    try {
+      raisingPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
+    } catch (error) {
+      signale.warn("raising player not found");
+      response.status(403).send("raising player not found");
+      return;
+    }
+    if (!raisingPlayer) {
+      return;
+    }
+
+    let maxBetPlayer: PlayerWithUserInfo | null = null;
+    try {
+      maxBetPlayer = await getPlayerByMaxBet(gameLobbyID);
+    } catch (error) {
+      signale.warn("max bet player not found");
+      response.status(403).send("max bet player not found");
+      return;
+    }
+    if (!maxBetPlayer) {
+      return;
+    }
+    const newMax = maxBetPlayer.bet + raiseValue;
+    const difference = newMax - raisingPlayer.bet;
+
+    if (difference >= raisingPlayer.stake) {
+      raisingPlayer.bet += raisingPlayer.stake;
+      raisingPlayer.stake = 0;
+      raisingPlayer.status = "all-in";
+      await updateStake(raisingPlayer.player_id, raisingPlayer.stake);
+      await updateBet(raisingPlayer.player_id, raisingPlayer.bet);
+      await updateStatus(raisingPlayer.player_id, raisingPlayer.status);
+    } else {
+      raisingPlayer.bet += difference;
+      raisingPlayer.stake -= difference;
+      await updateStake(raisingPlayer.player_id, raisingPlayer.stake);
+      await updateBet(raisingPlayer.player_id, raisingPlayer.bet);
+    }
+
+    const io = request.app.get("io");
+
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: raisingPlayer.play_order,
+      playerName: raisingPlayer.username,
+      stake: raisingPlayer.stake,
+      bet: raisingPlayer.bet,
+      status: raisingPlayer.status,
+    });
+
+    await getNextPlayer(request, response, userID);
+  },
+);
