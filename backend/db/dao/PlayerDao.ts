@@ -87,6 +87,20 @@ export async function getPlayersNotFoldedOrAllIn(gameLobbyID: string) {
   return playersNotFoldedOrAllIn;
 }
 
+export async function getPlayerByMaxBet(gameLobbyID: string){
+  const playerByMaxBet: PlayerWithUserInfo = await db.one(
+    `
+    SELECT * FROM players AS p
+    INNER JOIN users AS u ON u.id = p.user_id
+    WHERE game_lobby_id=$1
+    ORDER BY bet DESC
+    LIMIT 1
+    `
+  )
+
+  return playerByMaxBet;
+}
+
 export async function getPlayerByUserAndLobbyId(
   user_id: string,
   game_lobby_id: string,

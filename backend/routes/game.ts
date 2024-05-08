@@ -9,7 +9,8 @@ import {
   PlayerWithUserInfo,
   getPlayerByUserAndLobbyId,
   updateStatus,
-  updateStatusUserAndLobby
+  updateStatusUserAndLobby,
+  getPlayerByMaxBet
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -280,16 +281,28 @@ async function getNextPlayer(request: Request, response: Response): Promise<void
   const players = await getPlayersByLobbyId(gameLobbyID);
 
   if (gameLobby.turns >= players.length){
-    let newRound = true;
-    for (let i = 1; i < players.length; i++){
-      if (players[i].bet != players[i-1].bet){
-        newRound = false;
+
+    
+    try{
+      const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
+      let newRound = true;
+      for (let i = 0; i < playersNotFoldedOrAllIn.length; i++){
+        if (playersNotFoldedOrAllIn[i].bet != playerMaxBet.bet){
+          newRound = false;
+        }
       }
+      if (newRound){
+        await startNextRound(gameLobbyID);
+        return;
+      }
+    } catch (error)
+    {
+      signale.warn(error);
     }
-    if (newRound){
-      await startNextRound(gameLobbyID);
-      return;
-    }
+
+  
+
+
   }
 
   await updateTurnsByOne(gameLobbyID);
