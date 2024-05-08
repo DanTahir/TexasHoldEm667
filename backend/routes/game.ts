@@ -10,7 +10,9 @@ import {
   getPlayerByUserAndLobbyId,
   updateStatus,
   updateStatusUserAndLobby,
-  getPlayerByMaxBet
+  getPlayerByMaxBet,
+  updateStake,
+  updateBet
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -232,14 +234,14 @@ router.get("/:id/createDeck", async (request: Request, response: Response) => {
   }
 });
 
-async function getNextPlayer(request: Request, response: Response): Promise<void> {
+async function getNextPlayer(request: Request, response: Response, lastPlayerUserID: string): Promise<void> {
   
   const gameLobbyID = request.params.id;
-  const userID = request.session.user.id;
+  
 
   let lastPlayer:PlayerWithUserInfo;
   try{
-    lastPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
+    lastPlayer = await getPlayerByUserAndLobbyId(lastPlayerUserID, gameLobbyID);
   }catch(error){
     signale.warn("Last player not found");
     return;
@@ -366,7 +368,7 @@ router.post("/:id/fold", async (request: Request, response: Response) => {
     return;
   }
   const io = request.app.get("io");
-  io.emit(`game:fold:${gameLobbyID}`, {
+  io.emit(`game:foldraisecall:${gameLobbyID}`, {
     playOrder: foldedPlayer.play_order,
     playerName: foldedPlayer.username,
     stake: foldedPlayer.stake,
@@ -374,7 +376,7 @@ router.post("/:id/fold", async (request: Request, response: Response) => {
     status: foldedPlayer.status
   });
 
-  await getNextPlayer(request, response);
+  await getNextPlayer(request, response, userID);
 
 });
 
@@ -382,6 +384,7 @@ router.post("/:id/fold", async (request: Request, response: Response) => {
 router.get("/:id/dummyStart", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
   const gamestage:GameStage = "preflop";
+  const userID = request.session.user.id;
   await updateGameStage(gameLobbyID, gamestage);
   await updateTurnsToZero(gameLobbyID);
 
@@ -398,7 +401,61 @@ router.get("/:id/dummyStart", async (request: Request, response: Response) => {
     players[i].status = "playing";
   }
 
-  await getNextPlayer(request, response);
+  await getNextPlayer(request, response, userID);
 
   response.status(200).send();
+});
+
+
+router.post("/:id/call", async (request: Request, response: Response) => {
+  const gameLobbyID = request.params.id;
+  const userID = request.session.user.id;
+  
+  let callingPlayer:PlayerWithUserInfo | null = null;
+  try{
+    callingPlayer = await getPlayerByUserAndLobbyId(userID, gameLobbyID);
+  }catch(error){
+    signale.warn("calling player not found");
+    return;
+  }
+  if (!callingPlayer){
+    return;
+  }
+
+  let maxBetPlayer:PlayerWithUserInfo | null = null;
+  try{
+    maxBetPlayer = await getPlayerByMaxBet(gameLobbyID);
+  }catch(error){
+    signale.warn("max bet player not found");
+    return;
+  }
+  if (!maxBetPlayer){
+    return;
+  }
+  const difference = maxBetPlayer.bet - callingPlayer.bet;
+  if(difference >= callingPlayer.stake){
+    callingPlayer.bet += callingPlayer.stake;
+    callingPlayer.stake = 0;
+    callingPlayer.status = "all-in";
+    await updateStake(callingPlayer.player_id, callingPlayer.stake);
+    await updateBet(callingPlayer.player_id, callingPlayer.bet);
+    await updateStatus(callingPlayer.player_id, callingPlayer.status);
+  }
+  else{
+    callingPlayer.bet += difference;
+    callingPlayer.stake -= difference;
+    await updateStake(callingPlayer.player_id, callingPlayer.stake);
+    await updateBet(callingPlayer.player_id, callingPlayer.bet);
+  }
+  const io = request.app.get("io");
+
+  io.emit(`game:foldraisecall:${gameLobbyID}`, {
+    playOrder: callingPlayer.play_order,
+    playerName: callingPlayer.username,
+    stake: callingPlayer.stake,
+    bet: callingPlayer.bet,
+    status: callingPlayer.status
+  });
+
+  await getNextPlayer(request, response, userID);
 });

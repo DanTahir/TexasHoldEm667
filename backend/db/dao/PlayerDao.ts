@@ -93,9 +93,10 @@ export async function getPlayerByMaxBet(gameLobbyID: string){
     SELECT * FROM players AS p
     INNER JOIN users AS u ON u.id = p.user_id
     WHERE game_lobby_id=$1
-    ORDER BY bet DESC
+    ORDER BY p.bet DESC
     LIMIT 1
-    `
+    `,
+    [gameLobbyID]
   )
 
   return playerByMaxBet;

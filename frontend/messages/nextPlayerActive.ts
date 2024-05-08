@@ -24,11 +24,32 @@ export function handle(socket: Socket) {
     }
 
     const raiseHandler = () => {
-
+        
     }
     
     const callCheckHandler = () => {
+        callCheckButton.textContent = "Calling...";
+        foldButton.removeEventListener("click", foldHandler);
+        raiseButton.removeEventListener("click", raiseHandler);
+        callCheckButton.removeEventListener("click", callCheckHandler);
 
+            
+  
+        fetch(`/game/${roomID}/call`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              
+            }),
+          }).then(async (res) => {
+            if (!res.ok) {
+              foldButton.textContent = "Fold";
+              foldButton.addEventListener("click", foldHandler);
+              raiseButton.addEventListener("click", raiseHandler);
+              callCheckButton.addEventListener("click", callCheckHandler);
+              alert(await res.text());
+            }
+          });
     }
     
     const foldHandler = () => {
