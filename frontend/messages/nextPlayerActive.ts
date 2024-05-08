@@ -5,7 +5,11 @@ const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
 
 
 export function handle(socket: Socket) {
+    socket.on('error', (error) => {
+        console.error('Socket error:', error);
+    });
   socket.on(`game:activatenewplayer:${roomID}`, () => {
+    console.log("Hello from the frontend socket after playerid=userid");
     const foldDiv = document.getElementById("fold-button") as HTMLDivElement;
     const raiseDiv = document.getElementById("raise-button") as HTMLDivElement;
     const callCheckDiv = document.getElementById("call-check-button") as HTMLDivElement

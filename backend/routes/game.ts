@@ -16,6 +16,7 @@ import {
   createLobby,
   getGameLobbyById,
   updateTurnsByOne,
+  updateTurnsToZero,
   updateGameStage,
   GameStage,
   updateCurrentPlayer
@@ -34,6 +35,35 @@ interface CreateRequestPayload {
   user_id: string;
 }
 
+router.post("/:id/checkCurrentPlayer", async (req: Request, res: Response) => {
+  const gameID = req.params.id;
+  const userID = req.session.user.id;
+  const players = await getPlayersByLobbyId(gameID);
+  // Add your logic here to emit the event
+  const io = req.app.get("io");
+  let game: GameLobby;
+  try {
+    game = await getGameLobbyById(gameID);
+  } catch (error) {
+    // TODO: handle error for game not found
+    signale.warn(`game ${gameID} not found`);
+    res.redirect(Screens.Home);
+    return;
+  }
+
+  
+  for (const player of players) {
+    if(userID === player.user_id){
+      if(player.player_id === game.current_player){
+        console.log("Hello from playerID=currentPlayer");
+        io.to(userID).emit(`game:activatenewplayer:${gameID}`);
+      }
+    }
+  }
+});
+
+
+
 router.get(
   "/:id",
   validateGameExists,
@@ -45,7 +75,7 @@ router.get(
     const player_map: Record<string, string> = {};
     for (const player of players) {
       player_map[`player_${player.play_order}`] =
-        `${player.username}\n$(${player.stake})`;
+        `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
     }
 
     try {
@@ -57,7 +87,11 @@ router.get(
     } catch (error) {
       next(error);
     }
+    
+
+
   },
+
 );
 
 router.post(
@@ -231,7 +265,7 @@ async function getNextPlayer(request: Request, response: Response): Promise<void
     return;
   }
 
-  await updateTurnsByOne(gameLobbyID);
+  
 
   let gameLobby: GameLobby;
   try {
@@ -257,6 +291,8 @@ async function getNextPlayer(request: Request, response: Response): Promise<void
       return;
     }
   }
+
+  await updateTurnsByOne(gameLobbyID);
 
   let nextPlayer:PlayerWithUserInfo | null = null;
   for (let i = 0 ; i < players.length; i++){
@@ -332,9 +368,9 @@ router.post("/:id/fold", async (request: Request, response: Response) => {
 
 router.get("/:id/dummyStart", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
-  const userID = request.session.user.id
   const gamestage:GameStage = "preflop";
   await updateGameStage(gameLobbyID, gamestage);
+  await updateTurnsToZero(gameLobbyID);
 
   const players = await getPlayersByLobbyId(gameLobbyID);
 

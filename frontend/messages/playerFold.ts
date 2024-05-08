@@ -15,7 +15,7 @@ export function handle(socket: Socket) {
 
     const new_seat = seat.cloneNode(true) as HTMLDivElement;
     const button = new_seat.querySelector("button")!;
-    button.textContent = `${playerName}\n$${stake}\n${bet}\n${status}`;
+    button.textContent = `${playerName}\n$${stake}\nbet: $${bet}\n${status}`;
     seat.parentNode?.replaceChild(new_seat, seat);
   });
 }
