@@ -1,8 +1,8 @@
 const allSeats = document.querySelectorAll(".seat");
 const startButtonElement = document.querySelector(
   ".start-button",
-) as HTMLDivElement;
-const startButton = startButtonElement.querySelector("button");
+) as HTMLDivElement | null;
+const startButton = startButtonElement?.querySelector("button");
 
 export function handle() {
   allSeats.forEach((seat, i) => {

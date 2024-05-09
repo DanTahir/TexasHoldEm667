@@ -19,7 +19,7 @@ export function handle(socket: Socket) {
       button.textContent = `${player}\n$${stake}`;
       seat.parentNode?.replaceChild(new_seat, seat);
 
-      if (numPlayers >= 1) {
+      if (numPlayers >= 4) {
         startButtonElement.classList.remove("hidden");
       }
     },

@@ -13,6 +13,7 @@ import {
   createLobby,
   getGameLobbyById,
   updateCommunityCards,
+  updateDealer,
   updateGameStage,
 } from "@backend/db/dao/GameLobbyDao";
 import {
@@ -232,7 +233,7 @@ router.post("/:id/start", async (req, res) => {
 
     // Check for player count, just in case people leave before.
     const players = await getPlayersByLobbyId(gameID);
-    if (players.length < 2) {
+    if (players.length < 4) {
       signale.warn(`cannot start game: less than 2 players`);
       res
         .status(403)
@@ -242,20 +243,23 @@ router.post("/:id/start", async (req, res) => {
       return;
     }
 
+    const [dealer, smallBlindPlayer, bigBlindPlayer] = players;
+
+    // Set dealer for this round.
+    await updateDealer(gameID, dealer.user_id);
+
     // Take money from big blind and small blind.
     // If not enough money in stake, then kick and abort start.
-    const big_blind = players.at(0)!;
-    const small_blind = players.at(1)!;
 
-    if (big_blind.stake < game.big_blind) {
-      await kickPlayer(gameID, big_blind, big_blind.username, io);
+    if (bigBlindPlayer.stake < game.big_blind) {
+      await kickPlayer(gameID, bigBlindPlayer, bigBlindPlayer.username, io);
       res
         .status(403)
         .send("Aborting game...big blind did not have enough money");
       return;
     }
-    if (small_blind.stake < game.big_blind / 2) {
-      await kickPlayer(gameID, small_blind, small_blind.username, io);
+    if (smallBlindPlayer.stake < game.big_blind / 2) {
+      await kickPlayer(gameID, smallBlindPlayer, bigBlindPlayer.username, io);
       res
         .status(403)
         .send("Aborting game...small blind did not have enough money");
@@ -290,7 +294,7 @@ router.post("/:id/start", async (req, res) => {
       river.game_card_id,
     );
 
-    // move game state to pre_flop
+    // Move game state to pre_flop
     await updateGameStage(gameID, "preflop");
     io.emit(`game:start:${gameID}`, {});
   } finally {

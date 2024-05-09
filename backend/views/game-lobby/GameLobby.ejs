@@ -105,7 +105,7 @@
             </div>
           </div>
 
-          <div class="start-button <%= players.player_count < 1 ? 'hidden' : '' %>">
+          <div class="start-button <%= players.player_count < 4 ? 'hidden' : '' %>">
             <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
           </div>
 
