@@ -12,7 +12,8 @@ export function handle(socket: Socket) {
       const new_seat = seat.cloneNode(true) as HTMLDivElement;
       const button = new_seat.querySelector("button")!;
       new_seat.classList.remove("empty-seat");
-      button.textContent = `${player}\n$${stake}\nbet: $${bet}\n${status}`;
+      const message = `${player}\n$${stake}\nbet: $${bet}\n${status}`;
+      button.innerHTML = message.replace(/\n/g, "<br>");
       seat.parentNode?.replaceChild(new_seat, seat);
     },
   );
