@@ -40,7 +40,12 @@ interface CreateRequestPayload {
 
 router.post("/:id/checkCurrentPlayer", async (req: Request, res: Response) => {
   const gameID = req.params.id;
-  const userID = req.session.user.id;
+  let userID: string;
+  if (req.session.user) {
+    userID = req.session.user.id;
+  } else {
+    userID = "null";
+  }
   const players = await getPlayersByLobbyId(gameID);
   // Add your logic here to emit the event
   const io = req.app.get("io");
@@ -207,13 +212,22 @@ router.post(
     } catch (error) {
       res.status(500).send("Unable to join game. Try again later.");
     }
+    let createdPlayer: PlayerWithUserInfo;
+    try {
+      createdPlayer = await getPlayerByUserAndLobbyId(userID, gameID);
+    } catch (error) {
+      res.status(500).send("Unable to join game. Try again later.");
+      return;
+    }
 
     const io = req.app.get("io");
 
     io.emit(`game:join:${gameID}`, {
       playOrder,
-      player: player.username,
-      stake: game.buy_in,
+      player: createdPlayer.username,
+      stake: createdPlayer.stake,
+      bet: createdPlayer.bet,
+      status: createdPlayer.status,
     });
   },
 );

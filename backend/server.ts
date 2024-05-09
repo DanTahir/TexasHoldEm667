@@ -13,6 +13,7 @@ import expressSession from "express-session";
 import { authenticated } from "@backend/middleware/authenticated";
 import connectPgSimple from "connect-pg-simple";
 import { sessionLocals } from "@backend/middleware/session-locals";
+import { sessionLocalsTyped } from "@backend/middleware/session-locals-typedBody";
 import { Server, Socket } from "socket.io";
 import cors from "cors";
 import signale from "signale";
@@ -57,11 +58,10 @@ app.set("io", io);
 io.on("connection", (socket: Socket) => {
   //const sessionId = socket.request.session.id;
   let id;
-  
-  if (socket.request.session.user){
+
+  if (socket.request.session.user) {
     id = socket.request.session.user.id;
-  }
-  else {
+  } else {
     id = socket.request.session.id;
   }
 
@@ -75,6 +75,7 @@ app.use("/auth", routes.authRoutes);
 
 app.use(authenticated);
 app.use(sessionLocals);
+app.use(sessionLocalsTyped);
 app.use("/home", routes.homeRoutes, routes.chatRoutes);
 app.use("/game", routes.gameRoutes, routes.chatRoutes);
 
