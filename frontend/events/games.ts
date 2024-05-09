@@ -37,8 +37,8 @@ export function handle() {
     button.addEventListener("click", joinButtonHandler);
   });
 
-  // Start button handling
   const startButtonHandler = () => {
+    console.log("hi");
     if (!startButton) return;
 
     startButton.textContent = "Starting...";

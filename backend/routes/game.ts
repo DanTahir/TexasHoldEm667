@@ -6,6 +6,7 @@ import {
   createPlayer,
   getPlayersByLobbyId,
   removePlayerByPlayerId,
+  updateBet,
   updateCards,
 } from "@backend/db/dao/PlayerDao";
 import {
@@ -47,11 +48,13 @@ router.get(
     const gameID = request.params.id;
     const players = await getPlayersByLobbyId(gameID);
 
+    const game = await getGameLobbyById(gameID);
+
     // This allows for easier access from EJS. I wouldn't do this otherwise.
     const player_map: Record<string, string | number> = {};
     for (const player of players) {
       player_map[`player_${player.play_order}`] =
-        `${player.username}\n$(${player.stake})`;
+        `${player.username}\nStake: $${player.stake}`;
     }
     player_map.player_count = players.length;
 
@@ -60,6 +63,14 @@ router.get(
         gameName: request.body.name,
         id: request.params.id,
         players: player_map,
+        gameStage: game.game_stage,
+        communityCards: [
+          game.flop_1,
+          game.flop_2,
+          game.flop_3,
+          game.turn,
+          game.river,
+        ],
       });
     } catch (error) {
       next(error);
@@ -246,10 +257,18 @@ router.post("/:id/start", async (req, res) => {
     const [dealer, smallBlindPlayer, bigBlindPlayer] = players;
 
     // Set dealer for this round.
-    await updateDealer(gameID, dealer.user_id);
+    await updateDealer(gameID, dealer.player_id);
 
     // Take money from big blind and small blind.
     // If not enough money in stake, then kick and abort start.
+    if (smallBlindPlayer.stake < game.big_blind / 2) {
+      await kickPlayer(gameID, smallBlindPlayer, bigBlindPlayer.username, io);
+      res
+        .status(403)
+        .send("Aborting game...small blind did not have enough money");
+      return;
+    }
+    updateBet(smallBlindPlayer.player_id, game.big_blind / 2);
 
     if (bigBlindPlayer.stake < game.big_blind) {
       await kickPlayer(gameID, bigBlindPlayer, bigBlindPlayer.username, io);
@@ -258,13 +277,7 @@ router.post("/:id/start", async (req, res) => {
         .send("Aborting game...big blind did not have enough money");
       return;
     }
-    if (smallBlindPlayer.stake < game.big_blind / 2) {
-      await kickPlayer(gameID, smallBlindPlayer, bigBlindPlayer.username, io);
-      res
-        .status(403)
-        .send("Aborting game...small blind did not have enough money");
-      return;
-    }
+    updateBet(bigBlindPlayer.player_id, game.big_blind);
 
     // Remove all cards/recreate deck
     let deck: Array<Card> = [];
@@ -273,6 +286,7 @@ router.post("/:id/start", async (req, res) => {
       await createDeck(gameID);
       deck = await getCardsByGame(gameID);
     } catch (error) {
+      signale.error("error recreating deck:", error);
       res.status(500).send("Unable to create deck. Try again later");
       return;
     }

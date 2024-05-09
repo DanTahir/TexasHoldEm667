@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
   <head>
     <link rel="stylesheet" href="/css/poker-table.css" />
@@ -75,12 +76,32 @@
               </div>
             <% } %>
 
-            <div class="card-area">
-              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: false}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "10", hidden: false}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "7", hidden: false}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: true}) %>
-              <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: "5", hidden: true}) %>
+            <div class="card-area <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <%- include("../partials/PokerCard.ejs", {
+                suit: "hearts",
+                number: "10",
+                hidden: !(gameStage === 'flop' || gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
+              }) %>
+              <%- include("../partials/PokerCard.ejs", {
+                suit: "hearts",
+                number: "7",
+                hidden: !(gameStage === 'flop' || gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
+              }) %>
+              <%- include("../partials/PokerCard.ejs", {
+                suit: "hearts",
+                number: "7",
+                hidden: !(gameStage === 'flop' || gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
+              }) %>
+              <%- include("../partials/PokerCard.ejs", {
+                suit: "hearts",
+                number: "7",
+                hidden: !(gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
+              }) %>
+              <%- include("../partials/PokerCard.ejs", {
+                suit: "hearts",
+                number: "7",
+                hidden: !(gameStage === gameStage === 'river' || gameStage === 'final'),
+              }) %>
             </div>
 
           </div>
@@ -105,7 +126,7 @@
             </div>
           </div>
 
-          <div class="start-button <%= players.player_count < 4 ? 'hidden' : '' %>">
+          <div class="start-button <%= (players.player_count >= 4 && gameStage === 'waiting') ? '' : 'hidden' %>">
             <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
           </div>
 

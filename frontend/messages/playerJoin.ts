@@ -16,7 +16,7 @@ export function handle(socket: Socket) {
       const new_seat = seat.cloneNode(true) as HTMLDivElement;
       const button = new_seat.querySelector("button")!;
       new_seat.classList.remove("empty-seat");
-      button.textContent = `${player}\n$${stake}`;
+      button.textContent = `${player}\nStake: $${stake}`;
       seat.parentNode?.replaceChild(new_seat, seat);
 
       if (numPlayers >= 4) {
