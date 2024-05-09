@@ -15,10 +15,17 @@
             <% if (players.player_1) { %>
               <div class="seat action-1">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_1 }) %>
-                <div class = "card-container">
-                  <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 14, hidden: false}) %>
-                  <%- include("../partials/PokerCard.ejs", {suit: "spades", number: 5, hidden: false}) %>
-                </div>
+                <% if (thisPlayerPosition === 1) { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card1.suit, number: thisPlayerCards.card1.value, hidden: false}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card2.suit, number: thisPlayerCards.card2.value, hidden: false}) %>
+                  </div>
+                <% } else { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                  </div>
+                <% } %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-1">
@@ -29,6 +36,17 @@
             <% if (players.player_2) { %>
               <div class="seat action-2">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_2 }) %>
+                <% if (thisPlayerPosition === 2) { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card1.suit, number: thisPlayerCards.card1.value, hidden: false}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card2.suit, number: thisPlayerCards.card2.value, hidden: false}) %>
+                  </div>
+                <% } else { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                  </div>
+                <% } %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-2">
@@ -39,6 +57,17 @@
             <% if (players.player_3) { %>
               <div class="seat action-3">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_3 }) %>
+                <% if (thisPlayerPosition === 3) { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card1.suit, number: thisPlayerCards.card1.value, hidden: false}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card2.suit, number: thisPlayerCards.card2.value, hidden: false}) %>
+                  </div>
+                <% } else { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                  </div>
+                <% } %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-3">
@@ -49,6 +78,17 @@
             <% if (players.player_4) { %>
               <div class="seat action-4">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_4 }) %>
+                <% if (thisPlayerPosition === 4) { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card1.suit, number: thisPlayerCards.card1.value, hidden: false}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card2.suit, number: thisPlayerCards.card2.value, hidden: false}) %>
+                  </div>
+                <% } else { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                  </div>
+                <% } %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-4">
@@ -59,6 +99,17 @@
             <% if (players.player_5) { %>
               <div class="seat action-5">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_5 }) %>
+                <% if (thisPlayerPosition === 5) { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card1.suit, number: thisPlayerCards.card1.value, hidden: false}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card2.suit, number: thisPlayerCards.card2.value, hidden: false}) %>
+                  </div>
+                <% } else { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                  </div>
+                <% } %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-5">
@@ -69,6 +120,17 @@
             <% if (players.player_6) { %>
               <div class="seat action-6">
                 <%- include("../partials/Button.ejs", {buttonText: players.player_6 }) %>
+                <% if (thisPlayerPosition === 6) { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card1.suit, number: thisPlayerCards.card1.value, hidden: false}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards.card2.suit, number: thisPlayerCards.card2.value, hidden: false}) %>
+                  </div>
+                <% } else { %>
+                  <div class = "card-container">
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                    <%- include("../partials/PokerCard.ejs", {suit: "hearts", number: 2, hidden: true}) %>
+                  </div>
+                <% } %>
               </div>
             <% } else { %>
               <div class="seat empty-seat action-6">

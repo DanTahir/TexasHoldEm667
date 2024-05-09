@@ -1,5 +1,6 @@
 import { db } from "@backend/db/connection.js";
 import { User } from "./UserDao";
+import { suit } from "./CardDao";
 
 export type PlayerStatus = "playing" | "folded" | "all-in" | "spectating";
 
@@ -152,4 +153,52 @@ export async function updatePlayer(player: Player) {
     card_2 ? card_2 : null,
     player_id,
   ]);
+}
+
+type PlayerHand = {
+  userID: string;
+  playerID: string;
+  card1: {
+    value: number;
+    suit: suit;
+  };
+  card2: {
+    value: number;
+    suit: suit;
+  };
+};
+
+export async function getPlayerCards(userID: string, gameID: string) {
+  const query = `
+    SELECT
+      p.user_id, p.player_id, c1.game_card_id,
+      c1.value AS value_1, c1.suit AS suit_1,
+      c2.value AS value_2, c2.suit AS suit_2
+    FROM players AS p
+    INNER JOIN cards AS c1 ON p.card_1 = c1.game_card_id
+    INNER JOIN cards AS c2 ON p.card_2 = c2.game_card_id
+    WHERE
+      p.user_id = $1
+      AND p.game_lobby_id = $2
+    LIMIT 1
+  `;
+
+  const result = await db.oneOrNone(query, [userID, gameID]);
+
+  if (!result) return null;
+
+  const formattedValue: PlayerHand = {
+    userID,
+    playerID: result.player_id,
+    card1: {
+      value: result.value_1,
+      suit: result.suit_1,
+    },
+    card2: {
+      value: result.value_1,
+      suit: result.suit_2,
+    },
+  };
+
+  return formattedValue;
 }

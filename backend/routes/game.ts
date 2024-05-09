@@ -4,6 +4,7 @@ import {
   CreatePlayerPayload,
   Player,
   createPlayer,
+  getPlayerCards,
   getPlayersByLobbyId,
   removePlayerByPlayerId,
   updateBet,
@@ -45,10 +46,14 @@ router.get(
   "/:id",
   validateGameExists,
   async (request: Request, response: Response, next: NextFunction) => {
+    const userID = request.session.user.id;
+
     const gameID = request.params.id;
     const players = await getPlayersByLobbyId(gameID);
+    const thisPlayer = players.find((player) => player.user_id === userID)!;
 
     const game = await getGameLobbyById(gameID);
+    const thisPlayerCards = await getPlayerCards(userID, gameID);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
     const player_map: Record<string, string | number> = {};
@@ -58,19 +63,23 @@ router.get(
     }
     player_map.player_count = players.length;
 
+    console.log(thisPlayer);
+
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
         id: request.params.id,
         players: player_map,
         gameStage: game.game_stage,
-        communityCards: [
-          game.flop_1,
-          game.flop_2,
-          game.flop_3,
-          game.turn,
-          game.river,
-        ],
+        thisPlayerCards,
+        thisPlayerPosition: thisPlayer.play_order,
+        // communityCards: [
+        //   game.flop_1,
+        //   game.flop_2,
+        //   game.flop_3,
+        //   game.turn,
+        //   game.river,
+        // ],
       });
     } catch (error) {
       next(error);
@@ -311,6 +320,11 @@ router.post("/:id/start", async (req, res) => {
     // Move game state to pre_flop
     await updateGameStage(gameID, "preflop");
     io.emit(`game:start:${gameID}`, {});
+
+    // for (const player of players) {
+    //   const cards = getPlayerCards(player.user_id);
+    //   io.to(player.user_id).emit('' {cards})
+    // }
   } finally {
     routesCurrentlyStarting[gameID] = false;
   }
