@@ -15,6 +15,7 @@ export async function validateGameExists(
       turns: gameLobby.turns,
       buyIn: gameLobby.buy_in,
       dealer: gameLobby.dealer,
+      pot: gameLobby.pot,
     };
 
     next();

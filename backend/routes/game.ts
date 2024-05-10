@@ -356,22 +356,13 @@ router.post(
     const gameID = req.params.id;
     const userID = req.session.user.id;
 
-    let game: GameLobby;
-    try {
-      game = await getGameLobbyById(gameID);
-    } catch (error) {
-      // TODO: handle error for game not found
-      signale.warn(`game ${gameID} not found`);
-      res.redirect(Screens.Home);
-      return;
-    }
-
     try {
       const player: Player = await getPlayerByUserAndLobbyId(userID, gameID);
 
       const user = await readUserFromID(userID);
       await updateUserBalance(user.username, user.balance + player.stake);
-      await updatePot(gameID, game.pot + player.bet);
+      const pot = req.body.pot;
+      await updatePot(gameID, pot + player.bet);
       const dealer = req.body.dealer;
       const currentPlayer = req.body.currentPlayer;
       if (dealer === player.player_id) {
@@ -384,10 +375,7 @@ router.post(
             if (position > 6) {
               position = 1;
             }
-            newPlayer = await getPlayerByGameIDAndPlayOrder(
-              game.game_lobby_id,
-              position,
-            );
+            newPlayer = await getPlayerByGameIDAndPlayOrder(gameID, position);
           }
           await updateDealer(gameID, newPlayer.player_id);
         }
