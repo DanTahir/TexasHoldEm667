@@ -301,7 +301,9 @@ async function getNextPlayer(
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       let newRound = true;
+      console.log(`max bet: ${playerMaxBet.bet}`);
       for (let i = 0; i < playersNotFoldedOrAllIn.length; i++) {
+        console.log(`player bet: ${playersNotFoldedOrAllIn[i].bet}`);
         if (playersNotFoldedOrAllIn[i].bet != playerMaxBet.bet) {
           newRound = false;
         }
