@@ -274,7 +274,17 @@ async function getNextPlayer(
   }
 
   const playersNotFoldedOrAllIn = await getPlayersNotFoldedOrAllIn(gameLobbyID);
-  if (playersNotFoldedOrAllIn.length <= 1) {
+  if (playersNotFoldedOrAllIn.length === 1) {
+    try {
+      const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
+      if (playersNotFoldedOrAllIn[0].bet === playerMaxBet.bet) {
+        await decideWinner();
+        return;
+      }
+    } catch (error) {
+      signale.warn(error);
+    }
+  } else if (playersNotFoldedOrAllIn.length === 0) {
     await decideWinner();
     return;
   }
