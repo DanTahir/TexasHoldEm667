@@ -6,7 +6,7 @@ export function handle() {
 
     if (event.key === "Enter") {
       const message = target.value;
-
+      console.log("you hit enter");
       fetch(`${document.location.pathname}/chat`, {
         method: "post",
         headers: { "Content-Type": "application/json" },
