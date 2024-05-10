@@ -71,6 +71,17 @@ export async function getPlayerById(player_id: string): Promise<Player> {
   return await db.one("SELECT * FROM players WHERE player_id=$1", [player_id]);
 }
 
+export async function getPlayerByGameIDAndPlayOrder(
+  game_lobby_id: string,
+  play_order: number,
+) {
+  const player: Player | null = await db.oneOrNone(
+    "SELECT * FROM players WHERE game_lobby_id = $1 AND play_order = $2",
+    [game_lobby_id, play_order],
+  );
+  return player;
+}
+
 export async function removePlayerByPlayerId(player_id: string) {
   await db.none("DELETE FROM players WHERE player_id=$1", [player_id]);
 }

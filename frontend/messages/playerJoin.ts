@@ -1,10 +1,10 @@
 import { Socket } from "socket.io-client";
 
-const seats = document.querySelectorAll(".seat");
 const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
 
 export function handle(socket: Socket) {
   socket.on(`game:join:${roomID}`, ({ playOrder, player, stake }) => {
+    const seats = document.querySelectorAll(".seat");
     const seat = seats.item(playOrder - 1);
 
     const new_seat = seat.cloneNode(true) as HTMLDivElement;
