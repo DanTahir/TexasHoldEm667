@@ -13,6 +13,8 @@ export async function validateGameExists(
       name: gameLobby.name,
       currentPlayer: gameLobby.current_player,
       turns: gameLobby.turns,
+      buyIn: gameLobby.buy_in,
+      dealer: gameLobby.dealer,
     };
 
     next();
