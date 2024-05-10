@@ -13,6 +13,9 @@ import {
   getPlayerByMaxBet,
   updateStake,
   updateBet,
+  removePlayerByPlayerId,
+  getPlayerByGameIDAndPlayOrder,
+  Player,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -22,6 +25,8 @@ import {
   updateTurnsToZero,
   updateGameStage,
   GameStage,
+  updatePot,
+  updateDealer,
   updateCurrentPlayer,
 } from "@backend/db/dao/GameLobbyDao";
 import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
@@ -232,6 +237,8 @@ router.post(
   },
 );
 
+
+
 router.get("/:id/createDeck", async (request: Request, response: Response) => {
   const gameID = request.params.id;
 
@@ -352,6 +359,64 @@ async function awardWinner(): Promise<void> {}
 async function decideWinner(): Promise<void> {}
 
 async function startNextRound(): Promise<void> {}
+
+router.post("/:id/quit", async (req: Request, res: Response) => {
+  const gameID = req.params.id;
+  const userID = req.session.user.id;
+
+  let game: GameLobby;
+  try {
+    game = await getGameLobbyById(gameID);
+  } catch (error) {
+    // TODO: handle error for game not found
+    signale.warn(`game ${gameID} not found`);
+    res.redirect(Screens.Home);
+    return;
+  }
+
+  try {
+    const player: Player = await getPlayerByUserAndLobbyId(userID, gameID);
+
+    const user = await readUserFromID(userID);
+    await updateUserBalance(user.username, user.balance + player.stake);
+    await updatePot(gameID, game.pot + player.bet);
+    if (game.dealer === player.player_id) {
+      const players = await getPlayersByLobbyId(gameID);
+      if (players.length > 1) {
+        let newPlayer = null;
+        let position = player.play_order;
+        while (!newPlayer) {
+          position++;
+          if (position > 6) {
+            position = 1;
+          }
+          newPlayer = await getPlayerByGameIDAndPlayOrder(
+            game.game_lobby_id,
+            position,
+          );
+        }
+        await updateDealer(game.game_lobby_id, newPlayer.player_id);
+      }
+    }
+    if (game.current_player === player.player_id) {
+      await getNextPlayer(req, res, userID);
+    }
+    await removePlayerByPlayerId(player.player_id);
+
+    const io = req.app.get("io");
+    const playOrder = player.play_order;
+    res.status(200).send();
+    io.emit(`game:quit:${gameID}`, {
+      playOrder,
+    });
+  } catch (error) {
+    // TODO: handle error for game not found
+    signale.warn(`user ${userID} not found in game ${gameID}`);
+    res.status(403).send("You're not in this game!");
+    return;
+  }
+});
+
 
 router.post("/:id/fold", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;

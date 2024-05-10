@@ -1,6 +1,5 @@
-const allSeats = document.querySelectorAll(".seat");
-
 export function handle() {
+  const allSeats = document.querySelectorAll(".seat");
   allSeats.forEach((seat, i) => {
     if (!seat.classList.contains("empty-seat")) {
       return;
