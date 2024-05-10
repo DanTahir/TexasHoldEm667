@@ -113,7 +113,11 @@ svg {
 }
 
 .quit-button {
-  margin-top: 7rem;
+  margin-top: 3.5rem;
+}
+
+.home-button {
+  margin-top: 3.5rem;
 }
 
 .right-interactions {

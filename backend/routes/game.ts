@@ -43,36 +43,25 @@ interface CreateRequestPayload {
   user_id: string;
 }
 
-router.post("/:id/checkCurrentPlayer", async (req: Request, res: Response) => {
-  const gameID = req.params.id;
-  let userID: string;
-  if (req.session.user) {
-    userID = req.session.user.id;
-  } else {
-    userID = "null";
-  }
-  const players = await getPlayersByLobbyId(gameID);
-  // Add your logic here to emit the event
-  const io = req.app.get("io");
-  let game: GameLobby;
-  try {
-    game = await getGameLobbyById(gameID);
-  } catch (error) {
-    // TODO: handle error for game not found
-    signale.warn(`game ${gameID} not found`);
-    res.redirect(Screens.Home);
-    return;
-  }
+router.post(
+  "/:id/checkCurrentPlayer",
+  validateGameExists,
+  async (req: Request, _res: Response) => {
+    const gameID = req.params.id;
+    const userID = req.session.user.id;
+    const players = await getPlayersByLobbyId(gameID);
+    // Add your logic here to emit the event
+    const io = req.app.get("io");
 
-  for (const player of players) {
-    if (userID === player.user_id) {
-      if (player.player_id === game.current_player) {
-        console.log("Hello from playerID=currentPlayer");
-        io.to(userID).emit(`game:activatenewplayer:${gameID}`);
+    for (const player of players) {
+      if (userID === player.user_id) {
+        if (player.player_id === req.body.currentPlayer) {
+          io.to(userID).emit(`game:activatenewplayer:${gameID}`);
+        }
       }
     }
-  }
-});
+  },
+);
 
 router.get(
   "/:id",
@@ -236,8 +225,6 @@ router.post(
     });
   },
 );
-
-
 
 router.get("/:id/createDeck", async (request: Request, response: Response) => {
   const gameID = request.params.id;
@@ -416,7 +403,6 @@ router.post("/:id/quit", async (req: Request, res: Response) => {
     return;
   }
 });
-
 
 router.post("/:id/fold", async (request: Request, response: Response) => {
   const gameLobbyID = request.params.id;
