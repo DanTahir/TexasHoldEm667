@@ -140,28 +140,28 @@
 
             <div class="card-area <%= gameStage === 'waiting' ? 'hidden' : '' %>">
               <%- include("../partials/PokerCard.ejs", {
-                suit: "hearts",
-                number: "10",
+                suit: communityCards?.flop_1?.suit || '',
+                number: communityCards?.flop_1?.value || 0,
                 hidden: !(gameStage === 'flop' || gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
               }) %>
               <%- include("../partials/PokerCard.ejs", {
-                suit: "hearts",
-                number: "7",
+                suit: communityCards?.flop_2?.suit || '',
+                number: communityCards?.flop_2?.value || 0,
                 hidden: !(gameStage === 'flop' || gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
               }) %>
               <%- include("../partials/PokerCard.ejs", {
-                suit: "hearts",
-                number: "7",
+                suit: communityCards?.flop_3?.suit || '',
+                number: communityCards?.flop_3?.value || 0,
                 hidden: !(gameStage === 'flop' || gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
               }) %>
               <%- include("../partials/PokerCard.ejs", {
-                suit: "hearts",
-                number: "7",
+                suit: communityCards?.turn?.suit || '',
+                number: communityCards?.turn?.value || 0,
                 hidden: !(gameStage === 'turn' || gameStage === 'river' || gameStage === 'final'),
               }) %>
               <%- include("../partials/PokerCard.ejs", {
-                suit: "hearts",
-                number: "7",
+                suit: communityCards?.river?.suit || '',
+                number: communityCards?.river?.value || 0,
                 hidden: !(gameStage === gameStage === 'river' || gameStage === 'final'),
               }) %>
             </div>

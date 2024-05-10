@@ -38,7 +38,6 @@ export function handle() {
   });
 
   const startButtonHandler = () => {
-    console.log("hi");
     if (!startButton) return;
 
     startButton.textContent = "Starting...";

@@ -13,6 +13,7 @@ import {
 import {
   GameLobby,
   createLobby,
+  getCommunityCards,
   getGameLobbyById,
   updateCommunityCards,
   updateDealer,
@@ -55,6 +56,9 @@ router.get(
     const game = await getGameLobbyById(gameID);
     const thisPlayerCards = await getPlayerCards(userID, gameID);
 
+    const communityCards = await getCommunityCards(gameID);
+    signale.log(communityCards);
+
     // This allows for easier access from EJS. I wouldn't do this otherwise.
     const player_map: Record<string, string | number> = {};
     for (const player of players) {
@@ -62,8 +66,6 @@ router.get(
         `${player.username}\nStake: $${player.stake}`;
     }
     player_map.player_count = players.length;
-
-    console.log(thisPlayer);
 
     try {
       response.render(Views.GameLobby, {
@@ -73,13 +75,7 @@ router.get(
         gameStage: game.game_stage,
         thisPlayerCards,
         thisPlayerPosition: thisPlayer.play_order,
-        // communityCards: [
-        //   game.flop_1,
-        //   game.flop_2,
-        //   game.flop_3,
-        //   game.turn,
-        //   game.river,
-        // ],
+        communityCards,
       });
     } catch (error) {
       next(error);
@@ -321,10 +317,10 @@ router.post("/:id/start", async (req, res) => {
     await updateGameStage(gameID, "preflop");
     io.emit(`game:start:${gameID}`, {});
 
-    // for (const player of players) {
-    //   const cards = getPlayerCards(player.user_id);
-    //   io.to(player.user_id).emit('' {cards})
-    // }
+    for (const player of players) {
+      const cards = getPlayerCards(player.user_id, gameID);
+      io.to(player.user_id).emit(`game:deal:${gameID}`, { cards });
+    }
   } finally {
     routesCurrentlyStarting[gameID] = false;
   }

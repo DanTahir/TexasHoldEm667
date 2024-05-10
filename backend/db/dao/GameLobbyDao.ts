@@ -155,3 +155,74 @@ export async function resetGame(game_lobby_id: string) {
 
   await db.none(RESET_SQL, [game_lobby_id]);
 }
+
+type CommunityCards = {
+  flop_1: {
+    value: string;
+    suit: string;
+  };
+  flop_2: {
+    value: string;
+    suit: string;
+  };
+  flop_3: {
+    value: string;
+    suit: string;
+  };
+  turn: {
+    value: string;
+    suit: string;
+  };
+  river: {
+    value: string;
+    suit: string;
+  };
+};
+
+export async function getCommunityCards(
+  gameID: string,
+): Promise<CommunityCards | null> {
+  const query = `
+    SELECT
+      c1.value AS flop_1_value, c1.suit AS flop_1_suit,
+      c2.value AS flop_2_value, c2.suit AS flop_2_suit,
+      c3.value AS flop_3_value, c3.suit AS flop_3_suit,
+      c4.value AS turn_value, c4.suit AS turn_suit,
+      c5.value AS river_value, c5.suit AS river_suit
+    FROM game_lobbies AS l
+    INNER JOIN cards AS c1 ON l.flop_1 = c1.game_card_id
+    INNER JOIN cards AS c2 ON l.flop_2 = c2.game_card_id
+    INNER JOIN cards AS c3 ON l.flop_3 = c3.game_card_id
+    INNER JOIN cards AS c4 ON l.turn = c4.game_card_id
+    INNER JOIN cards AS c5 ON l.river = c5.game_card_id
+    WHERE l.game_lobby_id = $1
+    LIMIT 1
+  `;
+
+  const result = await db.oneOrNone(query, [gameID]);
+
+  if (!result) return null;
+
+  return {
+    flop_1: {
+      value: result.flop_1_value,
+      suit: result.flop_1_suit,
+    },
+    flop_2: {
+      value: result.flop_2_value,
+      suit: result.flop_2_suit,
+    },
+    flop_3: {
+      value: result.flop_3_value,
+      suit: result.flop_3_suit,
+    },
+    turn: {
+      value: result.turn_value,
+      suit: result.turn_suit,
+    },
+    river: {
+      value: result.river_value,
+      suit: result.river_suit,
+    },
+  };
+}
