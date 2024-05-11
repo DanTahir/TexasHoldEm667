@@ -433,7 +433,17 @@ async function getNextPlayer(
     return;
   }
 
-  const players = await getPlayersByLobbyId(gameLobbyID);
+  let players: Array<PlayerWithUserInfo> | null = null;
+  try {
+    players = await getPlayersByLobbyId(gameLobbyID);
+  } catch (error) {
+    signale.warn(error);
+    return;
+  }
+  if (!players) {
+    signale.warn("players was empty");
+    return;
+  }
 
   if (gameLobby.turns >= players.length) {
     try {

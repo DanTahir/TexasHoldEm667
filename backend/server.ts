@@ -51,7 +51,9 @@ app.use(express.static(path.join("backend", "static")));
 
 app.use(requestTime);
 
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+  allowEIO3: false,
+});
 io.engine.use(sessionMiddleware);
 app.set("io", io);
 
