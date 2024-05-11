@@ -19,6 +19,8 @@ export function handle() {
       if (!res.ok) {
         alert(await res.text());
       }
+
+      location.href = "/";
     });
   };
 
