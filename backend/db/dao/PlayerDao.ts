@@ -66,28 +66,44 @@ export async function getPlayersNotFolded(gameLobbyID: string) {
       AND game_lobby_id=$1
       ORDER BY play_order ASC
     `,
-    [gameLobbyID]
+    [gameLobbyID],
   );
 
   return playersNotFolded;
 }
 
 export async function getPlayersNotFoldedOrAllIn(gameLobbyID: string) {
-  const playersNotFoldedOrAllIn: Array<PlayerWithUserInfo> = await db.manyOrNone(
-    `
+  const playersNotFoldedOrAllIn: Array<PlayerWithUserInfo> =
+    await db.manyOrNone(
+      `
       SELECT * FROM players AS p
       INNER JOIN users AS u ON u.id = p.user_id
       WHERE status NOT IN ('folded', 'spectating', 'all-in')
       AND game_lobby_id=$1
       ORDER BY play_order ASC
     `,
-    [gameLobbyID]
-  );
+      [gameLobbyID],
+    );
 
   return playersNotFoldedOrAllIn;
 }
 
-export async function getPlayerByMaxBet(gameLobbyID: string){
+export async function getPlayersNotSpectating(gameLobbyID: string) {
+  const playersNotFolded: Array<PlayerWithUserInfo> = await db.manyOrNone(
+    `
+      SELECT * FROM players AS p
+      INNER JOIN users AS u ON u.id = p.user_id
+      WHERE status != 'spectating'
+      AND game_lobby_id=$1
+      ORDER BY play_order ASC
+    `,
+    [gameLobbyID],
+  );
+
+  return playersNotFolded;
+}
+
+export async function getPlayerByMaxBet(gameLobbyID: string) {
   const playerByMaxBet: PlayerWithUserInfo = await db.one(
     `
     SELECT * FROM players AS p
@@ -96,8 +112,8 @@ export async function getPlayerByMaxBet(gameLobbyID: string){
     ORDER BY p.bet DESC
     LIMIT 1
     `,
-    [gameLobbyID]
-  )
+    [gameLobbyID],
+  );
 
   return playerByMaxBet;
 }
@@ -116,14 +132,16 @@ export async function getPlayerByUserAndLobbyId(
   );
 }
 
-export async function getPlayerById(player_id: string): Promise<PlayerWithUserInfo> {
+export async function getPlayerById(
+  player_id: string,
+): Promise<PlayerWithUserInfo> {
   return await db.one(
     `
       SELECT * FROM players AS p
       INNER JOIN users AS u ON u.id = p.user_id 
       WHERE player_id=$1
-    `, 
-    [player_id]
+    `,
+    [player_id],
   );
 }
 
@@ -180,9 +198,14 @@ export async function updateStatus(player_id: string, status: string) {
   ]);
 }
 
-export async function updateStatusUserAndLobby(user_id: string, game_lobby_id: string, status: string) {
-  await db.none("UPDATE players SET status=$3 WHERE user_id=$1 AND game_lobby_id=$2",
-    [user_id, game_lobby_id, status]
+export async function updateStatusUserAndLobby(
+  user_id: string,
+  game_lobby_id: string,
+  status: string,
+) {
+  await db.none(
+    "UPDATE players SET status=$3 WHERE user_id=$1 AND game_lobby_id=$2",
+    [user_id, game_lobby_id, status],
   );
 }
 
@@ -197,7 +220,6 @@ export async function updateCards(
     card_2,
   ]);
 }
-
 
 export async function updatePlayer(player: Player) {
   const { status, stake, bet, play_order, card_1, card_2, player_id } = player;
