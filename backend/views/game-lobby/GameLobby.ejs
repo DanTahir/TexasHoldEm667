@@ -174,7 +174,7 @@
         <div class="game-interactions">
           <div class="left-interactions">
             <div class="bet-amount">
-              <label for="bet-amount">Bet: </label>
+              <label for="bet-amount">Raise: </label>
               <input
                 id="bet-amount"
                 name="bet-amount"
@@ -182,27 +182,30 @@
                 placeholder="Amount"
               />
             </div>
-
             <div class="quit-button">
               <%- include("../partials/Button.ejs", {buttonText: "Quit Game"}) %>
             </div>
+            <div class="home-button">
+              <%- include("../partials/Button.ejs", {buttonText: "Home", link: "/home"}) %>
+            </div>
           </div>
-
-          <div class="start-button <%= (players.player_count >= 4 && gameStage === 'waiting') ? '' : 'hidden' %>">
-            <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
+          <div class="center-interactions">
+            <div class="start-button <%= (players.player_count >= 4 && gameStage === 'waiting') ? '' : 'hidden' %>">
+              <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
+            </div>
+            <div class="user-name">Playing as: <%= userName %></div>
           </div>
-
           <div class="right-interactions">
-            <div class="call-check-button">
+            <div id="call-check-button" class="call-check-button">
               <%- include("../partials/Button.ejs", {buttonText: "Call/Check"}) %>
             </div>
 
-            <div class="raise-button">
+            <div id="raise-button" class="raise-button">
               <%- include("../partials/Button.ejs", {buttonText: "Raise"})
               %>
             </div>
 
-            <div class="fold-button">
+            <div id="fold-button" class="fold-button">
               <%- include("../partials/Button.ejs", {buttonText: "Fold"}) %>
             </div>
           </div>

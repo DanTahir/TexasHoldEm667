@@ -10,13 +10,14 @@ const startButtonElement = document.querySelector(
 export function handle(socket: Socket) {
   socket.on(
     `game:join:${roomID}`,
-    ({ playOrder, player, stake, numPlayers }) => {
+    ({ playOrder, numPlayers, player, stake, bet, status }) => {
       const seat = seats.item(playOrder - 1);
 
       const new_seat = seat.cloneNode(true) as HTMLDivElement;
       const button = new_seat.querySelector("button")!;
       new_seat.classList.remove("empty-seat");
-      button.textContent = `${player}\nStake: $${stake}`;
+      const message = `${player}\n$${stake}\nbet: $${bet}\n${status}`;
+      button.innerHTML = message.replace(/\n/g, "<br>");
       seat.parentNode?.replaceChild(new_seat, seat);
 
       if (numPlayers >= 4) {

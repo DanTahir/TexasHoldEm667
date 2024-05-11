@@ -23,6 +23,7 @@ export interface GameLobby {
   turn?: string;
   river?: string;
   num_players?: number;
+  turns: number;
 }
 
 export async function createLobby(
@@ -145,6 +146,33 @@ export async function updateCommunityCards(
     WHERE game_lobby_id=$1`,
     [game_lobby_id, flop_1, flop_2, flop_3, turn, river],
   );
+}
+
+export async function updateRiver(game_lobby_id: string, river: string) {
+  await db.none("UPDATE game_lobbies SET river=$2 WHERE game_lobby_id=$1", [
+    game_lobby_id,
+    river,
+  ]);
+}
+
+export async function updateTurn(game_lobby_id: string, turn: string) {
+  await db.none("UPDATE game_lobbies SET turn=$2 WHERE game_lobby_id=$1", [
+    game_lobby_id,
+    turn,
+  ]);
+}
+
+export async function updateTurnsByOne(gameLobbyID: string) {
+  db.none(
+    "UPDATE game_lobbies SET turns = turns + 1 WHERE game_lobby_id = $1",
+    [gameLobbyID],
+  );
+}
+
+export async function updateTurnsToZero(gameLobbyID: string) {
+  db.none("UPDATE game_lobbies SET turns = 0 WHERE game_lobby_id = $1", [
+    gameLobbyID,
+  ]);
 }
 
 export async function resetGame(game_lobby_id: string) {
