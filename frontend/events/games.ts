@@ -30,6 +30,8 @@ export function handle() {
           button.textContent = "Join";
           button.addEventListener("click", joinButtonHandler);
           alert(await res.text());
+        } else {
+          seat.setAttribute("data-this-player", "true");
         }
       });
     };

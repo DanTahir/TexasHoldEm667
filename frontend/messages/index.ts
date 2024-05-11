@@ -5,6 +5,7 @@ import { handle as handlePlayerFoldRaiseCall } from "./playerFoldRaiseCall";
 import { handle as handleNextPlayerActive } from "./nextPlayerActive";
 import { handle as handleNextPlayerAnnounce } from "./nextPlayerAnnounce";
 import { handle as handlePlayerQuits } from "./playerQuit";
+import { handle as handleDealCards } from "./dealCards";
 
 export const messageHandlers = [
   handleChatMessages,
@@ -15,4 +16,5 @@ export const messageHandlers = [
   handleNextPlayerActive,
   handleNextPlayerAnnounce,
   handlePlayerQuits,
+  handleDealCards,
 ];

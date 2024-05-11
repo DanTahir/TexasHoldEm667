@@ -17,5 +17,6 @@ declare module "express-session" {
 declare module "node:http" {
   interface IncomingMessage {
     session: Session & Partial<SessionData> & Partial<FormRedirect>;
+    user: User;
   }
 }

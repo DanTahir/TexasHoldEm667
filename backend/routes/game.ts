@@ -86,13 +86,12 @@ router.get(
     const gameID = request.params.id;
     const userName = request.session.user.username;
     const players = await getPlayersByLobbyId(gameID);
-    const thisPlayer = players.find((player) => player.user_id === userID)!;
+    const thisPlayer = players.find((player) => player.user_id === userID);
 
     const game = await getGameLobbyById(gameID);
     const thisPlayerCards = await getPlayerCards(userID, gameID);
 
     const communityCards = await getCommunityCards(gameID);
-    signale.log(communityCards);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
     const player_map: Record<string, string | number> = {};
@@ -109,7 +108,7 @@ router.get(
         players: player_map,
         gameStage: game.game_stage,
         thisPlayerCards,
-        thisPlayerPosition: thisPlayer.play_order,
+        thisPlayerPosition: thisPlayer?.play_order || 0,
         communityCards,
         userName: userName,
       });
@@ -366,9 +365,14 @@ router.post("/:id/start", async (req, res) => {
     io.emit(`game:start:${gameID}`, {});
 
     for (const player of players) {
-      const cards = getPlayerCards(player.user_id, gameID);
-      io.to(player.user_id).emit(`game:deal:${gameID}`, { cards });
+      const cards = await getPlayerCards(player.user_id, gameID);
+      io.to(player.user_id).emit(`game:deal:${gameID}`, {
+        cards,
+        playOrder: player.play_order,
+      });
     }
+
+    getNextPlayer(req, res, bigBlindPlayer.user_id);
   } finally {
     routesCurrentlyStarting[gameID] = false;
   }
