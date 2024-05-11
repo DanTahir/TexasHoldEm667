@@ -72,10 +72,9 @@ router.get(
     const players = await getPlayersByLobbyId(gameID);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
-    const player_map: Record<string, string> = {};
+    const player_map: Record<string, PlayerWithUserInfo> = {};
     for (const player of players) {
-      player_map[`player_${player.play_order}`] =
-        `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
+      player_map[`player_${player.play_order}`] = player;
     }
 
     try {

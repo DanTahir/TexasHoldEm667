@@ -11,8 +11,24 @@ export function handle(socket: Socket) {
 
       const new_seat = seat.cloneNode(true) as HTMLDivElement;
       const button = new_seat.querySelector("button")!;
-      const message = `${playerName}\n$${stake}\nbet: $${bet}\n${status}`;
-      button.innerHTML = message.replace(/\n/g, "<br>");
+
+      const playerData = {
+        username: playerName,
+        stake,
+        bet,
+        status,
+      };
+
+      const buttonContent = `
+          <div class="flex flex-col flex-nowrap">
+            <div class="username">${playerData.username}</div>
+            <div class="stake">Stake: $${playerData.stake}</div>
+            <div class="bet">Bet: $${playerData.bet}</div>
+            <div class="status">${playerData.status}</div>
+          </div>
+        </button>
+      `;
+      button.innerHTML = buttonContent;
       seat.parentNode?.replaceChild(new_seat, seat);
 
       const foldDiv = document.getElementById("fold-button") as HTMLDivElement;
