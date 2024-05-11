@@ -19,8 +19,8 @@
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card2?.suit || '', number: thisPlayerCards?.card2?.value || 0, hidden: gameStage === 'waiting'}) %>
                 </div>
-              <% } else if (players.player_1) { %>
-                <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <% } else { %>
+                <div class = "card-container <%= (players.player_1 && gameStage !== 'waiting') ? '' : 'hidden' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                 </div>
@@ -34,8 +34,8 @@
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card2?.suit || '', number: thisPlayerCards?.card2?.value || 0, hidden: gameStage === 'waiting'}) %>
                 </div>
-              <% } else if (players.player_2) { %>
-                <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <% } else { %>
+                <div class = "card-container <%= (players.player_2 && gameStage !== 'waiting') ? '' : 'hidden' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                 </div>
@@ -49,8 +49,8 @@
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card2?.suit || '', number: thisPlayerCards?.card2?.value || 0, hidden: gameStage === 'waiting'}) %>
                 </div>
-              <% } else if (players.player_3) { %>
-                <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <% } else { %>
+                <div class = "card-container <%= (players.player_3 && gameStage !== 'waiting') ? '' : 'hidden' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                 </div>
@@ -65,8 +65,8 @@
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card2?.suit || '', number: thisPlayerCards?.card2?.value || 0, hidden: gameStage === 'waiting'}) %>
                 </div>
-              <% } else if (players.player_4) { %>
-                <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <% } else { %>
+                <div class = "card-container <%= (players.player_4 && gameStage !== 'waiting') ? '' : 'hidden' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                 </div>
@@ -80,8 +80,8 @@
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card2?.suit || '', number: thisPlayerCards?.card2?.value || 0, hidden: gameStage === 'waiting'}) %>
                 </div>
-              <% } else if (players.player_5) { %>
-                <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <% } else { %>
+                <div class = "card-container <%= (players.player_5 && gameStage !== 'waiting') ? '' : 'hidden' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                 </div>
@@ -95,8 +95,8 @@
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card2?.suit || '', number: thisPlayerCards?.card2?.value || 0, hidden: gameStage === 'waiting'}) %>
                 </div>
-              <% } else if (players.player_6) { %>
-                <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              <% } else { %>
+                <div class = "card-container <%= (players.player_6 && gameStage !== 'waiting') ? '' : 'hidden' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                   <%- include("../partials/PokerCard.ejs", {suit: "", number: 0, hidden: true}) %>
                 </div>
