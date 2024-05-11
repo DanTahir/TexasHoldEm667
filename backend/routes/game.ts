@@ -289,7 +289,7 @@ router.post("/:id/start", async (req, res) => {
     // Make sure game has not started.
     const game = await getGameLobbyById(gameID);
     if (game.game_stage !== "waiting") {
-      signale.warn(`cannot start game: less than 2 players`);
+      signale.warn(`cannot start game: game not in waiting state`);
       res.status(403).send("This game has already started");
       return;
     }
