@@ -18,6 +18,7 @@ import {
   getPlayerByMaxBet,
   updateStake,
   getPlayerByGameIDAndPlayOrder,
+  getActivePlayers,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -490,7 +491,7 @@ async function getNextPlayer(
         }
       }
       if (newRound) {
-        await startNextRound();
+        await startNextRound(gameLobbyID);
         return;
       }
     } catch (error) {
@@ -530,7 +531,29 @@ async function awardWinner(): Promise<void> {}
 
 async function decideWinner(): Promise<void> {}
 
-async function startNextRound(): Promise<void> {}
+async function startNextRound(gameLobbyID: string): Promise<void> {
+  const activePlayers = await getActivePlayers(gameLobbyID);
+  const lobby = await getGameLobbyById(gameLobbyID);
+  let pot = lobby.pot;
+
+  activePlayers.forEach(async (player) => {
+    pot += player.bet;
+    await updateBet(player.player_id, 0);
+  });
+
+  await updatePot(gameLobbyID, pot);
+
+  if (lobby.game_stage === "preflop") {
+    await updateGameStage(gameLobbyID, "flop");
+  } else if (lobby.game_stage === "flop") {
+    await updateGameStage(gameLobbyID, "turn");
+  } else if (lobby.game_stage === "turn") {
+    await updateGameStage(gameLobbyID, "river");
+  } else if (lobby.game_stage === "river") {
+    decideWinner();
+    return;
+  }
+}
 
 router.post(
   "/:id/quit",

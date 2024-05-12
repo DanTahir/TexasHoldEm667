@@ -58,6 +58,21 @@ export async function getPlayersByLobbyId(gameLobbyID: string) {
   return players;
 }
 
+export async function getActivePlayers(gameLobbyID: string) {
+  const activePlayers: Array<PlayerWithUserInfo> = await db.manyOrNone(
+    `
+      SELECT * FROM players AS p
+      INNER JOIN users AS u ON u.id = p.user_id
+      WHERE status NOT IN ('spectating')
+      AND game_lobby_id=$1
+      ORDER BY play_order ASC
+    `,
+    [gameLobbyID],
+  );
+
+  return activePlayers;
+}
+
 export async function getPlayersNotFolded(gameLobbyID: string) {
   const playersNotFolded: Array<PlayerWithUserInfo> = await db.manyOrNone(
     `
