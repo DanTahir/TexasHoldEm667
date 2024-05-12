@@ -2,8 +2,13 @@ import { Screens, Views } from "@backend/views";
 import express, { Router, Request, Response, NextFunction } from "express";
 import {
   CreatePlayerPayload,
+  Player,
   createPlayer,
+  getPlayerCards,
   getPlayersByLobbyId,
+  removePlayerByPlayerId,
+  updateBet,
+  updateCards,
   getPlayersNotFolded,
   getPlayersNotFoldedOrAllIn,
   PlayerWithUserInfo,
@@ -12,29 +17,38 @@ import {
   updateStatusUserAndLobby,
   getPlayerByMaxBet,
   updateStake,
-  updateBet,
-  removePlayerByPlayerId,
   getPlayerByGameIDAndPlayOrder,
-  Player,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
   createLobby,
+  getCommunityCards,
   getGameLobbyById,
-  updateTurnsByOne,
-  updateTurnsToZero,
+  updateCommunityCards,
+  updateDealer,
   updateGameStage,
+  updateTurnsToZero,
+  updateTurnsByOne,
   GameStage,
   updatePot,
-  updateDealer,
   updateCurrentPlayer,
 } from "@backend/db/dao/GameLobbyDao";
-import { createDeck, deleteDeck } from "@backend/db/dao/CardDao";
+import {
+  Card,
+  createDeck,
+  deleteDeck,
+  getCardsByGame,
+} from "@backend/db/dao/CardDao";
 import { TypedRequestBody } from "@backend/types";
 import { validateGameExists } from "@backend/middleware/validate-game-exists";
 import { ConstraintError } from "@backend/error/ConstraintError";
-import { readUserFromID, updateUserBalance } from "@backend/db/dao/UserDao";
+import {
+  addToUserBalance,
+  readUserFromID,
+  updateUserBalance,
+} from "@backend/db/dao/UserDao";
 import signale from "signale";
+import { Socket } from "socket.io";
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -67,22 +81,35 @@ router.get(
   "/:id",
   validateGameExists,
   async (request: Request, response: Response, next: NextFunction) => {
+    const userID = request.session.user.id;
+
     const gameID = request.params.id;
     const userName = request.session.user.username;
     const players = await getPlayersByLobbyId(gameID);
+    const thisPlayer = players.find((player) => player.user_id === userID);
+
+    const game = await getGameLobbyById(gameID);
+    const thisPlayerCards = await getPlayerCards(userID, gameID);
+
+    const communityCards = await getCommunityCards(gameID);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
-    const player_map: Record<string, string> = {};
+    const player_map: Record<string, string | number> = {};
     for (const player of players) {
       player_map[`player_${player.play_order}`] =
         `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
     }
+    player_map.player_count = players.length;
 
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
         id: request.params.id,
         players: player_map,
+        gameStage: game.game_stage,
+        thisPlayerCards,
+        thisPlayerPosition: thisPlayer?.play_order || 0,
+        communityCards,
         userName: userName,
       });
     } catch (error) {
@@ -220,6 +247,7 @@ router.post(
 
     io.emit(`game:join:${gameID}`, {
       playOrder,
+      numPlayers: players.length + 1,
       player: createdPlayer.username,
       stake: createdPlayer.stake,
       bet: createdPlayer.bet,
@@ -228,15 +256,147 @@ router.post(
   },
 );
 
-router.get("/:id/createDeck", async (request: Request, response: Response) => {
-  const gameID = request.params.id;
+async function kickPlayer(
+  gameLobbyID: string,
+  player: Player,
+  username: string,
+  socket: Socket,
+) {
+  await removePlayerByPlayerId(player.player_id);
 
+  await addToUserBalance(username, player.stake);
+
+  socket.emit(`game:kick:${gameLobbyID}`, {
+    playerID: player.player_id,
+    username,
+  });
+}
+
+const routesCurrentlyStarting: Record<string, boolean> = {};
+
+router.post("/:id/start", async (req, res) => {
+  const gameID = req.params.id;
   try {
-    await deleteDeck(gameID);
-    await createDeck(gameID);
-    response.status(200);
-  } catch (error) {
-    response.status(500).send("unable to create deck");
+    const io = req.app.get("io");
+
+    // A dumb locking mechanism. But it seems to work.
+    if (routesCurrentlyStarting[gameID]) {
+      res.status(403).send("Starting this game already...please be patient!");
+      return;
+    }
+    routesCurrentlyStarting[gameID] = true;
+
+    // Make sure game has not started.
+    const game = await getGameLobbyById(gameID);
+    if (game.game_stage !== "waiting") {
+      signale.warn(`cannot start game: game not in waiting state`);
+      res.status(403).send("This game has already started");
+      return;
+    }
+
+    // Check for player count, just in case people leave before.
+    const players = await getPlayersByLobbyId(gameID);
+    if (players.length < 4) {
+      signale.warn(`cannot start game: less than 2 players`);
+      res
+        .status(403)
+        .send(
+          "Not enough players to start game. You need at least 2 players to start.",
+        );
+      return;
+    }
+
+    const [dealer, smallBlindPlayer, bigBlindPlayer] = players;
+
+    // Set dealer for this round.
+    await updateDealer(gameID, dealer.player_id);
+
+    // Take money from big blind and small blind.
+    // If not enough money in stake, then kick and abort start.
+    if (smallBlindPlayer.stake < game.big_blind / 2) {
+      await kickPlayer(gameID, smallBlindPlayer, bigBlindPlayer.username, io);
+      res
+        .status(403)
+        .send("Aborting game...small blind did not have enough money");
+      return;
+    }
+    updateBet(smallBlindPlayer.player_id, game.big_blind / 2);
+    updateStake(
+      smallBlindPlayer.player_id,
+      smallBlindPlayer.stake - game.big_blind / 2,
+    );
+
+    if (bigBlindPlayer.stake < game.big_blind) {
+      await kickPlayer(gameID, bigBlindPlayer, bigBlindPlayer.username, io);
+      res
+        .status(403)
+        .send("Aborting game...big blind did not have enough money");
+      return;
+    }
+    updateBet(bigBlindPlayer.player_id, game.big_blind);
+    updateStake(
+      bigBlindPlayer.player_id,
+      bigBlindPlayer.stake - game.big_blind,
+    );
+    io.emit(`game:foldraisecall:${gameID}`, {
+      playOrder: smallBlindPlayer.play_order,
+      playerName: smallBlindPlayer.username,
+      stake: smallBlindPlayer.stake - game.big_blind / 2,
+      bet: game.big_blind / 2,
+      status: smallBlindPlayer.status,
+    });
+    io.emit(`game:foldraisecall:${gameID}`, {
+      playOrder: bigBlindPlayer.play_order,
+      playerName: bigBlindPlayer.username,
+      stake: bigBlindPlayer.stake - game.big_blind,
+      bet: game.big_blind,
+      status: bigBlindPlayer.status,
+    });
+
+    // Remove all cards/recreate deck
+    let deck: Array<Card> = [];
+    try {
+      await deleteDeck(gameID);
+      await createDeck(gameID);
+      deck = await getCardsByGame(gameID);
+    } catch (error) {
+      signale.error("error recreating deck:", error);
+      res.status(500).send("Unable to create deck. Try again later");
+      return;
+    }
+
+    // Deal cards
+    for (const player of players) {
+      const card1 = deck.pop()!;
+      const card2 = deck.pop()!;
+
+      updateCards(player.player_id, card1.game_card_id, card2.game_card_id);
+    }
+    const [flop1, flop2, flop3, turn, river] = deck;
+    await updateCommunityCards(
+      gameID,
+      flop1.game_card_id,
+      flop2.game_card_id,
+      flop3.game_card_id,
+      turn.game_card_id,
+      river.game_card_id,
+    );
+
+    // Move game state to pre_flop
+    await updateGameStage(gameID, "preflop");
+    io.emit(`game:start:${gameID}`, {});
+
+    for (const player of players) {
+      const cards = await getPlayerCards(player.user_id, gameID);
+      io.to(player.user_id).emit(`game:deal:${gameID}`, {
+        cards,
+        playOrder: player.play_order,
+      });
+    }
+
+    getNextPlayer(req, res, bigBlindPlayer.user_id);
+  } finally {
+    routesCurrentlyStarting[gameID] = false;
   }
 });
 

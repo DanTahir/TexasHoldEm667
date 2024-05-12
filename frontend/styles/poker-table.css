@@ -120,6 +120,13 @@ svg {
   margin-top: 3.5rem;
 }
 
+.center-interactions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .right-interactions {
   display: flex;
   flex-direction: column;
@@ -133,6 +140,7 @@ svg {
   justify-content: center;
   width: 8rem;
 }
+
 input {
   width: 50%;
 }
@@ -149,4 +157,8 @@ label + input {
 .chat {
   width: 100%;
   height: 95%;
+}
+
+.hidden {
+  display: none;
 }

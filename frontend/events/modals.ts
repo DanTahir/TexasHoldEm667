@@ -3,13 +3,15 @@ const modalDialog = document.getElementById(
   "create-game-modal",
 ) as HTMLDialogElement | null;
 const createGameButton = document.getElementById("create-game");
-const settingsModalForm = document.getElementById("settings-modal-form") as HTMLFormElement;
-const settingsModalDialog = document.getElementById("settings-modal") as HTMLDialogElement | null;
+const settingsModalForm = document.getElementById(
+  "settings-modal-form",
+) as HTMLFormElement;
+const settingsModalDialog = document.getElementById(
+  "settings-modal",
+) as HTMLDialogElement | null;
 const settingsButton = document.getElementById("settings");
 
-
 export function handle() {
-
   createGameButton?.addEventListener("click", () => {
     modalDialog?.showModal();
   });
@@ -29,5 +31,4 @@ export function handle() {
       settingsModalDialog.close();
     }
   });
-
 }

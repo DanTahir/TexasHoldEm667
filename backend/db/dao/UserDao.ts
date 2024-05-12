@@ -43,6 +43,13 @@ export async function updateUserBalance(username: string, balance: number) {
   ]);
 }
 
+export async function addToUserBalance(username: string, amount: number) {
+  await db.none("UPDATE users SET balance = balance + $1 WHERE username = $2", [
+    amount,
+    username,
+  ]);
+}
+
 export async function updateProfileImage(
   username: string,
   newProfileImage: string,

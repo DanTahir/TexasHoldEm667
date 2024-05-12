@@ -58,7 +58,6 @@ io.engine.use(sessionMiddleware);
 app.set("io", io);
 
 io.on("connection", (socket: Socket) => {
-  //const sessionId = socket.request.session.id;
   let id;
 
   if (socket.request.session.user) {

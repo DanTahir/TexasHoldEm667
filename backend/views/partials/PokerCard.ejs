@@ -1,55 +1,49 @@
-<html>
-  <div class="poker-card">
-      <% if(hidden){ %>
-        <div class="back"></div>
-      <% } else { %>
-        <div class="poker-card-container">
-            <div class="card-icon">
-              <% if(suit === "hearts" || suit === "diamonds") { %>
-                <div class="red">
-                  <% if(suit === "hearts") { %>
-                      ♥
-                  <% }else { %>
-                      ♦
-                  <% } %>
-                </div>
-              <% } else{ %>
-                <div class="black">
-                  <% if(suit === "clubs") { %>
-                      ♣
-                  <% }else { %>
-                      ♠
-                  <% } %>
-                </div>
-              <% } %>
-            </div>
-            <div class="card-number">
-              <% if(number === 11){ %>
-                    J
-              <% }else if(number === 12) { %>
-                    Q
-              <% } else if(number === 13) { %>
-                    K
-              <% } else if(number === 14) { %>
-                    A
-              <% } else { %>
-                    <%= number %>
-              <% } %>
-            </div>
-            <div class="card-number-reversed">
-              <% if(number === 11){ %>
-                    J
-              <% }else if(number === 12) { %>
-                    Q
-              <% } else if(number === 13) { %>
-                    K
-              <% } else if(number === 14) { %>
-                    A
-              <% } else { %>
-                    <%= number %>
-              <% } %>
-            </div>
-        </div>
-      <% } %>
+<div class="poker-card">
+  <% let isRed = suit === "hearts" || suit === "diamonds"; %>
+
+  <div class="poker-card-container <%= hidden ? 'back' : '' %>">
+      <div class="card-icon <%= isRed ? 'red' : 'black' %>">
+        <% if (hidden) { %>
+
+        <% } else if (suit === 'hearts') { %>
+            ♥
+        <% } else if (suit === "diamonds") { %>
+            ♦
+        <% } else if (suit === "clubs") { %>
+            ♣
+        <% } else if (suit === "spades") { %>
+            ♠
+        <% } %>
+      </div>
+      <div class="card-number">
+        <% if (hidden) { %>
+
+        <% } else if (number === 11) { %>
+          J
+        <% } else if (number === 12) { %>
+          Q
+        <% } else if (number === 13) { %>
+          K
+        <% } else if (number === 14) { %>
+          A
+        <% } else { %>
+          <%= number %>
+        <% } %>
+      </div>
+      <div class="card-number-reversed">
+        <% if (hidden) { %>
+
+        <% } else if (number === 11) { %>
+          J
+        <% } else if (number === 12) { %>
+          Q
+        <% } else if (number === 13) { %>
+          K
+        <% } else if (number === 14) { %>
+          A
+        <% } else { %>
+          <%= number %>
+        <% } %>
+      </div>
   </div>
-</html>
+</div>

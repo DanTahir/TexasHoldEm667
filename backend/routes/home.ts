@@ -1,9 +1,5 @@
 import { getRecentGames } from "@backend/db/dao/GameLobbyDao";
-import { 
-  updateUserBalance,
-  readUserFromID,
-} 
-from "@backend/db/dao/UserDao";
+import { updateUserBalance, readUserFromID } from "@backend/db/dao/UserDao";
 import { Views } from "@backend/views";
 import express, { Router, Request } from "express";
 
@@ -16,8 +12,6 @@ router.get("/", async (req: Request, res, next) => {
     games = await getRecentGames();
   } catch (error) {
     next(error);
-
-
   }
 
   const userName = req.session.user.username;
@@ -26,7 +20,7 @@ router.get("/", async (req: Request, res, next) => {
   let balance = req.session.user.balance;
   try {
     user = await readUserFromID(userID);
-  } catch(error){
+  } catch (error) {
     next(error);
   }
   balance = user?.balance;
@@ -47,8 +41,5 @@ router.post("/resetBalance", async (req: Request, res) => {
   const userName = req.session.user.username;
   await updateUserBalance(userName, 10000);
   console.log(`Hello from resetBalance - userName: ${userName}`);
-  res.redirect('/home')
-  
-
-
+  res.redirect("/home");
 });
