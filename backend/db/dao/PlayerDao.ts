@@ -291,7 +291,7 @@ export async function getPlayerCards(userID: string, gameID: string) {
       suit: result.suit_1,
     },
     card2: {
-      value: result.value_1,
+      value: result.value_2,
       suit: result.suit_2,
     },
   };
