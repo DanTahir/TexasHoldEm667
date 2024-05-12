@@ -338,6 +338,21 @@ router.post("/:id/start", async (req, res) => {
       bigBlindPlayer.player_id,
       bigBlindPlayer.stake - game.big_blind,
     );
+    io.emit(`game:foldraisecall:${gameID}`, {
+      playOrder: smallBlindPlayer.play_order,
+      playerName: smallBlindPlayer.username,
+      stake: smallBlindPlayer.stake - game.big_blind / 2,
+      bet: game.big_blind / 2,
+      status: smallBlindPlayer.status,
+    });
+    io.emit(`game:foldraisecall:${gameID}`, {
+      playOrder: bigBlindPlayer.play_order,
+      playerName: bigBlindPlayer.username,
+      stake: bigBlindPlayer.stake - game.big_blind,
+      bet: game.big_blind,
+      status: bigBlindPlayer.status,
+    });
+
     // Remove all cards/recreate deck
     let deck: Array<Card> = [];
     try {
