@@ -57,6 +57,11 @@ export function handle(socket: Socket) {
     const card1SuitElem = card1Container.querySelector(".card-icon");
     if (card1SuitElem) {
       card1SuitElem.textContent = getSuitContent(card1.suit);
+      if (card1.suit === "hearts" || card1.suit === "diamonds") {
+        card1SuitElem.classList.add("red");
+      } else {
+        card1SuitElem.classList.add("black");
+      }
     }
     const card1NumberElem = card1Container.querySelector(".card-number");
     if (card1NumberElem) {
@@ -76,6 +81,11 @@ export function handle(socket: Socket) {
     const card2SuitElem = card2Container.querySelector(".card-icon");
     if (card2SuitElem) {
       card2SuitElem.textContent = getSuitContent(card2.suit);
+      if (card2.suit === "hearts" || card2.suit === "diamonds") {
+        card2SuitElem.classList.add("red");
+      } else {
+        card2SuitElem.classList.add("black");
+      }
     }
     const card2NumberElem = card2Container.querySelector(".card-number");
     if (card2NumberElem) {
