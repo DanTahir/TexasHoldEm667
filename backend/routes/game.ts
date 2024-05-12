@@ -321,6 +321,10 @@ router.post("/:id/start", async (req, res) => {
       return;
     }
     updateBet(smallBlindPlayer.player_id, game.big_blind / 2);
+    updateStake(
+      smallBlindPlayer.player_id,
+      smallBlindPlayer.stake - game.big_blind / 2,
+    );
 
     if (bigBlindPlayer.stake < game.big_blind) {
       await kickPlayer(gameID, bigBlindPlayer, bigBlindPlayer.username, io);
@@ -330,7 +334,10 @@ router.post("/:id/start", async (req, res) => {
       return;
     }
     updateBet(bigBlindPlayer.player_id, game.big_blind);
-
+    updateStake(
+      bigBlindPlayer.player_id,
+      bigBlindPlayer.stake - game.big_blind,
+    );
     // Remove all cards/recreate deck
     let deck: Array<Card> = [];
     try {
