@@ -18,6 +18,8 @@ import {
   getPlayerByMaxBet,
   updateStake,
   getPlayerByGameIDAndPlayOrder,
+  getPlayersNotSpectating,
+  getPlayerById,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -490,7 +492,7 @@ async function getNextPlayer(
         }
       }
       if (newRound) {
-        await startNextRound();
+        await startNextRound(request, response, gameLobbyID);
         return;
       }
     } catch (error) {
@@ -530,7 +532,55 @@ async function awardWinner(): Promise<void> {}
 
 async function decideWinner(): Promise<void> {}
 
-async function startNextRound(): Promise<void> {}
+async function startNextRound(
+  request: Request,
+  response: Response,
+  gameLobbyID: string,
+): Promise<void> {
+  const activePlayers = await getPlayersNotSpectating(gameLobbyID);
+  const lobby = await getGameLobbyById(gameLobbyID);
+  let pot = lobby.pot;
+
+  activePlayers.forEach(async (player) => {
+    pot += player.bet;
+    await updateBet(player.player_id, 0);
+  });
+
+  await updatePot(gameLobbyID, pot);
+
+  let nextStage: GameStage;
+  const cards = await getCommunityCards(gameLobbyID);
+  const io = request.app.get("io");
+
+  if (lobby.game_stage === "preflop") {
+    nextStage = "flop";
+    io.emit(`game:showFlop:${gameLobbyID}`, {
+      card1: cards?.flop_1,
+      card2: cards?.flop_2,
+      card3: cards?.flop_3,
+    });
+  } else if (lobby.game_stage === "flop") {
+    nextStage = "turn";
+    io.emit(`game:showTurn:${gameLobbyID}`, {
+      card: cards?.turn,
+    });
+  } else if (lobby.game_stage === "turn") {
+    nextStage = "river";
+    io.emit(`game:showRiver:${gameLobbyID}`, {
+      card: cards?.river,
+    });
+  } else {
+    decideWinner();
+    return;
+  }
+
+  await updateGameStage(gameLobbyID, nextStage);
+  await updateTurnsToZero(gameLobbyID);
+
+  const dealer = await getPlayerById(lobby.dealer as string);
+
+  await getNextPlayer(request, response, dealer.user_id);
+}
 
 router.post(
   "/:id/quit",
