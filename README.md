@@ -110,3 +110,66 @@ message is received over the socket. These are typically triggered by
 the routes that the events have sent data to. Finally, styles is where
 we hold our tailwind file that compiles to a full css file in our
 backend static directory.
+
+# Our Code Progression
+
+First, to start our server, run "npm run dev" from the command line.
+It will automatically build all the files you need as well as running
+all the necessary node migrations.
+
+When a user arrives at the root of our site the server fires server.ts
+(really server.js compiled from server.ts but we'll pretend the code 
+is structured as it is pre-compile for purposes of this walkthrough)
+which calls the root route. The root route checks if the user is logged
+in and if not, redirects them to the auth route, which directs the 
+user to the auth/login get route. If the user goes to register they
+trigger the auth/registration get route. If they register they
+trigger the auth/registration post route which creates a new user
+account. If they then log in they trigger the auth/login post route
+which creates a new session and logs them in (if their user and password
+is correct).
+
+Once a user is logged in they are redirected to the /home route which
+redirects to routes in the routes/home.ts file. It triggers get("/")
+from home which directs users to the localhost/home page which displays
+a list of existing games. The list of games is called from the database
+by the get request and then sent via the render event to the ejs template
+which renders the games as a list using a partial.
+
+Also on the home screen is a chat. A script sets an eventhandler to 
+listen to events on the message box. If the enter key is pressed in the
+message box, it fires fetch with a POST event to the server route 
+home/chat, which then emits the chat via a socket event to the chat
+window of the user and all users connected to the home screen.
+
+If the user clicks join a game they trigger a route in game.ts, 
+get("/{id}"), which renders the page for the lobby of a game for that
+game id on the url host/game/{id}. From there, a user can click one of
+six join buttons, which each fire a fetch event that sends the 
+seat number to the backend on the route game/{id}/join. Server.ts
+redirects the request to games.ts which redirects the request to
+router.post("/{id}/join") which handles creating a player for that
+game in the database and then returning that player from the database
+so it can emit the player's information on a socket event including
+their seat location so that a frontend script that calls socket.on
+can react to that event by setting the seat to the player.
+
+If the user clicks create on the home page instead of joining an
+existing game, a modal that's part of our ejs template gets 
+activated. After the user fills out the stake and name, the button
+fires the POST event game/{id}/create, which goes to game.ts
+and its router.post("/{id}/create"}. That function creates a new
+game lobby in the database, then creates the user as a player added
+to the game, then redirects the user to that gamelobby's page.
+
+Once a player has joined a game, they can quit, which fires the
+game/{id}/quit event, which deletes the user's player entry for that
+game from the database and then updates their seat to set it back to
+being joinable. They can then rejoin the same seat or another seat
+if they want, as long as seats are empty. If other users come and 
+take the seats, the seat occupation events are emitted via the socket
+to all users in the game lobby. 
+
+Once at least four users are in a game, the game.ts router.post("/{id}/join")
+route has the additional job of setting the start button to active. Any 
+player can click the start button
