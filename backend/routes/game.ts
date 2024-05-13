@@ -275,7 +275,9 @@ async function kickPlayer(
 const routesCurrentlyStarting: Record<string, boolean> = {};
 
 router.post("/:id/start", async (req, res) => {
+  const userID = req.session.user.id;
   const gameID = req.params.id;
+
   try {
     const io = req.app.get("io");
 
@@ -303,6 +305,15 @@ router.post("/:id/start", async (req, res) => {
         .send(
           "Not enough players to start game. You need at least 2 players to start.",
         );
+      return;
+    }
+
+    // Make sure player is acutally playing in this game.
+    if (!players.some((player) => player.user_id === userID)) {
+      signale.warn(
+        `cannot start game: player with user ID ${userID} is not in game`,
+      );
+      res.status(403).send("You must be a part of this game to start it.");
       return;
     }
 
