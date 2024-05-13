@@ -277,7 +277,9 @@ async function kickPlayer(
 const routesCurrentlyStarting: Record<string, boolean> = {};
 
 router.post("/:id/start", async (req, res) => {
+  const userID = req.session.user.id;
   const gameID = req.params.id;
+
   try {
     const io = req.app.get("io");
 
@@ -305,6 +307,15 @@ router.post("/:id/start", async (req, res) => {
         .send(
           "Not enough players to start game. You need at least 2 players to start.",
         );
+      return;
+    }
+
+    // Make sure player is acutally playing in this game.
+    if (!players.some((player) => player.user_id === userID)) {
+      signale.warn(
+        `cannot start game: player with user ID ${userID} is not in game`,
+      );
+      res.status(403).send("You must be a part of this game to start it.");
       return;
     }
 
@@ -538,19 +549,33 @@ async function startNextRound(
   await updatePot(gameLobbyID, pot);
 
   let nextStage: GameStage;
+  const cards = await getCommunityCards(gameLobbyID);
+  const io = request.app.get("io");
 
   if (lobby.game_stage === "preflop") {
     nextStage = "flop";
+    io.emit(`game:showFlop:${gameLobbyID}`, {
+      card1: cards?.flop_1,
+      card2: cards?.flop_2,
+      card3: cards?.flop_3,
+    });
   } else if (lobby.game_stage === "flop") {
     nextStage = "turn";
+    io.emit(`game:showTurn:${gameLobbyID}`, {
+      card: cards?.turn,
+    });
   } else if (lobby.game_stage === "turn") {
     nextStage = "river";
+    io.emit(`game:showRiver:${gameLobbyID}`, {
+      card: cards?.river,
+    });
   } else {
     decideWinner();
     return;
   }
 
   await updateGameStage(gameLobbyID, nextStage);
+  await updateTurnsToZero(gameLobbyID);
 
   const dealer = await getPlayerById(lobby.dealer as string);
 

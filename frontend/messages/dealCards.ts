@@ -1,41 +1,7 @@
 import { Socket } from "socket.io-client";
+import { fillInCardElements } from "../utils";
 
-// const seats = document.querySelectorAll(".seat");
 const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
-
-function getSuitContent(suit: string) {
-  switch (suit) {
-    case "hearts": {
-      return "♥";
-    }
-    case "diamonds": {
-      return "♦";
-    }
-    case "clubs": {
-      return "♣";
-    }
-    case "spades": {
-      return "♠";
-    }
-    default: {
-      return "";
-    }
-  }
-}
-
-function getNumberContent(value: number) {
-  if (value === 11) {
-    return "J";
-  } else if (value === 12) {
-    return "Q";
-  } else if (value === 13) {
-    return "K";
-  } else if (value == 14) {
-    return "A";
-  } else {
-    return `${value}`;
-  }
-}
 
 export function handle(socket: Socket) {
   socket.on(`game:deal:${roomID}`, ({ cards, playOrder }) => {
@@ -50,52 +16,7 @@ export function handle(socket: Socket) {
       seat.querySelectorAll(".card-container .poker-card"),
     ) as Array<HTMLDivElement>;
 
-    card1Container
-      .querySelector(".poker-card-container")
-      ?.classList.remove("back");
-
-    const card1SuitElem = card1Container.querySelector(".card-icon");
-    if (card1SuitElem) {
-      card1SuitElem.textContent = getSuitContent(card1.suit);
-      if (card1.suit === "hearts" || card1.suit === "diamonds") {
-        card1SuitElem.classList.add("red");
-      } else {
-        card1SuitElem.classList.add("black");
-      }
-    }
-    const card1NumberElem = card1Container.querySelector(".card-number");
-    if (card1NumberElem) {
-      card1NumberElem.textContent = getNumberContent(card1.value);
-    }
-    const card1ReversedNumberElem = card1Container.querySelector(
-      ".card-number-reversed",
-    );
-    if (card1ReversedNumberElem) {
-      card1ReversedNumberElem.textContent = getNumberContent(card1.value);
-    }
-
-    card2Container
-      .querySelector(".poker-card-container")
-      ?.classList.remove("back");
-
-    const card2SuitElem = card2Container.querySelector(".card-icon");
-    if (card2SuitElem) {
-      card2SuitElem.textContent = getSuitContent(card2.suit);
-      if (card2.suit === "hearts" || card2.suit === "diamonds") {
-        card2SuitElem.classList.add("red");
-      } else {
-        card2SuitElem.classList.add("black");
-      }
-    }
-    const card2NumberElem = card2Container.querySelector(".card-number");
-    if (card2NumberElem) {
-      card2NumberElem.textContent = getNumberContent(card2.value);
-    }
-    const card2ReversedNumberElem = card2Container.querySelector(
-      ".card-number-reversed",
-    );
-    if (card2ReversedNumberElem) {
-      card2ReversedNumberElem.textContent = getNumberContent(card2.value);
-    }
+    fillInCardElements(card1Container, card1);
+    fillInCardElements(card2Container, card2);
   });
 }
