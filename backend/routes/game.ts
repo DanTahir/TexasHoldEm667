@@ -49,6 +49,7 @@ import {
 } from "@backend/db/dao/UserDao";
 import signale from "signale";
 import { Socket } from "socket.io";
+import { checkRoyalFlush } from "@backend/utilities/hand-checker";
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -434,14 +435,14 @@ async function getNextPlayer(
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       if (playersNotFoldedOrAllIn[0].bet === playerMaxBet.bet) {
-        await decideWinner();
+        await decideWinner(playersNotFoldedOrAllIn);
         return;
       }
     } catch (error) {
       signale.warn(error);
     }
   } else if (playersNotFoldedOrAllIn.length === 0) {
-    await decideWinner();
+    await decideWinner(playersNotFoldedOrAllIn);
     return;
   }
 
@@ -517,7 +518,10 @@ async function getNextPlayer(
 
 async function awardWinner(): Promise<void> {}
 
-async function decideWinner(): Promise<void> {}
+async function decideWinner(players: Array<Player>): Promise<void> {
+  const winners: Array<Player> = [];
+  await checkRoyalFlush(winners, players);
+}
 
 async function startNextRound(): Promise<void> {}
 
