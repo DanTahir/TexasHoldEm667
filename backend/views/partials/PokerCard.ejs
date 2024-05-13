@@ -2,7 +2,7 @@
   <% let isRed = suit === "hearts" || suit === "diamonds"; %>
 
   <div class="poker-card-container <%= hidden ? 'back' : '' %>">
-      <div class="card-icon <%= isRed ? 'red' : 'black' %>">
+      <div class="card-icon <%= hidden ? '' : (isRed ? 'red' : 'black') %>">
         <% if (hidden) { %>
 
         <% } else if (suit === 'hearts') { %>
