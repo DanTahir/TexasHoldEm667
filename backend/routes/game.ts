@@ -639,10 +639,11 @@ async function startNextRound(
   const lobby: GameLobby = await getGameLobbyById(gameLobbyID);
   let pot: number = lobby.pot;
 
-  activePlayers.forEach(async (player) => {
+  for (const player of activePlayers) {
     pot = pot + player.bet;
     await updateBet(player.player_id, 0);
-  });
+  }
+
   console.log(`Pot: ${pot}`);
   await updatePot(gameLobbyID, pot);
 
