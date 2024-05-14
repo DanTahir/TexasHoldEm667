@@ -638,10 +638,18 @@ async function startNextRound(
   const activePlayers = await getPlayersNotSpectating(gameLobbyID);
   const lobby: GameLobby = await getGameLobbyById(gameLobbyID);
   let pot: number = lobby.pot;
+  const io = request.app.get("io");
 
   for (const player of activePlayers) {
     pot = pot + player.bet;
     await updateBet(player.player_id, 0);
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: player.play_order,
+      playerName: player.username,
+      stake: player.stake,
+      bet: 0,
+      status: player.status,
+    });
   }
 
   console.log(`Pot: ${pot}`);
@@ -649,7 +657,6 @@ async function startNextRound(
 
   let nextStage: GameStage;
   const cards = await getCommunityCards(gameLobbyID);
-  const io = request.app.get("io");
 
   if (lobby.game_stage === "preflop") {
     nextStage = "flop";
