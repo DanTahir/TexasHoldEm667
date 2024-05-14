@@ -95,8 +95,8 @@ svg {
 
 .game-name {
   display: flex;
-  justify-content: center;
   outline: solid;
+  justify-content: space-evenly;
   outline-width: 1px;
 }
 
