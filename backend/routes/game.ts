@@ -498,6 +498,7 @@ async function getNextPlayer(
       for (let i = 0; i < playersNotFoldedOrAllIn.length; i++) {
         console.log(`player bet: ${playersNotFoldedOrAllIn[i].bet}`);
         if (playersNotFoldedOrAllIn[i].bet != playerMaxBet.bet) {
+          console.log("newRound set to false");
           newRound = false;
         }
       }
@@ -635,14 +636,14 @@ async function startNextRound(
   gameLobbyID: string,
 ): Promise<void> {
   const activePlayers = await getPlayersNotSpectating(gameLobbyID);
-  const lobby = await getGameLobbyById(gameLobbyID);
-  let pot = lobby.pot;
+  const lobby: GameLobby = await getGameLobbyById(gameLobbyID);
+  let pot: number = lobby.pot;
 
   activePlayers.forEach(async (player) => {
-    pot += player.bet;
+    pot = pot + player.bet;
     await updateBet(player.player_id, 0);
   });
-
+  console.log(`Pot: ${pot}`);
   await updatePot(gameLobbyID, pot);
 
   let nextStage: GameStage;
