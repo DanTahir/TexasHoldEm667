@@ -20,6 +20,7 @@ import {
   getPlayerByGameIDAndPlayOrder,
   getPlayersNotSpectating,
   getPlayerById,
+  updateAllInAmount,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -434,7 +435,12 @@ async function getNextPlayer(
 
   const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
   if (playersNotFolded.length === 1) {
-    await awardWinner();
+    const winnerArrayArray: Array<Array<PlayerWithUserInfo>> = new Array<
+      Array<PlayerWithUserInfo>
+    >();
+    winnerArrayArray.push(playersNotFolded);
+
+    await awardWinner(request, response, winnerArrayArray);
     return;
   } else if (playersNotFolded.length === 0) {
     signale.warn("All players folded, no winner left to select");
@@ -528,7 +534,88 @@ async function getNextPlayer(
   });
 }
 
-async function awardWinner(): Promise<void> {}
+async function awardWinner(
+  request: Request,
+  _response: Response,
+  winners: Array<Array<PlayerWithUserInfo>>,
+): Promise<void> {
+  const gameLobbyID = request.params.id;
+  const lobby = await getGameLobbyById(gameLobbyID);
+  let remainingPot = lobby.pot;
+
+  for (let i = 0; i < winners.length; i++) {
+    if (winners[i].length === 1) {
+      const winner = winners[i][0];
+      if (winner.status != "all-in" || winner.allin_amount >= remainingPot) {
+        await updateStake(winner.player_id, winner.stake + remainingPot);
+        remainingPot = 0;
+        break;
+      } else {
+        await updateStake(winner.player_id, winner.stake + winner.allin_amount);
+        remainingPot -= winner.allin_amount;
+      }
+    } else {
+      let splitPot = remainingPot / winners[i].length;
+      remainingPot = 0;
+
+      const allInWinners = winners[i].filter(
+        (winner) => winner.status === "all-in",
+      );
+      if (allInWinners) {
+        allInWinners.sort(
+          (winnerA, winnerB) => winnerA.allin_amount - winnerB.allin_amount,
+        );
+        for (const allInWinner of allInWinners) {
+          const winAmount = allInWinner.allin_amount / winners[i].length;
+          if (splitPot <= winAmount) {
+            await updateStake(
+              allInWinner.player_id,
+              allInWinner.stake + splitPot,
+            );
+          } else {
+            await updateStake(
+              allInWinner.player_id,
+              allInWinner.stake + winAmount,
+            );
+            remainingPot += splitPot - winAmount;
+          }
+        }
+      }
+      const playingWinners = winners[i].filter(
+        (winner) => winner.status === "playing",
+      );
+      if (playingWinners) {
+        splitPot += remainingPot / playingWinners.length;
+        remainingPot = 0;
+        for (const playingWinner of playingWinners) {
+          await updateStake(
+            playingWinner.player_id,
+            playingWinner.stake + splitPot,
+          );
+        }
+        break;
+      }
+    }
+  }
+
+  updatePot(gameLobbyID, 0);
+  const io = request.app.get("io");
+  const players = await getPlayersByLobbyId(gameLobbyID);
+  for (const player of players) {
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: player.play_order,
+      playerName: player.username,
+      stake: player.stake,
+      bet: player.bet,
+      status: player.status,
+    });
+    const cards = await getPlayerCards(player.user_id, gameLobbyID);
+    io.emit(`game:deal:${gameLobbyID}`, {
+      cards,
+      playOrder: player.play_order,
+    });
+  }
+}
 
 async function decideWinner(): Promise<void> {}
 
@@ -715,9 +802,17 @@ router.post("/:id/call", async (request: Request, response: Response) => {
     callingPlayer.bet += callingPlayer.stake;
     callingPlayer.stake = 0;
     callingPlayer.status = "all-in";
+    const game = await getGameLobbyById(gameLobbyID);
+    const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
+    callingPlayer.allin_amount =
+      game.pot + callingPlayer.bet * playersNotFolded.length;
     await updateStake(callingPlayer.player_id, callingPlayer.stake);
     await updateBet(callingPlayer.player_id, callingPlayer.bet);
     await updateStatus(callingPlayer.player_id, callingPlayer.status);
+    await updateAllInAmount(
+      callingPlayer.player_id,
+      callingPlayer.allin_amount,
+    );
   } else {
     callingPlayer.bet += difference;
     callingPlayer.stake -= difference;
@@ -774,9 +869,17 @@ router.post(
       raisingPlayer.bet += raisingPlayer.stake;
       raisingPlayer.stake = 0;
       raisingPlayer.status = "all-in";
+      const game = await getGameLobbyById(gameLobbyID);
+      const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
+      raisingPlayer.allin_amount =
+        game.pot + raisingPlayer.bet * playersNotFolded.length;
       await updateStake(raisingPlayer.player_id, raisingPlayer.stake);
       await updateBet(raisingPlayer.player_id, raisingPlayer.bet);
       await updateStatus(raisingPlayer.player_id, raisingPlayer.status);
+      await updateAllInAmount(
+        raisingPlayer.player_id,
+        raisingPlayer.allin_amount,
+      );
     } else {
       raisingPlayer.bet += difference;
       raisingPlayer.stake -= difference;
