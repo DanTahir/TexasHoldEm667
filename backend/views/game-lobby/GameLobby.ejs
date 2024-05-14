@@ -161,6 +161,9 @@
             <div class="start-button <%= (players.player_count >= 4 && gameStage === 'waiting') ? '' : 'hidden' %>">
               <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
             </div>
+            <div class="reset-button <%= (gameStage === 'final') ? '' : 'hidden' %>">
+              <%- include("../partials/Button.ejs", {buttonText: "Reset Round"}) %>
+            </div>
             <div class="user-name">Playing as: <%= userName %></div>
           </div>
           <div class="right-interactions">

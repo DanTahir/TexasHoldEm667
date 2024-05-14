@@ -454,14 +454,14 @@ async function getNextPlayer(
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       if (playersNotFoldedOrAllIn[0].bet === playerMaxBet.bet) {
-        await decideWinner();
+        await dummyDecideWinner(request, response, playersNotFolded);
         return;
       }
     } catch (error) {
       signale.warn(error);
     }
   } else if (playersNotFoldedOrAllIn.length === 0) {
-    await decideWinner();
+    await dummyDecideWinner(request, response, playersNotFolded);
     return;
   }
 
@@ -610,11 +610,13 @@ async function awardWinner(
     }
   }
 
-  updatePot(gameLobbyID, 0);
+  await updatePot(gameLobbyID, 0);
+  await updateGameStage(gameLobbyID, "final");
   const io = request.app.get("io");
   io.emit(`game:updatepot:${gameLobbyID}`, {
     pot: 0,
   });
+  io.emit(`game:showresetbutton:${gameLobbyID}`);
   const players = await getPlayersByLobbyId(gameLobbyID);
   for (const player of players) {
     io.emit(`game:foldraisecall:${gameLobbyID}`, {
@@ -633,6 +635,38 @@ async function awardWinner(
 }
 
 async function decideWinner(): Promise<void> {}
+
+async function dummyDecideWinner(
+  request: Request,
+  response: Response,
+  activePlayers: Array<PlayerWithUserInfo>,
+): Promise<void> {
+  const firstTie: Array<PlayerWithUserInfo> = new Array<PlayerWithUserInfo>();
+  const secondTie: Array<PlayerWithUserInfo> = new Array<PlayerWithUserInfo>();
+  const arrayOfTies: Array<Array<PlayerWithUserInfo>> = new Array<
+    Array<PlayerWithUserInfo>
+  >();
+  if (activePlayers[0]) {
+    firstTie.push(activePlayers[0]);
+  }
+  if (activePlayers[1]) {
+    firstTie.push(activePlayers[1]);
+  }
+  if (activePlayers[2]) {
+    secondTie.push(activePlayers[2]);
+  }
+  if (activePlayers[3]) {
+    secondTie.push(activePlayers[3]);
+  }
+  if (firstTie.length > 0) {
+    arrayOfTies.push(firstTie);
+  }
+  if (secondTie.length > 0) {
+    arrayOfTies.push(secondTie);
+  }
+
+  await awardWinner(request, response, arrayOfTies);
+}
 
 async function startNextRound(
   request: Request,
