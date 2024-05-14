@@ -60,6 +60,56 @@ export async function checkRoyalFlush(
     winners.push(royalWinners);
   }
 }
+
+export async function straightFlush(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  players: Array<PlayerWithUserInfo>,
+) {
+  const straightFlushWinners: Array<PlayerWithUserInfo> = [];
+
+  for (const player of players) {
+    const playerCards: PlayerHand = await getPlayerCards(
+      player.user_id,
+      player.game_lobby_id,
+    );
+    const communityCards: CommunityCards = await getCommunityCards(
+      player.game_lobby_id,
+    );
+
+    const cards = [
+      playerCards.card1,
+      playerCards.card2,
+      communityCards.flop_1,
+      communityCards.flop_2,
+      communityCards.flop_3,
+      communityCards.turn,
+      communityCards.river,
+    ];
+
+    const sortedCards = await sortCards(cards);
+
+    // Check for flush
+    if (await checkSameSuit(sortedCards)) {
+      let isStraightFlush = true;
+      const longestConsecutiveSequence =
+        await findLongestConsecutiveSequence(sortedCards);
+
+      // It's a straight
+      if (longestConsecutiveSequence !== 5) {
+        isStraightFlush = false;
+      }
+
+      if (isStraightFlush) {
+        straightFlushWinners.push(player);
+      }
+    }
+  }
+
+  // TODO: NEED TO FIGURE OUT HOW TO SORT WINNERS BASED ON WHO HAS A HIGHER HAND
+  if (straightFlushWinners) {
+    winners.push(straightFlushWinners);
+  }
+}
 async function checkSameSuit(cards: Array<Card>): Promise<boolean> {
   const suitSet = new Set();
 
@@ -85,4 +135,29 @@ async function sortCards(cards: Array<Card>): Promise<Array<Card>> {
   });
 
   return sortedCards;
+}
+
+async function findLongestConsecutiveSequence(
+  cards: Array<Card>,
+): Promise<number> {
+  const set = new Set();
+  let longestConsecutiveSequence = 0;
+  for (const card of cards) {
+    if (!set.has(card.value - 1)) {
+      let currentVal = card.value;
+      let currentSeq = 1;
+
+      while (set.has(currentVal + 1)) {
+        currentVal += 1;
+        currentSeq += 1;
+      }
+
+      longestConsecutiveSequence = Math.max(
+        longestConsecutiveSequence,
+        currentSeq,
+      );
+    }
+  }
+
+  return longestConsecutiveSequence;
 }
