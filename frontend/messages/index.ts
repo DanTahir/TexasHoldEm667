@@ -8,6 +8,9 @@ import { handle as handlePlayerQuits } from "./playerQuit";
 import { handle as handleDealCards } from "./dealCards";
 import { handle as handleShowStageCards } from "./showStageCards";
 import { handle as handleUpdatePot } from "./updatePot";
+import { handle as handleShowResetButton } from "./showResetButton";
+import { handle as handleReset } from "./reset";
+import { handle as handleAnnounceWinner } from "./announceWinner";
 
 export const messageHandlers = [
   handleChatMessages,
@@ -20,4 +23,7 @@ export const messageHandlers = [
   handleDealCards,
   handleShowStageCards,
   handleUpdatePot,
+  handleShowResetButton,
+  handleReset,
+  handleAnnounceWinner,
 ];

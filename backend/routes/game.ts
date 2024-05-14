@@ -69,10 +69,11 @@ router.post(
     const players = await getPlayersByLobbyId(gameID);
     // Add your logic here to emit the event
     const io = req.app.get("io");
-
+    console.log("checking activatenewplayer");
     for (const player of players) {
       if (userID === player.user_id) {
         if (player.player_id === req.body.currentPlayer) {
+          console.log("emitting activatenewplayer");
           io.to(userID).emit(`game:activatenewplayer:${gameID}`);
         }
       }
@@ -538,6 +539,8 @@ async function getNextPlayer(
   });
 }
 
+let announceWinnerString = ``;
+
 async function awardWinner(
   request: Request,
   _response: Response,
@@ -554,12 +557,14 @@ async function awardWinner(
       if (winner.status != "all-in" || winner.allin_amount >= remainingPot) {
         await updateStake(winner.player_id, winner.stake + remainingPot);
         remainingPot = 0;
+        announceWinnerString += `Winner Rank ${i}: ${winner.username},\n`;
         break;
       } else {
         const actualAllInAmount = winner.allin_amount - lastAllInAmount;
         await updateStake(winner.player_id, winner.stake + actualAllInAmount);
         remainingPot -= actualAllInAmount;
         lastAllInAmount = winner.allin_amount;
+        announceWinnerString += `Winner Rank ${i}: ${winner.username},\n`;
       }
     } else {
       let splitPot = remainingPot / winners[i].length;
@@ -590,8 +595,11 @@ async function awardWinner(
             );
             remainingPot += splitPot - winAmount;
           }
+          announceWinnerString += `Winner Rank ${i}: ${allInWinner.username},\n`;
         }
-        lastAllInAmount = allInWinners[allInWinners.length - 1].allin_amount;
+        if (allInWinners.length > 0) {
+          lastAllInAmount = allInWinners[allInWinners.length - 1].allin_amount;
+        }
       }
       const playingWinners = winners[i].filter(
         (winner) => winner.status === "playing",
@@ -604,6 +612,7 @@ async function awardWinner(
             playingWinner.player_id,
             playingWinner.stake + splitPot,
           );
+          announceWinnerString += `Winner Rank ${i}: ${playingWinner.username},\n`;
         }
         break;
       }
@@ -632,6 +641,9 @@ async function awardWinner(
       playOrder: player.play_order,
     });
   }
+  io.emit(`game:announcewinner:${gameLobbyID}`, {
+    announceWinnerString: announceWinnerString,
+  });
 }
 
 async function decideWinner(): Promise<void> {}
@@ -718,7 +730,9 @@ async function startNextRound(
       card: cards?.river,
     });
   } else {
-    decideWinner();
+    const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
+    await dummyDecideWinner(request, response, playersNotFolded);
+    await decideWinner();
     return;
   }
 
@@ -961,3 +975,30 @@ router.post(
     await getNextPlayer(request, response, userID);
   },
 );
+
+router.post("/:id/reset", async (request: Request, response: Response) => {
+  const gameLobbyID = request.params.id;
+  const userID = request.session.user.id;
+  const players = await getPlayersByLobbyId(gameLobbyID);
+  if (!players.some((player) => player.user_id === userID)) {
+    signale.warn(
+      `cannot reset game: player with user ID ${userID} is not in game`,
+    );
+    response.status(403).send("You must be a part of this game to reset it.");
+    return;
+  }
+
+  updateGameStage(gameLobbyID, "waiting");
+  const io = request.app.get("io");
+  for (const player of players) {
+    await updateStatus(player.player_id, "playing");
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: player.play_order,
+      playerName: player.username,
+      stake: player.stake,
+      bet: player.bet,
+      status: "playing",
+    });
+  }
+  io.emit(`game:reset:${gameLobbyID}`);
+});

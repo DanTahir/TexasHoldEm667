@@ -71,7 +71,7 @@ export function handle() {
     if (!resetButton) return;
 
     resetButton.textContent = "Resetting...";
-    resetButton.removeEventListener("click", resetButtonHandler);
+    //resetButton.removeEventListener("click", resetButtonHandler);
 
     const gameID = document.location.pathname.split("/")[2];
 
@@ -81,7 +81,7 @@ export function handle() {
     }).then(async (res) => {
       if (!res.ok) {
         resetButton.textContent = "Reset Round";
-        resetButton.addEventListener("click", resetButtonHandler);
+        //resetButton.addEventListener("click", resetButtonHandler);
         alert(await res.text());
       }
     });
