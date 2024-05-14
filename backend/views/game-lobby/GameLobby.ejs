@@ -130,6 +130,9 @@
                 hidden: !(gameStage === gameStage === 'river' || gameStage === 'final'),
               }) %>
             </div>
+            <div id="pot" class="pot text-white <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+              Pot: $<%= pot %>
+            </div>
 
           </div>
         </div>

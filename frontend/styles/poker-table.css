@@ -35,7 +35,7 @@ svg {
     ". . action-1 . action-2 . ."
     ". . . . . . ."
     "action-6 . . card-area . . action-3"
-    ". . . . . . ."
+    ". . . pot-area . . ."
     ". . action-5 . action-4 . ."
     ". . . . . . .";
   width: 100%;
@@ -77,6 +77,11 @@ svg {
 
 .card-area {
   grid-area: card-area;
+  display: flex;
+}
+
+.pot {
+  grid-area: pot-area;
   display: flex;
 }
 

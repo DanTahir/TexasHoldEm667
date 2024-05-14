@@ -114,6 +114,7 @@ router.get(
         thisPlayerPosition: thisPlayer?.play_order || 0,
         communityCards,
         userName: userName,
+        pot: game.pot,
       });
     } catch (error) {
       next(error);
@@ -611,6 +612,9 @@ async function awardWinner(
 
   updatePot(gameLobbyID, 0);
   const io = request.app.get("io");
+  io.emit(`game:updatepot:${gameLobbyID}`, {
+    pot: 0,
+  });
   const players = await getPlayersByLobbyId(gameLobbyID);
   for (const player of players) {
     io.emit(`game:foldraisecall:${gameLobbyID}`, {
@@ -654,6 +658,10 @@ async function startNextRound(
 
   console.log(`Pot: ${pot}`);
   await updatePot(gameLobbyID, pot);
+
+  io.emit(`game:updatepot:${gameLobbyID}`, {
+    pot: pot,
+  });
 
   let nextStage: GameStage;
   const cards = await getCommunityCards(gameLobbyID);
