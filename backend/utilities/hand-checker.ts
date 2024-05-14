@@ -11,6 +11,11 @@ type Card = {
   suit: suit;
 };
 
+type Sequence = {
+  length: number;
+  startValue: number;
+};
+
 export async function checkRoyalFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   players: Array<PlayerWithUserInfo>,
@@ -61,11 +66,11 @@ export async function checkRoyalFlush(
   }
 }
 
-export async function straightFlush(
+export async function checkStraightFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   players: Array<PlayerWithUserInfo>,
 ) {
-  const straightFlushWinners: Array<PlayerWithUserInfo> = [];
+  const straightFlushWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
   for (const player of players) {
     const playerCards: PlayerHand = await getPlayerCards(
@@ -91,24 +96,35 @@ export async function straightFlush(
     // Check for flush
     if (await checkSameSuit(sortedCards)) {
       let isStraightFlush = true;
-      const longestConsecutiveSequence =
+      const sequence: Sequence =
         await findLongestConsecutiveSequence(sortedCards);
 
-      // It's a straight
-      if (longestConsecutiveSequence !== 5) {
+      // It's not a straight
+      if (sequence.length !== 5) {
         isStraightFlush = false;
       }
 
       if (isStraightFlush) {
-        straightFlushWinners.push(player);
+        if (!straightFlushWinners[sequence.startValue]) {
+          straightFlushWinners[sequence.startValue] = [];
+        }
+
+        straightFlushWinners[sequence.startValue].push(player);
       }
     }
   }
 
-  // TODO: NEED TO FIGURE OUT HOW TO SORT WINNERS BASED ON WHO HAS A HIGHER HAND
-  if (straightFlushWinners) {
-    winners.push(straightFlushWinners);
-  }
+  const sortedWinners = Object.entries(straightFlushWinners).sort(
+    ([a], [b]) => Number(b) - Number(a),
+  );
+
+  sortedWinners.forEach(([_, players]) => {
+    if (players.length > 1) {
+      winners.push(players);
+    } else {
+      winners.push([players[0]]);
+    }
+  });
 }
 async function checkSameSuit(cards: Array<Card>): Promise<boolean> {
   const suitSet = new Set();
@@ -139,25 +155,26 @@ async function sortCards(cards: Array<Card>): Promise<Array<Card>> {
 
 async function findLongestConsecutiveSequence(
   cards: Array<Card>,
-): Promise<number> {
+): Promise<Sequence> {
   const set = new Set();
   let longestConsecutiveSequence = 0;
+  let startValue = 0;
+
   for (const card of cards) {
     if (!set.has(card.value - 1)) {
       let currentVal = card.value;
       let currentSeq = 1;
-
       while (set.has(currentVal + 1)) {
         currentVal += 1;
         currentSeq += 1;
       }
-
-      longestConsecutiveSequence = Math.max(
-        longestConsecutiveSequence,
-        currentSeq,
-      );
+      if (currentSeq > longestConsecutiveSequence) {
+        longestConsecutiveSequence = currentSeq;
+        startValue = card.value;
+      }
     }
+    set.add(card.value);
   }
 
-  return longestConsecutiveSequence;
+  return { length: longestConsecutiveSequence, startValue };
 }
