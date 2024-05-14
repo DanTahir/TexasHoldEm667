@@ -39,10 +39,11 @@ export async function checkRoyalFlush(
     const sortedCards = sortCards(cards);
 
     // check for flush
-    if (checkFlush(sortedCards)) {
+    const flushCards = getFlushArray(sortedCards);
+    if (flushCards) {
       let isRoyalFlush = true;
       for (let i = 0; i < 5; i++) {
-        if (sortedCards[i].value !== royalFlushCards[i]) {
+        if (flushCards[i].value !== royalFlushCards[i]) {
           isRoyalFlush = false;
           break;
         }
@@ -92,7 +93,8 @@ export async function checkStraightFlush(
     const sortedCards = sortCards(cards);
 
     // Check for flush
-    if (checkFlush(sortedCards)) {
+    const flushCards = getFlushArray(sortedCards);
+    if (flushCards) {
       let isStraightFlush = true;
       const sequence: Sequence = findLongestConsecutiveSequence(sortedCards);
 
@@ -124,7 +126,7 @@ export async function checkStraightFlush(
   });
 }
 
-function checkFlush(cards: Array<Card>): Array<Card> | null {
+function getFlushArray(cards: Array<Card>): Array<Card> | null {
   // "suit" : [Card1, ..., Card4]
   const counts: Record<string, Array<Card>> = {};
 
