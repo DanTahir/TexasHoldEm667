@@ -542,6 +542,7 @@ async function awardWinner(
   const gameLobbyID = request.params.id;
   const lobby = await getGameLobbyById(gameLobbyID);
   let remainingPot = lobby.pot;
+  let lastAllInAmount = 0;
 
   for (let i = 0; i < winners.length; i++) {
     if (winners[i].length === 1) {
@@ -551,8 +552,10 @@ async function awardWinner(
         remainingPot = 0;
         break;
       } else {
-        await updateStake(winner.player_id, winner.stake + winner.allin_amount);
-        remainingPot -= winner.allin_amount;
+        const actualAllInAmount = winner.allin_amount - lastAllInAmount;
+        await updateStake(winner.player_id, winner.stake + actualAllInAmount);
+        remainingPot -= actualAllInAmount;
+        lastAllInAmount = winner.allin_amount;
       }
     } else {
       let splitPot = remainingPot / winners[i].length;
@@ -565,8 +568,12 @@ async function awardWinner(
         allInWinners.sort(
           (winnerA, winnerB) => winnerA.allin_amount - winnerB.allin_amount,
         );
+
         for (const allInWinner of allInWinners) {
-          const winAmount = allInWinner.allin_amount / winners[i].length;
+          const winAmount =
+            allInWinner.allin_amount / winners[i].length -
+            lastAllInAmount / winners[i].length;
+
           if (splitPot <= winAmount) {
             await updateStake(
               allInWinner.player_id,
@@ -580,6 +587,7 @@ async function awardWinner(
             remainingPot += splitPot - winAmount;
           }
         }
+        lastAllInAmount = allInWinners[allInWinners.length - 1].allin_amount;
       }
       const playingWinners = winners[i].filter(
         (winner) => winner.status === "playing",
