@@ -3,7 +3,7 @@ import { Socket } from "socket.io-client";
 const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
 
 export function handle(socket: Socket) {
-  socket.on(`game:start:${roomID}`, () => {
+  socket.on(`game:reset:${roomID}`, () => {
     const seats = document.querySelectorAll(".seat");
     let playerCount = 0;
     seats.forEach((seat) => {
