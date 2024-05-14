@@ -486,7 +486,11 @@ async function getNextPlayer(
     return;
   }
 
-  if (gameLobby.turns >= players.length) {
+  if (lastPlayer.status != "all-in" && lastPlayer.status != "folded") {
+    await updateTurnsByOne(gameLobbyID);
+  }
+
+  if (gameLobby.turns >= playersNotFoldedOrAllIn.length) {
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       let newRound = true;
@@ -505,8 +509,6 @@ async function getNextPlayer(
       signale.warn(error);
     }
   }
-
-  await updateTurnsByOne(gameLobbyID);
 
   let nextPlayer: PlayerWithUserInfo | null = null;
   for (let i = 0; i < players.length; i++) {
