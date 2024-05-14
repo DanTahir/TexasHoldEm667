@@ -1,4 +1,4 @@
-import { Player, PlayerHand } from "@backend/db/dao/PlayerDao";
+import { PlayerHand, PlayerWithUserInfo } from "@backend/db/dao/PlayerDao";
 import { getPlayerCards } from "@backend/db/dao/PlayerDao";
 import {
   CommunityCards,
@@ -12,11 +12,11 @@ type Card = {
 };
 
 export async function checkRoyalFlush(
-  winners: Array<Player>,
-  players: Array<Player>,
+  winners: Array<Array<PlayerWithUserInfo>>,
+  players: Array<PlayerWithUserInfo>,
 ) {
-  const royalFlushCards = new Set([10, 11, 12, 13, 14]);
-  const royalWinners: Array<Player> = [];
+  const royalFlushCards = [14, 13, 12, 11, 10];
+  const royalWinners: Array<PlayerWithUserInfo> = [];
 
   for (const player of players) {
     const playerCards: PlayerHand = await getPlayerCards(
@@ -26,7 +26,6 @@ export async function checkRoyalFlush(
     const communityCards: CommunityCards = await getCommunityCards(
       player.game_lobby_id,
     );
-
     const cards = [
       playerCards.card1,
       playerCards.card2,
@@ -37,22 +36,29 @@ export async function checkRoyalFlush(
       communityCards.river,
     ];
 
-    // Check if same suit
-    const areSameSuit = await checkSameSuit(cards);
-    if (areSameSuit) {
-      // Check if cards are 10, J, Q, K, A
-      const cardValues = new Set(cards.map((card) => card.value));
-      const hasRoyalFlush = Array.from(royalFlushCards).every((value) =>
-        cardValues.has(value),
-      );
+    const sortedCards = await sortCards(cards);
 
-      if (hasRoyalFlush) {
+    // check for flush
+    if (await checkSameSuit(sortedCards)) {
+      let isRoyalFlush = true;
+      for (let i = 0; i < 5; i++) {
+        if (sortedCards[i].value !== royalFlushCards[i]) {
+          isRoyalFlush = false;
+          break;
+        }
+      }
+
+      if (isRoyalFlush) {
         royalWinners.push(player);
       }
     }
   }
 
-  winners.push(...royalWinners);
+  // This is the highest ranking hand, so no need to sort the royalWinners array to check
+  // who has the higher hand, like you would, in say a straight
+  if (royalWinners) {
+    winners.push(royalWinners);
+  }
 }
 async function checkSameSuit(cards: Array<Card>): Promise<boolean> {
   const suitSet = new Set();
@@ -61,5 +67,22 @@ async function checkSameSuit(cards: Array<Card>): Promise<boolean> {
     suitSet.add(card.suit);
   });
 
-  return suitSet.size == 1;
+  return suitSet.size === 1;
+}
+
+async function sortCards(cards: Array<Card>): Promise<Array<Card>> {
+  const sortedCards = cards.sort((a, b) => {
+    // Negative return value indicates a should come before b
+    if (a.value > b.value) {
+      return -1;
+    }
+
+    if (a.value < b.value) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return sortedCards;
 }

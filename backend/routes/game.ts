@@ -518,9 +518,13 @@ async function getNextPlayer(
 
 async function awardWinner(): Promise<void> {}
 
-async function decideWinner(players: Array<Player>): Promise<void> {
-  const winners: Array<Player> = [];
+async function decideWinner(
+  players: Array<PlayerWithUserInfo>,
+): Promise<Array<Array<PlayerWithUserInfo>>> {
+  const winners: Array<Array<PlayerWithUserInfo>> = [];
   await checkRoyalFlush(winners, players);
+
+  return winners;
 }
 
 async function startNextRound(): Promise<void> {}
