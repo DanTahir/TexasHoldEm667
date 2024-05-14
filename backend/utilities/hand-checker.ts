@@ -19,21 +19,16 @@ type Sequence = {
 export async function checkRoyalFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   players: Array<PlayerWithUserInfo>,
+  playerHands: Array<PlayerHand>,
+  communityCards: CommunityCards,
 ) {
   const royalFlushCards = [14, 13, 12, 11, 10];
   const royalWinners: Array<PlayerWithUserInfo> = [];
 
-  for (const player of players) {
-    const playerCards: PlayerHand = await getPlayerCards(
-      player.user_id,
-      player.game_lobby_id,
-    );
-    const communityCards: CommunityCards = await getCommunityCards(
-      player.game_lobby_id,
-    );
+  playerHands.forEach((playerHand, i) => {
     const cards = [
-      playerCards.card1,
-      playerCards.card2,
+      playerHand.card1,
+      playerHand.card2,
       communityCards.flop_1,
       communityCards.flop_2,
       communityCards.flop_3,
@@ -41,10 +36,10 @@ export async function checkRoyalFlush(
       communityCards.river,
     ];
 
-    const sortedCards = await sortCards(cards);
+    const sortedCards = sortCards(cards);
 
     // check for flush
-    if (await checkSameSuit(sortedCards)) {
+    if (checkFlush(sortedCards)) {
       let isRoyalFlush = true;
       for (let i = 0; i < 5; i++) {
         if (sortedCards[i].value !== royalFlushCards[i]) {
@@ -54,10 +49,13 @@ export async function checkRoyalFlush(
       }
 
       if (isRoyalFlush) {
-        royalWinners.push(player);
+        royalWinners.push(players[i]);
       }
     }
-  }
+  });
+  // for (const playerHand of playerHands) {
+  //   }
+  // }
 
   // This is the highest ranking hand, so no need to sort the royalWinners array to check
   // who has the higher hand, like you would, in say a straight
@@ -91,13 +89,12 @@ export async function checkStraightFlush(
       communityCards.river,
     ];
 
-    const sortedCards = await sortCards(cards);
+    const sortedCards = sortCards(cards);
 
     // Check for flush
-    if (await checkSameSuit(sortedCards)) {
+    if (checkFlush(sortedCards)) {
       let isStraightFlush = true;
-      const sequence: Sequence =
-        await findLongestConsecutiveSequence(sortedCards);
+      const sequence: Sequence = findLongestConsecutiveSequence(sortedCards);
 
       // It's not a straight
       if (sequence.length !== 5) {
@@ -126,17 +123,29 @@ export async function checkStraightFlush(
     }
   });
 }
-async function checkSameSuit(cards: Array<Card>): Promise<boolean> {
-  const suitSet = new Set();
+
+function checkFlush(cards: Array<Card>): Array<Card> | null {
+  // "suit" : [Card1, ..., Card4]
+  const counts: Record<string, Array<Card>> = {};
 
   cards.forEach((card) => {
-    suitSet.add(card.suit);
+    if (counts[card.suit]) {
+      counts[card.suit].push(card);
+    } else {
+      counts[card.suit] = [card];
+    }
   });
 
-  return suitSet.size === 1;
+  for (const s in counts) {
+    if (counts[s].length >= 5) {
+      return counts[s];
+    }
+  }
+
+  return null;
 }
 
-async function sortCards(cards: Array<Card>): Promise<Array<Card>> {
+function sortCards(cards: Array<Card>): Array<Card> {
   const sortedCards = cards.sort((a, b) => {
     // Negative return value indicates a should come before b
     if (a.value > b.value) {
@@ -153,9 +162,7 @@ async function sortCards(cards: Array<Card>): Promise<Array<Card>> {
   return sortedCards;
 }
 
-async function findLongestConsecutiveSequence(
-  cards: Array<Card>,
-): Promise<Sequence> {
+function findLongestConsecutiveSequence(cards: Array<Card>): Sequence {
   const set = new Set();
   let longestConsecutiveSequence = 0;
   let startValue = 0;

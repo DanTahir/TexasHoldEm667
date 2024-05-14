@@ -18,6 +18,7 @@ import {
   getPlayerByMaxBet,
   updateStake,
   getPlayerByGameIDAndPlayOrder,
+  PlayerHand,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -32,6 +33,7 @@ import {
   GameStage,
   updatePot,
   updateCurrentPlayer,
+  CommunityCards,
 } from "@backend/db/dao/GameLobbyDao";
 import {
   Card,
@@ -522,7 +524,20 @@ async function decideWinner(
   players: Array<PlayerWithUserInfo>,
 ): Promise<Array<Array<PlayerWithUserInfo>>> {
   const winners: Array<Array<PlayerWithUserInfo>> = [];
-  await checkRoyalFlush(winners, players);
+  const playerHands: Array<PlayerHand> = [];
+  const communityCards: CommunityCards = await getCommunityCards(
+    players[0].game_lobby_id,
+  );
+
+  for (const player of players) {
+    const playerHand: PlayerHand = await getPlayerCards(
+      player.user_id,
+      player.game_lobby_id,
+    );
+    playerHands.push(playerHand);
+  }
+
+  await checkRoyalFlush(winners, players, playerHands, communityCards);
 
   return winners;
 }
