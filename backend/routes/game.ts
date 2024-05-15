@@ -549,6 +549,13 @@ async function awardWinner(
   const gameLobbyID = request.params.id;
   const lobby = await getGameLobbyById(gameLobbyID);
   let remainingPot = lobby.pot;
+
+  const bettingPlayers = await getPlayersByLobbyId(gameLobbyID);
+  for (const player of bettingPlayers) {
+    remainingPot += player.bet;
+    await updateBet(player.player_id, 0);
+  }
+
   let lastAllInAmount = 0;
 
   for (let i = 0; i < winners.length; i++) {
