@@ -574,11 +574,11 @@ async function awardWinner(
         (winner) => winner.status === "all-in",
       );
       if (allInWinners) {
-        allInWinners.sort(
+        const allInWinnersSorted = allInWinners.sort(
           (winnerA, winnerB) => winnerA.allin_amount - winnerB.allin_amount,
         );
 
-        for (const allInWinner of allInWinners) {
+        for (const allInWinner of allInWinnersSorted) {
           const winAmount =
             allInWinner.allin_amount / winners[i].length -
             lastAllInAmount / winners[i].length;
