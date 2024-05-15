@@ -1,9 +1,5 @@
 import { PlayerHand, PlayerWithUserInfo } from "@backend/db/dao/PlayerDao";
-import { getPlayerCards } from "@backend/db/dao/PlayerDao";
-import {
-  CommunityCards,
-  getCommunityCards,
-} from "@backend/db/dao/GameLobbyDao";
+import { CommunityCards } from "@backend/db/dao/GameLobbyDao";
 import { suit } from "@backend/db/dao/CardDao";
 
 type Card = {
@@ -54,12 +50,9 @@ export async function checkRoyalFlush(
       }
     }
   });
-  // for (const playerHand of playerHands) {
-  //   }
-  // }
 
   // This is the highest ranking hand, so no need to sort the royalWinners array to check
-  // who has the higher hand, like you would, in say a straight
+  // who has the higher hand, like a straight
   if (royalWinners) {
     winners.push(royalWinners);
   }
@@ -68,37 +61,51 @@ export async function checkRoyalFlush(
 export async function checkStraightFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   players: Array<PlayerWithUserInfo>,
+  playerHands: Array<PlayerHand>,
+  communityCards: CommunityCards,
 ) {
   const straightFlushWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
-  for (const player of players) {
-    const playerCards: PlayerHand = await getPlayerCards(
-      player.user_id,
-      player.game_lobby_id,
-    );
-    const communityCards: CommunityCards = await getCommunityCards(
-      player.game_lobby_id,
-    );
-
-    const cards = [
-      playerCards.card1,
-      playerCards.card2,
+  playerHands.forEach((playerHand, i) => {
+    const cards: Array<Card> = [
+      playerHand.card1,
+      playerHand.card2,
       communityCards.flop_1,
       communityCards.flop_2,
       communityCards.flop_3,
       communityCards.turn,
       communityCards.river,
     ];
+    //
+    // const cards: Array<Card> = [
+    //   {
+    //     value: 5,
+    //     suit: "hearts",
+    //   },
+    //   {
+    //     value: 6,
+    //     suit: "hearts",
+    //   },
+    //   {
+    //     value: 7,
+    //     suit: "hearts",
+    //   },
+    //   {
+    //     value: 8,
+    //     suit: "hearts",
+    //   },
+    //   { value: 9, suit: "hearts" },
+    //   { value: 2, suit: "spades" },
+    //   { value: 5, suit: "spades" },
+    // ];
 
     const sortedCards = sortCards(cards);
 
-    // Check for flush
     const flushCards = getFlushArray(sortedCards);
     if (flushCards) {
       let isStraightFlush = true;
-      const sequence: Sequence = findLongestConsecutiveSequence(sortedCards);
+      const sequence: Sequence = findLongestConsecutiveSequence(flushCards);
 
-      // It's not a straight
       if (sequence.length !== 5) {
         isStraightFlush = false;
       }
@@ -108,21 +115,19 @@ export async function checkStraightFlush(
           straightFlushWinners[sequence.startValue] = [];
         }
 
-        straightFlushWinners[sequence.startValue].push(player);
+        straightFlushWinners[sequence.startValue].push(players[i]);
       }
     }
-  }
 
-  const sortedWinners = Object.entries(straightFlushWinners).sort(
-    ([a], [b]) => Number(b) - Number(a),
-  );
+    const sortedWinners = sortWinners(straightFlushWinners);
 
-  sortedWinners.forEach(([_, players]) => {
-    if (players.length > 1) {
-      winners.push(players);
-    } else {
-      winners.push([players[0]]);
-    }
+    sortedWinners.forEach(([_, players]) => {
+      if (players.length > 1) {
+        winners.push(players);
+      } else {
+        winners.push([players[0]]);
+      }
+    });
   });
 }
 
@@ -186,4 +191,8 @@ function findLongestConsecutiveSequence(cards: Array<Card>): Sequence {
   }
 
   return { length: longestConsecutiveSequence, startValue };
+}
+
+function sortWinners(winners: Record<number, Array<PlayerWithUserInfo>>) {
+  return Object.entries(winners).sort(([a], [b]) => Number(a) - Number(b));
 }

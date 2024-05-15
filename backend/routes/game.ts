@@ -51,7 +51,10 @@ import {
 } from "@backend/db/dao/UserDao";
 import signale from "signale";
 import { Socket } from "socket.io";
-import { checkRoyalFlush } from "@backend/utilities/hand-checker";
+import {
+  checkRoyalFlush,
+  checkStraightFlush,
+} from "@backend/utilities/hand-checker";
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -538,6 +541,7 @@ async function decideWinner(
   }
 
   await checkRoyalFlush(winners, players, playerHands, communityCards);
+  await checkStraightFlush(winners, players, playerHands, communityCards);
 
   return winners;
 }
