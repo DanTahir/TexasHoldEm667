@@ -1,4 +1,5 @@
 import { Socket } from "socket.io-client";
+import { removeCardElements } from "../utils";
 
 const roomID = (document.getElementById("room-id") as HTMLInputElement).value;
 
@@ -13,11 +14,32 @@ export function handle(socket: Socket) {
       const cardContainerElem = seat.querySelector(".card-container");
       if (!cardContainerElem) return;
       cardContainerElem.classList.add("hidden");
+      const [card1Container, card2Container] = Array.from(
+        seat.querySelectorAll(".card-container .poker-card"),
+      ) as Array<HTMLDivElement>;
+      removeCardElements(card1Container);
+      removeCardElements(card2Container);
     });
     const communityCardArea = document.querySelector(
       ".card-area",
     ) as HTMLDivElement;
     communityCardArea.classList.add("hidden");
+    const [
+      card1Container,
+      card2Container,
+      card3Container,
+      card4Container,
+      card5Container,
+    ] = Array.from(
+      communityCardArea.querySelectorAll(".poker-card"),
+    ) as Array<HTMLDivElement>;
+
+    removeCardElements(card1Container);
+    removeCardElements(card2Container);
+    removeCardElements(card3Container);
+    removeCardElements(card4Container);
+    removeCardElements(card5Container);
+
     const resetButtonElement = document.querySelector(
       ".reset-button",
     ) as HTMLDivElement | null;
@@ -42,7 +64,7 @@ export function handle(socket: Socket) {
         return;
       }
       startButtonElement.classList.remove("hidden");
-
+      startButton.textContent = "Start";
       const startButtonHandler = () => {
         if (!startButton) return;
 
