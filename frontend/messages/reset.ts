@@ -52,6 +52,10 @@ export function handle(socket: Socket) {
     }
     resetButtonElement.classList.add("hidden");
     resetButton.textContent = "Reset Round";
+    const pot = document.getElementById("pot") as HTMLDivElement;
+    if (pot) {
+      pot.classList.add("hidden");
+    }
     if (playerCount >= 4) {
       const startButtonElement = document.querySelector(
         ".start-button",

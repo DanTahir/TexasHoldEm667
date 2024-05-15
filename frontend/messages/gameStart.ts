@@ -19,7 +19,10 @@ export function handle(socket: Socket) {
         cardContainerElem.classList.remove("hidden");
       }
     });
-
+    const pot = document.getElementById("pot") as HTMLDivElement;
+    if (pot) {
+      pot.classList.remove("hidden");
+    }
     tableElement.classList.remove("hidden");
   });
 }
