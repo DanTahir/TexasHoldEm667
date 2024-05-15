@@ -18,43 +18,48 @@ export async function checkRoyalFlush(
   playerHands: Array<PlayerHand>,
   communityCards: CommunityCards,
 ) {
-  const royalFlushCards = [14, 13, 12, 11, 10];
-  const royalWinners: Array<PlayerWithUserInfo> = [];
+  if (players) {
+    const royalFlushCards = [14, 13, 12, 11, 10];
+    const royalWinners: Array<PlayerWithUserInfo> = [];
 
-  playerHands.forEach((playerHand, i) => {
-    const cards = [
-      playerHand.card1,
-      playerHand.card2,
-      communityCards.flop_1,
-      communityCards.flop_2,
-      communityCards.flop_3,
-      communityCards.turn,
-      communityCards.river,
-    ];
+    playerHands.forEach((playerHand, i) => {
+      const cards = [
+        playerHand.card1,
+        playerHand.card2,
+        communityCards.flop_1,
+        communityCards.flop_2,
+        communityCards.flop_3,
+        communityCards.turn,
+        communityCards.river,
+      ];
 
-    const sortedCards = sortCards(cards);
+      const sortedCards = sortCards(cards);
 
-    // check for flush
-    const flushCards = getFlushArray(sortedCards);
-    if (flushCards) {
-      let isRoyalFlush = true;
-      for (let i = 0; i < 5; i++) {
-        if (flushCards[i].value !== royalFlushCards[i]) {
-          isRoyalFlush = false;
-          break;
+      // check for flush
+      const flushCards = getFlushArray(sortedCards);
+      if (flushCards) {
+        let isRoyalFlush = true;
+        for (let i = 0; i < 5; i++) {
+          if (flushCards[i].value !== royalFlushCards[i]) {
+            isRoyalFlush = false;
+            break;
+          }
+        }
+
+        // Add winner to winners array and remove from players array, so we don't check the same player for a worse hand
+        if (isRoyalFlush) {
+          royalWinners.push(players[i]);
+          players.splice(i, 1);
+          playerHands.splice(i, 1);
         }
       }
+    });
 
-      if (isRoyalFlush) {
-        royalWinners.push(players[i]);
-      }
+    // This is the highest ranking hand, so no need to sort the royalWinners array to check
+    // who has the higher hand, like a straight
+    if (royalWinners) {
+      winners.push(royalWinners);
     }
-  });
-
-  // This is the highest ranking hand, so no need to sort the royalWinners array to check
-  // who has the higher hand, like a straight
-  if (royalWinners) {
-    winners.push(royalWinners);
   }
 }
 
@@ -64,71 +69,107 @@ export async function checkStraightFlush(
   playerHands: Array<PlayerHand>,
   communityCards: CommunityCards,
 ) {
-  const straightFlushWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+  if (players) {
+    const straightFlushWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
-  playerHands.forEach((playerHand, i) => {
-    const cards: Array<Card> = [
-      playerHand.card1,
-      playerHand.card2,
-      communityCards.flop_1,
-      communityCards.flop_2,
-      communityCards.flop_3,
-      communityCards.turn,
-      communityCards.river,
-    ];
-    //
-    // const cards: Array<Card> = [
-    //   {
-    //     value: 5,
-    //     suit: "hearts",
-    //   },
-    //   {
-    //     value: 6,
-    //     suit: "hearts",
-    //   },
-    //   {
-    //     value: 7,
-    //     suit: "hearts",
-    //   },
-    //   {
-    //     value: 8,
-    //     suit: "hearts",
-    //   },
-    //   { value: 9, suit: "hearts" },
-    //   { value: 2, suit: "spades" },
-    //   { value: 5, suit: "spades" },
-    // ];
+    playerHands.forEach((playerHand, i) => {
+      const cards: Array<Card> = [
+        playerHand.card1,
+        playerHand.card2,
+        communityCards.flop_1,
+        communityCards.flop_2,
+        communityCards.flop_3,
+        communityCards.turn,
+        communityCards.river,
+      ];
 
-    const sortedCards = sortCards(cards);
+      const sortedCards = sortCards(cards);
 
-    const flushCards = getFlushArray(sortedCards);
-    if (flushCards) {
-      let isStraightFlush = true;
-      const sequence: Sequence = findLongestConsecutiveSequence(flushCards);
+      const flushCards = getFlushArray(sortedCards);
+      if (flushCards) {
+        let isStraightFlush = true;
+        const sequence: Sequence = findLongestConsecutiveSequence(flushCards);
 
-      if (sequence.length !== 5) {
-        isStraightFlush = false;
-      }
-
-      if (isStraightFlush) {
-        if (!straightFlushWinners[sequence.startValue]) {
-          straightFlushWinners[sequence.startValue] = [];
+        if (sequence.length !== 5) {
+          isStraightFlush = false;
         }
 
-        straightFlushWinners[sequence.startValue].push(players[i]);
+        if (isStraightFlush) {
+          if (!straightFlushWinners[sequence.startValue]) {
+            straightFlushWinners[sequence.startValue] = [];
+          }
+
+          straightFlushWinners[sequence.startValue].push(players[i]);
+          players.splice(i, 1);
+          playerHands.splice(i, 1);
+        }
       }
-    }
 
-    const sortedWinners = sortWinners(straightFlushWinners);
+      sortWinners(straightFlushWinners, winners);
+    });
+  }
+}
 
-    sortedWinners.forEach(([_, players]) => {
-      if (players.length > 1) {
-        winners.push(players);
-      } else {
-        winners.push([players[0]]);
+export async function checkFourOfAKind(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  players: Array<PlayerWithUserInfo>,
+  playerHands: Array<PlayerHand>,
+  communityCards: CommunityCards,
+) {
+  if (players) {
+    const fourOfAKindWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+
+    playerHands.forEach((playerHand, i) => {
+      const cards: Array<Card> = [
+        playerHand.card1,
+        playerHand.card2,
+        communityCards.flop_1,
+        communityCards.flop_2,
+        communityCards.flop_3,
+        communityCards.turn,
+        communityCards.river,
+      ];
+      //
+      // const cards: Array<Card> = [
+      //   {
+      //     value: 5,
+      //     suit: "hearts",
+      //   },
+      //   {
+      //     value: 5,
+      //     suit: "diamonds",
+      //   },
+      //   {
+      //     value: 7,
+      //     suit: "hearts",
+      //   },
+      //   {
+      //     value: 8,
+      //     suit: "hearts",
+      //   },
+      //   { value: 5, suit: "clubs" },
+      //   { value: 2, suit: "spades" },
+      //   { value: 5, suit: "spades" },
+      // ];
+      const sortedCards = sortCards(cards);
+
+      const fourOfAKindArray = getNOfKindArray(sortedCards, 4);
+
+      if (fourOfAKindArray) {
+        // Four of a kind winner exists
+
+        // Check if there's a winner already with the same 4 of a kind
+        if (!fourOfAKindWinners[fourOfAKindArray[0].value]) {
+          fourOfAKindWinners[fourOfAKindArray[0].value] = [];
+        }
+        fourOfAKindWinners[fourOfAKindArray[0].value].push(players[i]);
+        players.splice(i, 1);
+        playerHands.splice(i, 1);
       }
     });
-  });
+
+    sortWinners(fourOfAKindWinners, winners);
+  }
 }
 
 function getFlushArray(cards: Array<Card>): Array<Card> | null {
@@ -146,6 +187,26 @@ function getFlushArray(cards: Array<Card>): Array<Card> | null {
   for (const s in counts) {
     if (counts[s].length >= 5) {
       return counts[s];
+    }
+  }
+
+  return null;
+}
+
+function getNOfKindArray(cards: Array<Card>, n: number): Array<Card> | null {
+  const counts: Record<number, Array<Card>> = {};
+
+  cards.forEach((card) => {
+    if (counts[card.value]) {
+      counts[card.value].push(card);
+    } else {
+      counts[card.value] = [card];
+    }
+  });
+
+  for (const cardValue in counts) {
+    if (counts[cardValue].length == n) {
+      return counts[cardValue];
     }
   }
 
@@ -193,6 +254,18 @@ function findLongestConsecutiveSequence(cards: Array<Card>): Sequence {
   return { length: longestConsecutiveSequence, startValue };
 }
 
-function sortWinners(winners: Record<number, Array<PlayerWithUserInfo>>) {
-  return Object.entries(winners).sort(([a], [b]) => Number(a) - Number(b));
+function sortWinners(
+  unsortedWinners: Record<number, Array<PlayerWithUserInfo>>,
+  winners: Array<Array<PlayerWithUserInfo>>,
+) {
+  const sortedWinners = Object.entries(unsortedWinners).sort(
+    ([a], [b]) => Number(a) - Number(b),
+  );
+  sortedWinners.forEach(([_, players]) => {
+    if (players.length > 1) {
+      winners.push(players);
+    } else {
+      winners.push([players[0]]);
+    }
+  });
 }

@@ -52,6 +52,7 @@ import {
 import signale from "signale";
 import { Socket } from "socket.io";
 import {
+  checkFourOfAKind,
   checkRoyalFlush,
   checkStraightFlush,
 } from "@backend/utilities/hand-checker";
@@ -436,6 +437,7 @@ async function getNextPlayer(
   }
 
   const playersNotFoldedOrAllIn = await getPlayersNotFoldedOrAllIn(gameLobbyID);
+
   if (playersNotFoldedOrAllIn.length === 1) {
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
@@ -542,6 +544,7 @@ async function decideWinner(
 
   await checkRoyalFlush(winners, players, playerHands, communityCards);
   await checkStraightFlush(winners, players, playerHands, communityCards);
+  await checkFourOfAKind(winners, players, playerHands, communityCards);
 
   return winners;
 }
