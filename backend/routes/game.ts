@@ -68,7 +68,6 @@ router.get(
   validateGameExists,
   async (request: Request, response: Response, next: NextFunction) => {
     const gameID = request.params.id;
-    const userName = request.session.user.username;
     const players = await getPlayersByLobbyId(gameID);
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
@@ -82,7 +81,6 @@ router.get(
         gameName: request.body.name,
         id: request.params.id,
         players: player_map,
-        userName: userName,
       });
     } catch (error) {
       next(error);

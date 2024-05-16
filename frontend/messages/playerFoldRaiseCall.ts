@@ -6,30 +6,22 @@ export function handle(socket: Socket) {
   socket.on(
     `game:foldraisecall:${roomID}`,
     ({ playOrder, playerName, stake, bet, status }) => {
-      const seats = document.querySelectorAll(".seat");
-      const seat = seats.item(playOrder - 1);
+      // const seats = document.querySelectorAll(".seat");
+      const seat = document.querySelector(`.action-${playOrder}`);
 
-      const new_seat = seat.cloneNode(true) as HTMLDivElement;
+      const new_seat = seat?.cloneNode(true) as HTMLDivElement;
       const button = new_seat.querySelector("button")!;
-
-      const playerData = {
-        username: playerName,
-        stake,
-        bet,
-        status,
-      };
 
       const buttonContent = `
           <div class="flex flex-col flex-nowrap">
-            <div class="username">${playerData.username}</div>
-            <div class="stake">Stake: $${playerData.stake}</div>
-            <div class="bet">Bet: $${playerData.bet}</div>
-            <div class="status">${playerData.status}</div>
+            <div class="username">${playerName}</div>
+            <div class="stake">Stake: $${stake}</div>
+            <div class="bet">Bet: $${bet}</div>
+            <div class="status">${status}</div>
           </div>
-        </button>
       `;
       button.innerHTML = buttonContent;
-      seat.parentNode?.replaceChild(new_seat, seat);
+      seat?.parentNode?.replaceChild(new_seat, seat);
 
       const foldDiv = document.getElementById("fold-button") as HTMLDivElement;
       const raiseDiv = document.getElementById(
