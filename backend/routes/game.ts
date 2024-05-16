@@ -605,6 +605,10 @@ async function awardWinner(
           announceWinnerString += `Winner Rank ${i + 1}: ${allInWinner.username} - winnings: $${reportedWinAmount}\n`;
         }
         if (allInWinners.length > 0) {
+          lastAllInAmount = 0;
+          for (const allInWinner of allInWinners) {
+            lastAllInAmount += allInWinner.allin_amount / winners[i].length;
+          }
           lastAllInAmount = allInWinners[allInWinners.length - 1].allin_amount;
         }
       }
@@ -689,11 +693,11 @@ async function dummyDecideWinner(
   if (activePlayers[3]) {
     secondTie.push(activePlayers[3]);
   }
-  if (secondTie.length > 0) {
-    arrayOfTies.push(secondTie);
-  }
   if (firstTie.length > 0) {
     arrayOfTies.push(firstTie);
+  }
+  if (secondTie.length > 0) {
+    arrayOfTies.push(secondTie);
   }
 
   await awardWinner(request, response, arrayOfTies);
