@@ -85,10 +85,10 @@ export async function checkStraightFlush(
             winnerSet.add(player);
           }
         }
-
-        sortWinners(straightFlushWinners, winners);
       }
     }
+
+    sortWinners(straightFlushWinners, winners);
   }
 }
 
@@ -150,9 +150,41 @@ export async function checkFlush(
           winnerSet.add(player);
         }
       }
-
-      sortWinners(flushWinners, winners);
     }
+    sortWinners(flushWinners, winners);
+  }
+}
+
+export async function checkStraight(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  if (players) {
+    const straightWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
+
+        // check for straight
+        const sequence: Sequence = findLongestConsecutiveSequence(sortedCards);
+        const sequenceStartValue: number = sequence.startValue;
+
+        if (sequence.length >= 5) {
+          if (!straightWinners[sequenceStartValue]) {
+            straightWinners[sequenceStartValue] = [];
+          }
+
+          straightWinners[sequenceStartValue].push(player);
+          winnerSet.add(player);
+        }
+      }
+    }
+
+    sortWinners(straightWinners, winners);
   }
 }
 
