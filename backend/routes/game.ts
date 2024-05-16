@@ -563,15 +563,15 @@ async function awardWinner(
       const winner = winners[i][0];
       if (winner.status != "all-in" || winner.allin_amount >= remainingPot) {
         await updateStake(winner.player_id, winner.stake + remainingPot);
+        announceWinnerString += `Winner Rank ${i + 1}: ${winner.username} - winnings: $${remainingPot}\n`;
         remainingPot = 0;
-        announceWinnerString += `Winner Rank ${i + 1}: ${winner.username}\n`;
         break;
       } else {
         const actualAllInAmount = winner.allin_amount - lastAllInAmount;
         await updateStake(winner.player_id, winner.stake + actualAllInAmount);
         remainingPot -= actualAllInAmount;
         lastAllInAmount = winner.allin_amount;
-        announceWinnerString += `Winner Rank ${i + 1}: ${winner.username}\n`;
+        announceWinnerString += `Winner Rank ${i + 1}: ${winner.username} - winnings: $${actualAllInAmount}\n`;
       }
     } else {
       let splitPot = remainingPot / winners[i].length;
@@ -589,20 +589,22 @@ async function awardWinner(
           const winAmount =
             allInWinner.allin_amount / winners[i].length -
             lastAllInAmount / winners[i].length;
-
+          let reportedWinAmount = 0;
           if (splitPot <= winAmount) {
             await updateStake(
               allInWinner.player_id,
               allInWinner.stake + splitPot,
             );
+            reportedWinAmount = splitPot;
           } else {
             await updateStake(
               allInWinner.player_id,
               allInWinner.stake + winAmount,
             );
             remainingPot += splitPot - winAmount;
+            reportedWinAmount = winAmount;
           }
-          announceWinnerString += `Winner Rank ${i + 1}: ${allInWinner.username}\n`;
+          announceWinnerString += `Winner Rank ${i + 1}: ${allInWinner.username} - winnings: $${reportedWinAmount}\n`;
         }
         if (allInWinners.length > 0) {
           lastAllInAmount = allInWinners[allInWinners.length - 1].allin_amount;
@@ -619,7 +621,7 @@ async function awardWinner(
             playingWinner.player_id,
             playingWinner.stake + splitPot,
           );
-          announceWinnerString += `Winner Rank ${i + 1}: ${playingWinner.username}\n`;
+          announceWinnerString += `Winner Rank ${i + 1}: ${playingWinner.username} - winnings: $${splitPot}\n`;
         }
         break;
       }
@@ -633,6 +635,18 @@ async function awardWinner(
     pot: 0,
   });
   io.emit(`game:showresetbutton:${gameLobbyID}`);
+  const cards = await getCommunityCards(gameLobbyID);
+  io.emit(`game:showFlop:${gameLobbyID}`, {
+    card1: cards?.flop_1,
+    card2: cards?.flop_2,
+    card3: cards?.flop_3,
+  });
+  io.emit(`game:showTurn:${gameLobbyID}`, {
+    card: cards?.turn,
+  });
+  io.emit(`game:showRiver:${gameLobbyID}`, {
+    card: cards?.river,
+  });
   const players = await getPlayersByLobbyId(gameLobbyID);
   for (const player of players) {
     io.emit(`game:foldraisecall:${gameLobbyID}`, {
@@ -677,11 +691,11 @@ async function dummyDecideWinner(
   if (activePlayers[3]) {
     secondTie.push(activePlayers[3]);
   }
-  if (firstTie.length > 0) {
-    arrayOfTies.push(firstTie);
-  }
   if (secondTie.length > 0) {
     arrayOfTies.push(secondTie);
+  }
+  if (firstTie.length > 0) {
+    arrayOfTies.push(firstTie);
   }
 
   await awardWinner(request, response, arrayOfTies);
