@@ -124,6 +124,38 @@ export async function checkFourOfAKind(
   }
 }
 
+export async function checkFlush(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  if (players) {
+    const flushWinners: Record<string, Array<PlayerWithUserInfo>> = {};
+
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
+
+        const flushCards = getFlushArray(sortedCards);
+
+        if (flushCards) {
+          const flushSuit = flushCards[0].suit;
+          if (!flushWinners[flushSuit]) {
+            flushWinners[flushSuit] = [];
+          }
+
+          flushWinners[flushSuit].push(player);
+          winnerSet.add(player);
+        }
+      }
+
+      sortWinners(flushWinners, winners);
+    }
+  }
+}
+
 export async function checkThreeOfAKind(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
