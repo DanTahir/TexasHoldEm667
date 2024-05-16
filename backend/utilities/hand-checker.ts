@@ -1,8 +1,7 @@
-import { PlayerHand, PlayerWithUserInfo } from "@backend/db/dao/PlayerDao";
-import { CommunityCards } from "@backend/db/dao/GameLobbyDao";
+import { PlayerWithUserInfo } from "@backend/db/dao/PlayerDao";
 import { suit } from "@backend/db/dao/CardDao";
 
-type Card = {
+export type ICard = {
   value: number;
   suit: suit;
 };
@@ -14,49 +13,38 @@ type Sequence = {
 
 export async function checkRoyalFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  playerHands: Array<PlayerHand>,
-  communityCards: CommunityCards,
+  cards: Record<string, Array<ICard>>,
 ) {
   if (players) {
     const royalFlushCards = [14, 13, 12, 11, 10];
     const royalWinners: Array<PlayerWithUserInfo> = [];
 
-    playerHands.forEach((playerHand, i) => {
-      const cards = [
-        playerHand.card1,
-        playerHand.card2,
-        communityCards.flop_1,
-        communityCards.flop_2,
-        communityCards.flop_3,
-        communityCards.turn,
-        communityCards.river,
-      ];
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
 
-      const sortedCards = sortCards(cards);
+        // check for flush
+        const flushCards = getFlushArray(sortedCards);
+        if (flushCards) {
+          let isRoyalFlush = true;
+          for (let i = 0; i < 5; i++) {
+            if (flushCards[i].value !== royalFlushCards[i]) {
+              isRoyalFlush = false;
+              break;
+            }
+          }
 
-      // check for flush
-      const flushCards = getFlushArray(sortedCards);
-      if (flushCards) {
-        let isRoyalFlush = true;
-        for (let i = 0; i < 5; i++) {
-          if (flushCards[i].value !== royalFlushCards[i]) {
-            isRoyalFlush = false;
-            break;
+          if (isRoyalFlush) {
+            royalWinners.push(player);
+            winnerSet.add(player);
           }
         }
-
-        // Add winner to winners array and remove from players array, so we don't check the same player for a worse hand
-        if (isRoyalFlush) {
-          royalWinners.push(players[i]);
-          players.splice(i, 1);
-          playerHands.splice(i, 1);
-        }
       }
-    });
+    }
 
-    // This is the highest ranking hand, so no need to sort the royalWinners array to check
-    // who has the higher hand, like a straight
     if (royalWinners) {
       winners.push(royalWinners);
     }
@@ -65,116 +53,80 @@ export async function checkRoyalFlush(
 
 export async function checkStraightFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  playerHands: Array<PlayerHand>,
-  communityCards: CommunityCards,
+  cards: Record<string, Array<ICard>>,
 ) {
   if (players) {
     const straightFlushWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
-    playerHands.forEach((playerHand, i) => {
-      const cards: Array<Card> = [
-        playerHand.card1,
-        playerHand.card2,
-        communityCards.flop_1,
-        communityCards.flop_2,
-        communityCards.flop_3,
-        communityCards.turn,
-        communityCards.river,
-      ];
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
 
-      const sortedCards = sortCards(cards);
+        // check for flush
+        const flushCards = getFlushArray(sortedCards);
 
-      const flushCards = getFlushArray(sortedCards);
-      if (flushCards) {
-        let isStraightFlush = true;
-        const sequence: Sequence = findLongestConsecutiveSequence(flushCards);
+        if (flushCards) {
+          let isStraightFlush = true;
+          const sequence: Sequence = findLongestConsecutiveSequence(flushCards);
 
-        if (sequence.length !== 5) {
-          isStraightFlush = false;
-        }
-
-        if (isStraightFlush) {
-          if (!straightFlushWinners[sequence.startValue]) {
-            straightFlushWinners[sequence.startValue] = [];
+          if (sequence.length !== 5) {
+            isStraightFlush = false;
           }
 
-          straightFlushWinners[sequence.startValue].push(players[i]);
-          players.splice(i, 1);
-          playerHands.splice(i, 1);
-        }
-      }
+          if (isStraightFlush) {
+            if (!straightFlushWinners[sequence.startValue]) {
+              straightFlushWinners[sequence.startValue] = [];
+            }
 
-      sortWinners(straightFlushWinners, winners);
-    });
+            straightFlushWinners[sequence.startValue].push(player);
+            winnerSet.add(player);
+          }
+        }
+
+        sortWinners(straightFlushWinners, winners);
+      }
+    }
   }
 }
 
 export async function checkFourOfAKind(
   winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  playerHands: Array<PlayerHand>,
-  communityCards: CommunityCards,
+  cards: Record<string, Array<ICard>>,
 ) {
   if (players) {
     const fourOfAKindWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
-    playerHands.forEach((playerHand, i) => {
-      const cards: Array<Card> = [
-        playerHand.card1,
-        playerHand.card2,
-        communityCards.flop_1,
-        communityCards.flop_2,
-        communityCards.flop_3,
-        communityCards.turn,
-        communityCards.river,
-      ];
-      //
-      // const cards: Array<Card> = [
-      //   {
-      //     value: 5,
-      //     suit: "hearts",
-      //   },
-      //   {
-      //     value: 5,
-      //     suit: "diamonds",
-      //   },
-      //   {
-      //     value: 7,
-      //     suit: "hearts",
-      //   },
-      //   {
-      //     value: 8,
-      //     suit: "hearts",
-      //   },
-      //   { value: 5, suit: "clubs" },
-      //   { value: 2, suit: "spades" },
-      //   { value: 5, suit: "spades" },
-      // ];
-      const sortedCards = sortCards(cards);
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
 
-      const fourOfAKindArray = getNOfKindArray(sortedCards, 4);
+        const fourOfAKindArray = getNOfKindArray(sortedCards, 4);
 
-      if (fourOfAKindArray) {
-        // Four of a kind winner exists
+        if (fourOfAKindArray) {
+          const fourOfAKindValue = fourOfAKindArray[0].value;
+          if (!fourOfAKindWinners[fourOfAKindValue]) {
+            fourOfAKindWinners[fourOfAKindValue] = [];
+          }
 
-        // Check if there's a winner already with the same 4 of a kind
-        if (!fourOfAKindWinners[fourOfAKindArray[0].value]) {
-          fourOfAKindWinners[fourOfAKindArray[0].value] = [];
+          fourOfAKindWinners[fourOfAKindValue].push(player);
+          winnerSet.add(player);
         }
-        fourOfAKindWinners[fourOfAKindArray[0].value].push(players[i]);
-        players.splice(i, 1);
-        playerHands.splice(i, 1);
       }
-    });
+    }
 
     sortWinners(fourOfAKindWinners, winners);
   }
 }
 
-function getFlushArray(cards: Array<Card>): Array<Card> | null {
+function getFlushArray(cards: Array<ICard>): Array<ICard> | null {
   // "suit" : [Card1, ..., Card4]
-  const counts: Record<string, Array<Card>> = {};
+  const counts: Record<string, Array<ICard>> = {};
 
   cards.forEach((card) => {
     if (counts[card.suit]) {
@@ -193,8 +145,8 @@ function getFlushArray(cards: Array<Card>): Array<Card> | null {
   return null;
 }
 
-function getNOfKindArray(cards: Array<Card>, n: number): Array<Card> | null {
-  const counts: Record<number, Array<Card>> = {};
+function getNOfKindArray(cards: Array<ICard>, n: number): Array<ICard> | null {
+  const counts: Record<number, Array<ICard>> = {};
 
   cards.forEach((card) => {
     if (counts[card.value]) {
@@ -213,7 +165,7 @@ function getNOfKindArray(cards: Array<Card>, n: number): Array<Card> | null {
   return null;
 }
 
-function sortCards(cards: Array<Card>): Array<Card> {
+function sortCards(cards: Array<ICard>): Array<ICard> {
   const sortedCards = cards.sort((a, b) => {
     // Negative return value indicates a should come before b
     if (a.value > b.value) {
@@ -230,7 +182,7 @@ function sortCards(cards: Array<Card>): Array<Card> {
   return sortedCards;
 }
 
-function findLongestConsecutiveSequence(cards: Array<Card>): Sequence {
+function findLongestConsecutiveSequence(cards: Array<ICard>): Sequence {
   const set = new Set();
   let longestConsecutiveSequence = 0;
   let startValue = 0;

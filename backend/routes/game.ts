@@ -52,6 +52,7 @@ import {
 import signale from "signale";
 import { Socket } from "socket.io";
 import {
+  ICard,
   checkFourOfAKind,
   checkRoyalFlush,
   checkStraightFlush,
@@ -437,6 +438,7 @@ async function getNextPlayer(
   }
 
   const playersNotFoldedOrAllIn = await getPlayersNotFoldedOrAllIn(gameLobbyID);
+  // await decideWinner(playersNotFoldedOrAllIn);
 
   if (playersNotFoldedOrAllIn.length === 1) {
     try {
@@ -529,22 +531,31 @@ async function decideWinner(
   players: Array<PlayerWithUserInfo>,
 ): Promise<Array<Array<PlayerWithUserInfo>>> {
   const winners: Array<Array<PlayerWithUserInfo>> = [];
-  const playerHands: Array<PlayerHand> = [];
+  const winnerSet: Set<PlayerWithUserInfo> = new Set();
   const communityCards: CommunityCards = await getCommunityCards(
     players[0].game_lobby_id,
   );
+  const cards: Record<string, Array<ICard>> = {};
 
-  for (const player of players) {
+  players.forEach(async (player) => {
     const playerHand: PlayerHand = await getPlayerCards(
       player.user_id,
       player.game_lobby_id,
     );
-    playerHands.push(playerHand);
-  }
 
-  await checkRoyalFlush(winners, players, playerHands, communityCards);
-  await checkStraightFlush(winners, players, playerHands, communityCards);
-  await checkFourOfAKind(winners, players, playerHands, communityCards);
+    cards[player.player_id] = [
+      playerHand.card1,
+      playerHand.card2,
+      communityCards.flop_1,
+      communityCards.flop_2,
+      communityCards.flop_3,
+      communityCards.turn,
+      communityCards.river,
+    ];
+  });
+  await checkRoyalFlush(winners, winnerSet, players, cards);
+  await checkStraightFlush(winners, winnerSet, players, cards);
+  await checkFourOfAKind(winners, winnerSet, players, cards);
 
   return winners;
 }
