@@ -901,8 +901,16 @@ router.post("/:id/call", async (request: Request, response: Response) => {
     callingPlayer.status = "all-in";
     const game = await getGameLobbyById(gameLobbyID);
     const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
-    callingPlayer.allin_amount =
-      game.pot + callingPlayer.bet * playersNotFolded.length;
+    const playersNotFoldedOrAllIn =
+      await getPlayersNotFoldedOrAllIn(gameLobbyID);
+    callingPlayer.allin_amount = game.pot;
+    for (const playerNotFolded of playersNotFolded) {
+      if (playerNotFolded.status === "all-in") {
+        callingPlayer.allin_amount += playerNotFolded.bet;
+      }
+    }
+    callingPlayer.allin_amount +=
+      callingPlayer.bet * playersNotFoldedOrAllIn.length;
     await updateStake(callingPlayer.player_id, callingPlayer.stake);
     await updateBet(callingPlayer.player_id, callingPlayer.bet);
     await updateStatus(callingPlayer.player_id, callingPlayer.status);
@@ -968,8 +976,16 @@ router.post(
       raisingPlayer.status = "all-in";
       const game = await getGameLobbyById(gameLobbyID);
       const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
-      raisingPlayer.allin_amount =
-        game.pot + raisingPlayer.bet * playersNotFolded.length;
+      const playersNotFoldedOrAllIn =
+        await getPlayersNotFoldedOrAllIn(gameLobbyID);
+      raisingPlayer.allin_amount = game.pot;
+      for (const playerNotFolded of playersNotFolded) {
+        if (playerNotFolded.status === "all-in") {
+          raisingPlayer.allin_amount += playerNotFolded.bet;
+        }
+      }
+      raisingPlayer.allin_amount +=
+        raisingPlayer.bet * playersNotFoldedOrAllIn.length;
       await updateStake(raisingPlayer.player_id, raisingPlayer.stake);
       await updateBet(raisingPlayer.player_id, raisingPlayer.bet);
       await updateStatus(raisingPlayer.player_id, raisingPlayer.status);
