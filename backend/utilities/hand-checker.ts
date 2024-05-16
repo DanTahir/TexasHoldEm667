@@ -124,6 +124,101 @@ export async function checkFourOfAKind(
   }
 }
 
+export async function checkThreeOfAKind(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  if (players) {
+    const threeOfAKindWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
+
+        const threeOfAKindArray = getNOfKindArray(sortedCards, 3);
+
+        if (threeOfAKindArray) {
+          const threeOfAKindValue = threeOfAKindArray[0].value;
+          if (!threeOfAKindWinners[threeOfAKindValue]) {
+            threeOfAKindWinners[threeOfAKindValue] = [];
+          }
+
+          threeOfAKindWinners[threeOfAKindValue].push(player);
+          winnerSet.add(player);
+        }
+      }
+    }
+
+    sortWinners(threeOfAKindWinners, winners);
+  }
+}
+export async function checkTwoPair(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  if (players) {
+    const twoPairWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
+
+        const twoPairArray = getNOfKindArray(sortedCards, 2);
+
+        if (twoPairArray) {
+          const twoPairValue = twoPairArray[0].value;
+          if (!twoPairWinners[twoPairValue]) {
+            twoPairWinners[twoPairValue] = [];
+          }
+
+          twoPairWinners[twoPairValue].push(player);
+          winnerSet.add(player);
+        }
+      }
+    }
+
+    sortWinners(twoPairWinners, winners);
+  }
+}
+
+export async function checkOnePair(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  if (players) {
+    const onePairWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
+
+        const onePairArray = getNOfKindArray(sortedCards, 3);
+
+        if (onePairArray) {
+          const onePairValue = onePairArray[0].value;
+          if (!onePairWinners[onePairValue]) {
+            onePairWinners[onePairValue] = [];
+          }
+
+          onePairWinners[onePairValue].push(player);
+          winnerSet.add(player);
+        }
+      }
+    }
+
+    sortWinners(onePairWinners, winners);
+  }
+}
+
 function getFlushArray(cards: Array<ICard>): Array<ICard> | null {
   // "suit" : [Card1, ..., Card4]
   const counts: Record<string, Array<ICard>> = {};
