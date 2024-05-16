@@ -609,7 +609,6 @@ async function awardWinner(
           for (const allInWinner of allInWinners) {
             lastAllInAmount += allInWinner.allin_amount / winners[i].length;
           }
-          lastAllInAmount = allInWinners[allInWinners.length - 1].allin_amount;
         }
       }
       const playingWinners = winners[i].filter(
