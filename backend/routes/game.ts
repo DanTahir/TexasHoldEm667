@@ -539,8 +539,6 @@ async function getNextPlayer(
   });
 }
 
-let announceWinnerString = ``;
-
 async function awardWinner(
   request: Request,
   _response: Response,
@@ -557,7 +555,7 @@ async function awardWinner(
   }
 
   let lastAllInAmount = 0;
-
+  let announceWinnerString = ``;
   for (let i = 0; i < winners.length; i++) {
     if (winners[i].length === 1) {
       const winner = winners[i][0];
