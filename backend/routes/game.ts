@@ -701,12 +701,14 @@ async function dummyDecideWinner(
   await awardWinner(request, response, arrayOfTies);
 }
 
+
 async function startNextRound(
   request: Request,
   response: Response,
   gameLobbyID: string,
 ): Promise<void> {
   const activePlayers = await getPlayersNotSpectating(gameLobbyID);
+
   const lobby: GameLobby = await getGameLobbyById(gameLobbyID);
   let pot: number = lobby.pot;
   const io = request.app.get("io");
@@ -733,6 +735,7 @@ async function startNextRound(
   let nextStage: GameStage;
   const cards = await getCommunityCards(gameLobbyID);
 
+
   if (lobby.game_stage === "preflop") {
     nextStage = "flop";
     io.emit(`game:showFlop:${gameLobbyID}`, {
@@ -751,9 +754,11 @@ async function startNextRound(
       card: cards?.river,
     });
   } else {
+
     const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
     await dummyDecideWinner(request, response, playersNotFolded);
     await decideWinner();
+
     return;
   }
 
