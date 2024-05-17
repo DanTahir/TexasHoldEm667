@@ -226,23 +226,33 @@ export function checkTwoPair(
   cards: Record<string, Array<ICard>>,
 ) {
   if (players) {
-    const twoPairWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+    const twoPairWinners: Record<string, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
         const playerCards: Array<ICard> = cards[player.player_id];
         const sortedCards: Array<ICard> = sortCards(playerCards);
 
-        const twoPairArray = getNOfKindArray(sortedCards, 2);
+        const higherPairArray = getNOfKindArray(sortedCards, 2);
 
-        if (twoPairArray) {
-          const twoPairValue = twoPairArray[0].value;
-          if (!twoPairWinners[twoPairValue]) {
-            twoPairWinners[twoPairValue] = [];
+        if (higherPairArray) {
+          const higherPairValue = higherPairArray[0].value;
+          const remainingCards = sortedCards.filter(
+            (card) => card.value !== higherPairValue,
+          );
+          const lowerPairArray = getNOfKindArray(remainingCards, 2);
+
+          if (lowerPairArray) {
+            const lowerPairValue = lowerPairArray[0].value;
+            const key = `${higherPairValue},${lowerPairValue}`;
+
+            if (!twoPairWinners[key]) {
+              twoPairWinners[key] = [];
+            }
+
+            twoPairWinners[key].push(player);
+            winnerSet.add(player);
           }
-
-          twoPairWinners[twoPairValue].push(player);
-          winnerSet.add(player);
         }
       }
     }
@@ -250,7 +260,6 @@ export function checkTwoPair(
     sortWinners(twoPairWinners, winners);
   }
 }
-
 export function checkOnePair(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
@@ -265,7 +274,7 @@ export function checkOnePair(
         const playerCards: Array<ICard> = cards[player.player_id];
         const sortedCards: Array<ICard> = sortCards(playerCards);
 
-        const onePairArray = getNOfKindArray(sortedCards, 3);
+        const onePairArray = getNOfKindArray(sortedCards, 2);
 
         if (onePairArray) {
           const onePairValue = onePairArray[0].value;
@@ -316,7 +325,7 @@ function getNOfKindArray(cards: Array<ICard>, n: number): Array<ICard> | null {
   });
 
   for (const cardValue in counts) {
-    if (counts[cardValue].length == n) {
+    if (counts[cardValue].length >= n) {
       return counts[cardValue];
     }
   }
