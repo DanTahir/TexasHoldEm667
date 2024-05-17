@@ -7,6 +7,7 @@ import { handle as handleNextPlayerAnnounce } from "./nextPlayerAnnounce";
 import { handle as handlePlayerQuits } from "./playerQuit";
 import { handle as handleDealCards } from "./dealCards";
 import { handle as handleShowStageCards } from "./showStageCards";
+import { handle as handleGameCreation } from "./gameCreate";
 
 export const messageHandlers = [
   handleChatMessages,
@@ -19,4 +20,5 @@ export const messageHandlers = [
   handlePlayerQuits,
   handleDealCards,
   handleShowStageCards,
+  handleGameCreation,
 ];
