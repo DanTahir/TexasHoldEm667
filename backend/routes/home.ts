@@ -15,18 +15,22 @@ router.get("/", async (req: Request, res, next) => {
   }
 
   let userName = "";
+  let userID = "";
+  let balance = 0;
   if (req.session.user) {
     userName = req.session.user.username;
+    userID = req.session.user.id;
+    balance = req.session.user.balance;
   }
-  const userID = req.session.user.id;
   let user;
-  let balance = req.session.user.balance;
   try {
     user = await readUserFromID(userID);
   } catch (error) {
     next(error);
   }
-  balance = user?.balance;
+  if (user) {
+    balance = user.balance;
+  }
 
   console.log(`Hello from home - balance: ${balance}`);
 
