@@ -14,7 +14,10 @@ router.get("/", async (req: Request, res, next) => {
     next(error);
   }
 
-  const userName = req.session.user.username;
+  let userName = "";
+  if (req.session.user) {
+    userName = req.session.user.username;
+  }
   const userID = req.session.user.id;
   let user;
   let balance = req.session.user.balance;
