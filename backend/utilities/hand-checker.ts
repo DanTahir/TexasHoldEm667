@@ -11,7 +11,7 @@ type Sequence = {
   startValue: number;
 };
 
-export async function checkRoyalFlush(
+export function checkRoyalFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -51,7 +51,7 @@ export async function checkRoyalFlush(
   }
 }
 
-export async function checkStraightFlush(
+export function checkStraightFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -92,7 +92,7 @@ export async function checkStraightFlush(
   }
 }
 
-export async function checkFourOfAKind(
+export function checkFourOfAKind(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -124,7 +124,7 @@ export async function checkFourOfAKind(
   }
 }
 
-export async function checkFlush(
+export function checkFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -155,7 +155,7 @@ export async function checkFlush(
   }
 }
 
-export async function checkStraight(
+export function checkStraight(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -188,7 +188,7 @@ export async function checkStraight(
   }
 }
 
-export async function checkThreeOfAKind(
+export function checkThreeOfAKind(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -219,7 +219,7 @@ export async function checkThreeOfAKind(
     sortWinners(threeOfAKindWinners, winners);
   }
 }
-export async function checkTwoPair(
+export function checkTwoPair(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
@@ -251,7 +251,7 @@ export async function checkTwoPair(
   }
 }
 
-export async function checkOnePair(
+export function checkOnePair(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,

@@ -553,9 +553,9 @@ async function decideWinner(
       communityCards.river,
     ];
   });
-  await checkRoyalFlush(winners, winnerSet, players, cards);
-  await checkStraightFlush(winners, winnerSet, players, cards);
-  await checkFourOfAKind(winners, winnerSet, players, cards);
+  checkRoyalFlush(winners, winnerSet, players, cards);
+  checkStraightFlush(winners, winnerSet, players, cards);
+  checkFourOfAKind(winners, winnerSet, players, cards);
 
   return winners;
 }
