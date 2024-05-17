@@ -97,15 +97,21 @@ router.get(
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
     const player_map: Record<string, string | number> = {};
+    let currentPlayer;
     for (const player of players) {
       player_map[`player_${player.play_order}`] =
         `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
+
+      if (player.player_id === request.body.currentPlayer) {
+        currentPlayer = player.play_order;
+      }
     }
     player_map.player_count = players.length;
 
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
+        currentPlayer,
         id: request.params.id,
         players: player_map,
         gameStage: game.game_stage,
@@ -524,7 +530,7 @@ async function getNextPlayer(
 
   io.to(nextPlayer?.user_id).emit(`game:activatenewplayer:${gameLobbyID}`);
   io.emit(`game:announcenewplayer:${gameLobbyID}`, {
-    newPlayerName: nextPlayer?.username,
+    playOrder: nextPlayer?.play_order,
   });
 }
 
