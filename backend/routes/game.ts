@@ -327,28 +327,27 @@ router.post("/:id/start", async (req, res) => {
     // Set dealer for this round.
     await updateDealer(gameID, dealer.player_id);
 
-    // Take money from big blind and small blind.
     // If not enough money in stake, then kick and abort start.
-    if (smallBlindPlayer.stake < game.big_blind / 2) {
-      await kickPlayer(gameID, smallBlindPlayer, bigBlindPlayer.username, io);
+    let kickedPlayer: boolean = false;
+    for (const player of players) {
+      if (player.stake < game.big_blind) {
+        await kickPlayer(gameID, player, bigBlindPlayer.username, io);
+        kickedPlayer = true;
+      }
+    }
+    if (kickedPlayer) {
       res
         .status(403)
-        .send("Aborting game...small blind did not have enough money");
+        .send("Aborting game...some player(s) did not have enough money");
       return;
     }
+
+    // Take money from big blind and small blind.
     updateBet(smallBlindPlayer.player_id, game.big_blind / 2);
     updateStake(
       smallBlindPlayer.player_id,
       smallBlindPlayer.stake - game.big_blind / 2,
     );
-
-    if (bigBlindPlayer.stake < game.big_blind) {
-      await kickPlayer(gameID, bigBlindPlayer, bigBlindPlayer.username, io);
-      res
-        .status(403)
-        .send("Aborting game...big blind did not have enough money");
-      return;
-    }
     updateBet(bigBlindPlayer.player_id, game.big_blind);
     updateStake(
       bigBlindPlayer.player_id,
