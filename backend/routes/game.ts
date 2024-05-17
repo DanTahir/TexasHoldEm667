@@ -104,7 +104,7 @@ router.get(
         `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
     }
     player_map.player_count = players.length;
-
+    console.log(`game pot: $${game.pot}`);
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
