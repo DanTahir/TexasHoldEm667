@@ -583,7 +583,7 @@ async function awardWinner(
       const allInWinners = winners[i].filter(
         (winner) => winner.status === "all-in",
       );
-      if (allInWinners) {
+      if (allInWinners.length > 0) {
         const allInWinnersSorted = allInWinners.sort(
           (winnerA, winnerB) => winnerA.allin_amount - winnerB.allin_amount,
         );
@@ -619,7 +619,7 @@ async function awardWinner(
       const playingWinners = winners[i].filter(
         (winner) => winner.status === "playing",
       );
-      if (playingWinners) {
+      if (playingWinners.length > 0) {
         splitPot += remainingPot / playingWinners.length;
         remainingPot = 0;
         for (const playingWinner of playingWinners) {
@@ -697,16 +697,15 @@ async function dummyDecideWinner(
   if (activePlayers[3]) {
     secondTie.push(activePlayers[3]);
   }
-  if (firstTie.length > 0) {
-    arrayOfTies.push(firstTie);
-  }
   if (secondTie.length > 0) {
     arrayOfTies.push(secondTie);
+  }
+  if (firstTie.length > 0) {
+    arrayOfTies.push(firstTie);
   }
 
   await awardWinner(request, response, arrayOfTies);
 }
-
 
 async function startNextRound(
   request: Request,
@@ -741,7 +740,6 @@ async function startNextRound(
   let nextStage: GameStage;
   const cards = await getCommunityCards(gameLobbyID);
 
-
   if (lobby.game_stage === "preflop") {
     nextStage = "flop";
     io.emit(`game:showFlop:${gameLobbyID}`, {
@@ -760,7 +758,6 @@ async function startNextRound(
       card: cards?.river,
     });
   } else {
-
     const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
     await dummyDecideWinner(request, response, playersNotFolded);
     await decideWinner();
