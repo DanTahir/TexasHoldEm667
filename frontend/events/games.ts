@@ -3,6 +3,10 @@ const startButtonElement = document.querySelector(
   ".start-button",
 ) as HTMLDivElement | null;
 const startButton = startButtonElement?.querySelector("button");
+const resetButtonElement = document.querySelector(
+  ".reset-button",
+) as HTMLDivElement | null;
+const resetButton = resetButtonElement?.querySelector("button");
 
 export function handle() {
   allSeats.forEach((seat, i) => {
@@ -61,5 +65,29 @@ export function handle() {
 
   if (startButton) {
     startButton.addEventListener("click", startButtonHandler);
+  }
+
+  const resetButtonHandler = () => {
+    if (!resetButton) return;
+
+    resetButton.textContent = "Resetting...";
+    //resetButton.removeEventListener("click", resetButtonHandler);
+
+    const gameID = document.location.pathname.split("/")[2];
+
+    fetch(`/game/${gameID}/reset`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }).then(async (res) => {
+      if (!res.ok) {
+        resetButton.textContent = "Reset Round";
+        //resetButton.addEventListener("click", resetButtonHandler);
+        alert(await res.text());
+      }
+    });
+  };
+
+  if (resetButton) {
+    resetButton.addEventListener("click", resetButtonHandler);
   }
 }

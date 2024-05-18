@@ -127,14 +127,21 @@
               <%- include("../partials/PokerCard.ejs", {
                 suit: communityCards?.river?.suit || '',
                 number: communityCards?.river?.value || 0,
-                hidden: !(gameStage === gameStage === 'river' || gameStage === 'final'),
+                hidden: !(gameStage === 'river' || gameStage === 'final'),
               }) %>
             </div>
 
           </div>
         </div>
 
-        <div class="game-name"><%= gameName %></div>
+        <div class="game-name">
+          <div>
+            <%= gameName %>
+          </div>
+          <div id="pot" class="pot text-black <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+            Pot: $<%= pot %>
+          </div>
+        </div>
 
         <div class="game-interactions">
           <div class="left-interactions">
@@ -157,6 +164,9 @@
           <div class="center-interactions">
             <div class="start-button <%= (players.player_count >= 4 && gameStage === 'waiting') ? '' : 'hidden' %>">
               <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
+            </div>
+            <div class="reset-button <%= (gameStage === 'final') ? '' : 'hidden' %>">
+              <%- include("../partials/Button.ejs", {buttonText: "Reset Round"}) %>
             </div>
             <div class="user-name">Playing as: <%= userName %></div>
           </div>

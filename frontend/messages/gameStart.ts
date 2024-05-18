@@ -12,7 +12,6 @@ export function handle(socket: Socket) {
   socket.on(`game:start:${roomID}`, () => {
     const seats = document.querySelectorAll(".seat");
     startButtonElement.classList.add("hidden");
-
     seats.forEach((seat) => {
       if (!seat.classList.contains("empty-seat")) {
         const cardContainerElem = seat.querySelector(".card-container");
@@ -20,7 +19,10 @@ export function handle(socket: Socket) {
         cardContainerElem.classList.remove("hidden");
       }
     });
-
+    const pot = document.getElementById("pot") as HTMLDivElement;
+    if (pot) {
+      pot.classList.remove("hidden");
+    }
     tableElement.classList.remove("hidden");
   });
 }

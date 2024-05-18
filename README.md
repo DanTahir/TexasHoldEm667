@@ -166,55 +166,55 @@ users come and take the seats, the seat occupation events are emitted via the
 socket to all users in the game lobby.
 
 Once at least four users are in a game, the game.ts router.post("/{id}/join")
-route has the additional job of setting the start button to active. Any 
-player in the game can click the start button (players not in the game who
-click it trigger an error on the server which sends a 403 response to the
-user that triggers an alert telling them they cannot start the game). Once
-a player in the game clicks the start button, they activate the games.ts
-router.post("/{id}/start"} route, which does several things. First, it
-calls createDeck to create the deck on the server, then renders the deck to the 
+route has the additional job of setting the start button to active. Any player
+in the game can click the start button (players not in the game who click it
+trigger an error on the server which sends a 403 response to the user that
+triggers an alert telling them they cannot start the game). Once a player in the
+game clicks the start button, they activate the games.ts
+router.post("/{id}/start"} route, which does several things. First, it calls
+createDeck to create the deck on the server, then renders the deck to the
 backend. Then it assigns cards in the deck to players via the slots in their
-database entries, then it assigns the community cards to the gamelobby
-object's database entries. Then it emits those cards via socket events to 
-each player. Then it sets the dealer, the small blind (who must automatically 
-bet half the big blind) and the big blind (who must automatically bet a fixed
-amount, in our games 50 dollars). It calls functions to write the small blind
-and the big blind to the players' bets in the database and subtract those
-bets from the players' stakes, then it emits those changes via a socket event.
-socket.on scripts receive the events for the updates to the players' cards and
-the players' bets and appropriately render the changes to the page. 
+database entries, then it assigns the community cards to the gamelobby object's
+database entries. Then it emits those cards via socket events to each player.
+Then it sets the dealer, the small blind (who must automatically bet half the
+big blind) and the big blind (who must automatically bet a fixed amount, in our
+games 50 dollars). It calls functions to write the small blind and the big blind
+to the players' bets in the database and subtract those bets from the players'
+stakes, then it emits those changes via a socket event. socket.on scripts
+receive the events for the updates to the players' cards and the players' bets
+and appropriately render the changes to the page.
 
 Once the start route has done that, it calls the getNextPlayer function, which
-serves as a primary control loop for the rest of the game. getNextPlayer performs
-checks to make sure the round hasn't ended, checking whether to automatically
-award a winner (if all others have folded) or determine a winner (if all but 
-one or all are all in or folded). To award a winner it calls awardWinner and
-to decide a winner it calls decideWinner. If neither of those conditions are met,
-it checks whether all players have had the chance to bet, and whether all
-players have met the max bet. If that condition is met the function calls
-nextStage. Otherwise it cycles through the player order to find a player who's
-still playing and sets them as the current player. 
+serves as a primary control loop for the rest of the game. getNextPlayer
+performs checks to make sure the round hasn't ended, checking whether to
+automatically award a winner (if all others have folded) or determine a winner
+(if all but one or all are all in or folded). To award a winner it calls
+awardWinner and to decide a winner it calls decideWinner. If neither of those
+conditions are met, it checks whether all players have had the chance to bet,
+and whether all players have met the max bet. If that condition is met the
+function calls nextStage. Otherwise it cycles through the player order to find a
+player who's still playing and sets them as the current player.
 
-getNextPlayer then emits a socket event which is received by the specific 
-player's user socket to activate their call, raise, and fold buttons, as well 
-as a general socket event that announces which player is the current player 
-to all players. Once the events are sent, the active player can call, enter a 
-value into the raise field and raise, or fold. Each one fires a different event 
-to the server while also deactivating all three buttons once clicked (except if 
-an error is received, then the buttons are reactivated). Fold sends to a route that 
-updates the player status to folded, taking them out of consideration by 
-getNextPlayer and decideWinner. Then it emits an event updating their status
-on the players' pages. Call increases the player's bet to the current maximum bet,
-and Raise increases the player's bet to the current maximum bet plus a raise amount.
-Both functions update the player's bet and stake in the database and then emit
-an update to the page. Fold, call, and raise's events all each call getNextPlayer in
-turn. 
+getNextPlayer then emits a socket event which is received by the specific
+player's user socket to activate their call, raise, and fold buttons, as well as
+a general socket event that announces which player is the current player to all
+players. Once the events are sent, the active player can call, enter a value
+into the raise field and raise, or fold. Each one fires a different event to the
+server while also deactivating all three buttons once clicked (except if an
+error is received, then the buttons are reactivated). Fold sends to a route that
+updates the player status to folded, taking them out of consideration by
+getNextPlayer and decideWinner. Then it emits an event updating their status on
+the players' pages. Call increases the player's bet to the current maximum bet,
+and Raise increases the player's bet to the current maximum bet plus a raise
+amount. Both functions update the player's bet and stake in the database and
+then emit an update to the page. Fold, call, and raise's events all each call
+getNextPlayer in turn.
 
-When getNextStage is triggered, it adds all of the players' existing bets to the 
-pot, updates the stage to the next one and updates the turn counter to 0, then 
-it emits an event to the frontend to deal that stage's cards. It then calls 
+When getNextStage is triggered, it adds all of the players' existing bets to the
+pot, updates the stage to the next one and updates the turn counter to 0, then
+it emits an event to the frontend to deal that stage's cards. It then calls
 getNextPlayer with the Dealer passed in as the previous player. However, if it's
-reached the end stage, it goes to decideWinner, which decides the winner,
-and which then calls awardWinner, which awards the pot to the winner and
-resets the round. Then the players can start another round.
-scripts to display the next stage's 
+reached the end stage, it goes to decideWinner, which decides the winner, and
+which then calls awardWinner, which awards the pot to the winner and resets the
+round. Then the players can start another round. scripts to display the next
+stage's
