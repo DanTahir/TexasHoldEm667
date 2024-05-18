@@ -330,6 +330,35 @@ export function checkOnePair(
   }
 }
 
+export function checkHighCard(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  if (players) {
+    const highCardWinners: Record<number, Array<PlayerWithUserInfo>> = {};
+
+    for (const player of players) {
+      if (!winnerSet.has(player)) {
+        const playerCards: Array<ICard> = cards[player.player_id];
+        const sortedCards: Array<ICard> = sortCards(playerCards);
+
+        const highestCardValue = sortedCards[0].value;
+
+        if (!highCardWinners[highestCardValue]) {
+          highCardWinners[highestCardValue] = [];
+        }
+
+        highCardWinners[highestCardValue].push(player);
+        winnerSet.add(player);
+      }
+    }
+
+    sortWinners(highCardWinners, winners);
+  }
+}
+
 function getCardValueCounts(cards: Array<ICard>) {
   const counts: Record<number, Array<ICard>> = {};
 
