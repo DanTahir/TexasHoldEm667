@@ -124,6 +124,44 @@ export function checkFourOfAKind(
   }
 }
 
+export function checkFullHouse(
+  winners: Array<Array<PlayerWithUserInfo>>,
+  winnerSet: Set<PlayerWithUserInfo>,
+  players: Array<PlayerWithUserInfo>,
+  cards: Record<string, Array<ICard>>,
+) {
+  const fullHouseWinners: Record<string, Array<PlayerWithUserInfo>> = {};
+
+  for (const player of players) {
+    if (!winnerSet.has(player)) {
+      const playerCards: Array<ICard> = cards[player.player_id];
+      const sortedCards: Array<ICard> = sortCards(playerCards);
+
+      const cardCounts = getCardValueCounts(sortedCards);
+
+      const threePairValues = Object.keys(cardCounts)
+        .map((v) => Number(v))
+        .filter((v) => cardCounts[v].length === 3)
+        .sort((a, b) => a - b);
+      const twoPairValues = Object.keys(cardCounts)
+        .map((v) => Number(v))
+        .filter((v) => cardCounts[v].length === 2)
+        .sort((a, b) => a - b);
+
+      if (threePairValues.length > 0 && twoPairValues.length > 0) {
+        const winnerKey = `${threePairValues[0]}.${twoPairValues[0]}`;
+        if (!fullHouseWinners[winnerKey]) {
+          fullHouseWinners[winnerKey] = [];
+        }
+        fullHouseWinners[winnerKey].push(player);
+        winnerSet.add(player);
+      }
+    }
+  }
+
+  sortWinners(fullHouseWinners, winners);
+}
+
 export function checkFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
@@ -292,6 +330,20 @@ export function checkOnePair(
   }
 }
 
+function getCardValueCounts(cards: Array<ICard>) {
+  const counts: Record<number, Array<ICard>> = {};
+
+  cards.forEach((card) => {
+    if (counts[card.value]) {
+      counts[card.value].push(card);
+    } else {
+      counts[card.value] = [card];
+    }
+  });
+
+  return counts;
+}
+
 function getFlushArray(cards: Array<ICard>): Array<ICard> | null {
   // "suit" : [Card1, ..., Card4]
   const counts: Record<string, Array<ICard>> = {};
@@ -375,7 +427,7 @@ function findLongestConsecutiveSequence(cards: Array<ICard>): Sequence {
 }
 
 function sortWinners(
-  unsortedWinners: Record<number, Array<PlayerWithUserInfo>>,
+  unsortedWinners: Record<number | string, Array<PlayerWithUserInfo>>,
   winners: Array<Array<PlayerWithUserInfo>>,
 ) {
   const sortedWinners = Object.entries(unsortedWinners).sort(
