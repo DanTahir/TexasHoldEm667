@@ -161,6 +161,10 @@ router.post(
       };
       await createPlayer(playerPayload);
 
+      const io: Socket = request.app.get("io");
+
+      io.emit("game:create", { gameLobbyID, name });
+
       response.redirect(`/game/${gameLobbyID}`);
     } catch (error) {
       let message;

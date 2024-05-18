@@ -11,7 +11,7 @@ import { handle as handleUpdatePot } from "./updatePot";
 import { handle as handleShowResetButton } from "./showResetButton";
 import { handle as handleReset } from "./reset";
 import { handle as handleAnnounceWinner } from "./announceWinner";
-
+import { handle as handleGameCreation } from "./gameCreate";
 
 export const messageHandlers = [
   handleChatMessages,
@@ -27,4 +27,5 @@ export const messageHandlers = [
   handleShowResetButton,
   handleReset,
   handleAnnounceWinner,
+  handleGameCreation,
 ];
