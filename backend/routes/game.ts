@@ -705,22 +705,24 @@ async function decideWinner(
   );
   const cards: Record<string, Array<ICard>> = {};
 
-  players.forEach(async (player) => {
-    const playerHand: PlayerHand = await getPlayerCards(
-      player.user_id,
-      player.game_lobby_id,
-    );
+  await Promise.all(
+    players.map(async (player) => {
+      const playerHand: PlayerHand = await getPlayerCards(
+        player.user_id,
+        player.game_lobby_id,
+      );
 
-    cards[player.player_id] = [
-      playerHand.card1,
-      playerHand.card2,
-      communityCards.flop_1,
-      communityCards.flop_2,
-      communityCards.flop_3,
-      communityCards.turn,
-      communityCards.river,
-    ];
-  });
+      cards[player.player_id] = [
+        playerHand.card1,
+        playerHand.card2,
+        communityCards.flop_1,
+        communityCards.flop_2,
+        communityCards.flop_3,
+        communityCards.turn,
+        communityCards.river,
+      ];
+    }),
+  );
 
   checkRoyalFlush(winners, winnerSet, players, cards);
   checkStraightFlush(winners, winnerSet, players, cards);
