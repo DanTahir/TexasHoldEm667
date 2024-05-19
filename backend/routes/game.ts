@@ -56,9 +56,16 @@ import signale from "signale";
 import { Socket } from "socket.io";
 import {
   ICard,
+  checkFlush,
   checkFourOfAKind,
+  checkFullHouse,
+  checkHighCard,
+  checkOnePair,
   checkRoyalFlush,
+  checkStraight,
   checkStraightFlush,
+  checkThreeOfAKind,
+  checkTwoPair,
 } from "@backend/utilities/hand-checker";
 export const router: Router = express.Router();
 
@@ -714,9 +721,17 @@ async function decideWinner(
       communityCards.river,
     ];
   });
+
   checkRoyalFlush(winners, winnerSet, players, cards);
   checkStraightFlush(winners, winnerSet, players, cards);
   checkFourOfAKind(winners, winnerSet, players, cards);
+  checkFullHouse(winners, winnerSet, players, cards);
+  checkFlush(winners, winnerSet, players, cards);
+  checkStraight(winners, winnerSet, players, cards);
+  checkThreeOfAKind(winners, winnerSet, players, cards);
+  checkTwoPair(winners, winnerSet, players, cards);
+  checkOnePair(winners, winnerSet, players, cards);
+  checkHighCard(winners, winnerSet, players, cards);
 
   await awardWinner(req, res, winners);
 }
