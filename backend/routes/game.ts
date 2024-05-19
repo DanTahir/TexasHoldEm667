@@ -578,25 +578,31 @@ async function awardWinner(
     remainingPot += player.bet;
     await updateBet(player.player_id, 0);
   }
-
+  console.log(`remaining pot: ${remainingPot}`);
+  let rank = 1;
   let lastAllInAmount = 0;
   let announceWinnerString = ``;
   for (let i = 0; i < winners.length; i++) {
-    if (winners[i].length === 1) {
+    console.log(`winner is ???, remaining pot: ${remainingPot}`);
+    if (winners[i].length === 1 && winners[i][0].username) {
       const winner = winners[i][0];
       if (winner.status != "all-in" || winner.allin_amount >= remainingPot) {
+        console.log(`remaining pot: ${remainingPot}`);
         await updateStake(winner.player_id, winner.stake + remainingPot);
-        announceWinnerString += `Winner Rank ${i + 1}: ${winner.username} - winnings: $${remainingPot}\n`;
+        announceWinnerString += `Winner Rank ${rank}: ${winner.username} - winnings: $${remainingPot}\n`;
         remainingPot = 0;
         break;
       } else {
         const actualAllInAmount = winner.allin_amount - lastAllInAmount;
+        console.log(`remaining pot: ${remainingPot}`);
         await updateStake(winner.player_id, winner.stake + actualAllInAmount);
         remainingPot -= actualAllInAmount;
+        console.log(`remaining pot: ${remainingPot}`);
         lastAllInAmount = winner.allin_amount;
         announceWinnerString += `Winner Rank ${i + 1}: ${winner.username} - winnings: $${actualAllInAmount}\n`;
+        rank++;
       }
-    } else {
+    } else if (winners[i].length > 1) {
       let splitPot = remainingPot / winners[i].length;
       remainingPot = 0;
 
@@ -651,6 +657,7 @@ async function awardWinner(
         }
         break;
       }
+      rank++;
     }
   }
 
