@@ -149,7 +149,10 @@ export function checkFullHouse(
         .sort((a, b) => a - b);
 
       if (threePairValues.length > 0 && twoPairValues.length > 0) {
-        const winnerKey = `${threePairValues[0]}.${twoPairValues[0]}`;
+        const secondValue =
+          threePairValues.length > 1 ? threePairValues[1] : twoPairValues[0];
+
+        const winnerKey = `${threePairValues[0]}.${secondValue}`;
         if (!fullHouseWinners[winnerKey]) {
           fullHouseWinners[winnerKey] = [];
         }
