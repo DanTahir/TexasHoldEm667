@@ -14,6 +14,7 @@ export type Player = {
   game_lobby_id: string;
   card_1?: string;
   card_2?: string;
+  allin_amount: number;
 };
 
 export type CreatePlayerPayload = {
@@ -196,6 +197,16 @@ export async function updateStatus(player_id: string, status: string) {
   await db.none("UPDATE players SET status=$2 WHERE player_id=$1", [
     player_id,
     status,
+  ]);
+}
+
+export async function updateAllInAmount(
+  player_id: string,
+  allInAmount: number,
+) {
+  await db.none("UPDATE players SET allin_amount=$2 WHERE player_id=$1", [
+    player_id,
+    allInAmount,
   ]);
 }
 

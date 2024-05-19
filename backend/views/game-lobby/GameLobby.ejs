@@ -13,7 +13,7 @@
           <%- include("./PokerTable.ejs") %>
           <div class="actions-grid">
             <div class="seat action-1 <%= players.player_1 ? '' : 'empty-seat' %>">
-              <%- include("../partials/Button.ejs", {buttonText: players.player_1 ? players.player_1 : 'Join'}) %>
+              <%- include("../partials/Button.ejs", {buttonText: players.player_1 ? players.player_1 : 'Join', backgroundColor: currentPlayer == 1 ? "green": undefined}) %>
               <% if (thisPlayerPosition === 1) { %>
                 <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
@@ -28,7 +28,7 @@
             </div>
 
             <div class="seat action-2 <%= players.player_2 ? '' : 'empty-seat' %>">
-              <%- include("../partials/Button.ejs", {buttonText: players.player_2 ? players.player_2 : 'Join'}) %>
+              <%- include("../partials/Button.ejs", {buttonText: players.player_2 ? players.player_2 : 'Join', backgroundColor: currentPlayer == 2 ? "green": undefined}) %>
               <% if (thisPlayerPosition === 2) { %>
                 <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
@@ -43,7 +43,7 @@
             </div>
 
             <div class="seat action-3 <%= players.player_3 ? '' : 'empty-seat' %>">
-              <%- include("../partials/Button.ejs", {buttonText: players.player_3 ? players.player_3 : 'Join'}) %>
+              <%- include("../partials/Button.ejs", {buttonText: players.player_3 ? players.player_3 : 'Join', backgroundColor: currentPlayer == 3 ? "green": undefined}) %>
               <% if (thisPlayerPosition === 3) { %>
                 <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
@@ -59,7 +59,7 @@
 
 
             <div class="seat action-4 <%= players.player_4 ? '' : 'empty-seat' %>">
-              <%- include("../partials/Button.ejs", {buttonText: players.player_4 ? players.player_4 : 'Join'}) %>
+              <%- include("../partials/Button.ejs", {buttonText: players.player_4 ? players.player_4 : 'Join', backgroundColor: currentPlayer == 4 ? "green": undefined}) %>
               <% if (thisPlayerPosition === 4) { %>
                 <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
@@ -74,7 +74,7 @@
             </div>
 
             <div class="seat action-5 <%= players.player_5 ? '' : 'empty-seat' %>">
-              <%- include("../partials/Button.ejs", {buttonText: players.player_5 ? players.player_5 : 'Join'}) %>
+              <%- include("../partials/Button.ejs", {buttonText: players.player_5 ? players.player_5 : 'Join', backgroundColor: currentPlayer == 5 ? "green": undefined}) %>
               <% if (thisPlayerPosition === 5) { %>
                 <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
@@ -89,7 +89,7 @@
             </div>
 
             <div class="seat action-6 <%= players.player_6 ? '' : 'empty-seat' %>">
-              <%- include("../partials/Button.ejs", {buttonText: players.player_6 ? players.player_6 : 'Join'}) %>
+              <%- include("../partials/Button.ejs", {buttonText: players.player_6 ? players.player_6 : 'Join', backgroundColor: currentPlayer == 6 ? "green": undefined}) %>
               <% if (thisPlayerPosition === 6) { %>
                 <div class = "card-container <%= gameStage === 'waiting' ? 'hidden' : '' %>">
                   <%- include("../partials/PokerCard.ejs", {suit: thisPlayerCards?.card1?.suit || '', number: thisPlayerCards?.card1?.value || 0, hidden: gameStage === 'waiting'}) %>
@@ -127,14 +127,21 @@
               <%- include("../partials/PokerCard.ejs", {
                 suit: communityCards?.river?.suit || '',
                 number: communityCards?.river?.value || 0,
-                hidden: !(gameStage === gameStage === 'river' || gameStage === 'final'),
+                hidden: !(gameStage === 'river' || gameStage === 'final'),
               }) %>
             </div>
 
           </div>
         </div>
 
-        <div class="game-name"><%= gameName %></div>
+        <div class="game-name">
+          <div>
+            <%= gameName %>
+          </div>
+          <div id="pot" class="pot text-black <%= gameStage === 'waiting' ? 'hidden' : '' %>">
+            Pot: $<%= pot %>
+          </div>
+        </div>
 
         <div class="game-interactions">
           <div class="left-interactions">
@@ -157,6 +164,9 @@
           <div class="center-interactions">
             <div class="start-button <%= (players.player_count >= 4 && gameStage === 'waiting') ? '' : 'hidden' %>">
               <%- include("../partials/Button.ejs", {buttonText: "Start"}) %>
+            </div>
+            <div class="reset-button <%= (gameStage === 'final') ? '' : 'hidden' %>">
+              <%- include("../partials/Button.ejs", {buttonText: "Reset Round"}) %>
             </div>
             <div class="user-name">Playing as: <%= userName %></div>
           </div>
