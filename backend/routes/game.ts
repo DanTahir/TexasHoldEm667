@@ -433,7 +433,7 @@ router.post("/:id/start", async (req, res) => {
         playOrder: player.play_order,
       });
     }
-
+    await updateTurnsToZero(gameID);
     getNextPlayer(req, res, bigBlindPlayer.user_id);
   } finally {
     routesCurrentlyStarting[gameID] = false;
