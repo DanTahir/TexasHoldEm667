@@ -1,7 +1,7 @@
 import { PlayerWithUserInfo } from "@backend/db/dao/PlayerDao";
 import { suit } from "@backend/db/dao/CardDao";
 
-export type ICard = {
+export type CardValue = {
   value: number;
   suit: suit;
 };
@@ -10,7 +10,7 @@ export function checkRoyalFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const royalFlushCards = [14, 13, 12, 11, 10];
@@ -18,8 +18,8 @@ export function checkRoyalFlush(
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         // check for flush
         const flushCards = getFlushArray(sortedCards);
@@ -50,15 +50,15 @@ export function checkStraightFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const straightFlushWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const flushCards = getFlushArray(sortedCards);
 
@@ -89,15 +89,15 @@ export function checkFourOfAKind(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const fourOfAKindWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const fourOfAKindArray = getNOfKindArray(sortedCards, 4);
 
@@ -121,14 +121,14 @@ export function checkFullHouse(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   const fullHouseWinners: Record<string, Array<PlayerWithUserInfo>> = {};
 
   for (const player of players) {
     if (!winnerSet.has(player)) {
-      const playerCards: Array<ICard> = cards[player.player_id];
-      const sortedCards: Array<ICard> = sortCards(playerCards);
+      const playerCards: Array<CardValue> = cards[player.player_id];
+      const sortedCards: Array<CardValue> = sortCards(playerCards);
 
       const cardCounts = getCardValueCounts(sortedCards);
 
@@ -162,15 +162,15 @@ export function checkFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const flushWinners: Record<string, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const flushCards = getFlushArray(sortedCards);
 
@@ -193,15 +193,15 @@ export function checkStraight(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const straightWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const sequence = findLongestConsecutiveSequence(sortedCards);
 
@@ -228,15 +228,15 @@ export function checkThreeOfAKind(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const threeOfAKindWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const threeOfAKindArray = getNOfKindArray(sortedCards, 3);
 
@@ -259,15 +259,15 @@ export function checkTwoPair(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const twoPairWinners: Record<string, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const higherPairArray = getNOfKindArray(sortedCards, 2);
 
@@ -300,15 +300,15 @@ export function checkOnePair(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const onePairWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const onePairArray = getNOfKindArray(sortedCards, 2);
 
@@ -332,15 +332,15 @@ export function checkHighCard(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
   players: Array<PlayerWithUserInfo>,
-  cards: Record<string, Array<ICard>>,
+  cards: Record<string, Array<CardValue>>,
 ) {
   if (players) {
     const highCardWinners: Record<number, Array<PlayerWithUserInfo>> = {};
 
     for (const player of players) {
       if (!winnerSet.has(player)) {
-        const playerCards: Array<ICard> = cards[player.player_id];
-        const sortedCards: Array<ICard> = sortCards(playerCards);
+        const playerCards: Array<CardValue> = cards[player.player_id];
+        const sortedCards: Array<CardValue> = sortCards(playerCards);
 
         const highestCardValue = sortedCards[0].value;
 
@@ -357,8 +357,8 @@ export function checkHighCard(
   }
 }
 
-function getCardValueCounts(cards: Array<ICard>) {
-  const counts: Record<number, Array<ICard>> = {};
+function getCardValueCounts(cards: Array<CardValue>) {
+  const counts: Record<number, Array<CardValue>> = {};
 
   cards.forEach((card) => {
     if (counts[card.value]) {
@@ -371,9 +371,9 @@ function getCardValueCounts(cards: Array<ICard>) {
   return counts;
 }
 
-function getFlushArray(cards: Array<ICard>): Array<ICard> | null {
+function getFlushArray(cards: Array<CardValue>): Array<CardValue> | null {
   // "suit" : [Card1, ..., Card4]
-  const counts: Record<string, Array<ICard>> = {};
+  const counts: Record<string, Array<CardValue>> = {};
 
   cards.forEach((card) => {
     if (counts[card.suit]) {
@@ -392,8 +392,11 @@ function getFlushArray(cards: Array<ICard>): Array<ICard> | null {
   return null;
 }
 
-function getNOfKindArray(cards: Array<ICard>, n: number): Array<ICard> | null {
-  const counts: Record<number, Array<ICard>> = {};
+function getNOfKindArray(
+  cards: Array<CardValue>,
+  n: number,
+): Array<CardValue> | null {
+  const counts: Record<number, Array<CardValue>> = {};
 
   cards.forEach((card) => {
     if (counts[card.value]) {
@@ -412,7 +415,7 @@ function getNOfKindArray(cards: Array<ICard>, n: number): Array<ICard> | null {
   return null;
 }
 
-function sortCards(cards: Array<ICard>): Array<ICard> {
+function sortCards(cards: Array<CardValue>): Array<CardValue> {
   const sortedCards = cards.sort((a, b) => {
     // Negative return value indicates a should come before b
     if (a.value > b.value) {
@@ -429,19 +432,21 @@ function sortCards(cards: Array<ICard>): Array<ICard> {
   return sortedCards;
 }
 
-function findLongestConsecutiveSequence(cards: Array<ICard>): Array<ICard> {
+function findLongestConsecutiveSequence(
+  cards: Array<CardValue>,
+): Array<CardValue> {
   if (cards.length === 0) {
     return [];
   }
 
-  const uniqueCardsMap = new Map<number, ICard>();
+  const uniqueCardsMap = new Map<number, CardValue>();
   cards.forEach((card) => uniqueCardsMap.set(card.value, card));
   const uniqueCards = Array.from(uniqueCardsMap.values()).sort(
     (a, b) => a.value - b.value,
   );
 
-  let longestSequence: ICard[] = [];
-  let currentSequence: ICard[] = [uniqueCards[0]];
+  let longestSequence: CardValue[] = [];
+  let currentSequence: CardValue[] = [uniqueCards[0]];
 
   for (let i = 1; i < uniqueCards.length; i++) {
     if (uniqueCards[i].value === uniqueCards[i - 1].value + 1) {
