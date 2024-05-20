@@ -956,7 +956,10 @@ router.post("/:id/call", async (request: Request, response: Response) => {
         playerNotSpectating.status === "all-in" ||
         playerNotSpectating.status === "folded"
       ) {
-        callingPlayer.allin_amount += playerNotSpectating.bet;
+        callingPlayer.allin_amount +=
+          playerNotSpectating.bet <= callingPlayer.bet ?
+            playerNotSpectating.bet
+          : callingPlayer.bet;
       }
     }
     callingPlayer.allin_amount +=
@@ -1034,7 +1037,10 @@ router.post(
           playerNotSpectating.status === "all-in" ||
           playerNotSpectating.status === "folded"
         ) {
-          raisingPlayer.allin_amount += playerNotSpectating.bet;
+          raisingPlayer.allin_amount +=
+            playerNotSpectating.bet <= raisingPlayer.bet ?
+              playerNotSpectating.bet
+            : raisingPlayer.bet;
         }
       }
       raisingPlayer.allin_amount +=
