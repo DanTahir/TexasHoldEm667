@@ -121,10 +121,15 @@ router.get(
     const communityCards = await getCommunityCards(gameID);
 
     let currentPlayer;
-    for (const player of players) {
-      if (player.player_id === request.body.currentPlayer) {
-        currentPlayer = player.play_order;
+    if (game.game_stage !== "final" && game.game_stage !== "waiting") {
+      for (const player of players) {
+        if (player.player_id === request.body.currentPlayer) {
+          currentPlayer = player.play_order;
+          break;
+        }
       }
+    } else {
+      currentPlayer = 0;
     }
 
     try {
@@ -698,6 +703,9 @@ async function awardWinner(
       playOrder: player.play_order,
     });
   }
+  io.emit(`game:announcenewplayer:${gameLobbyID}`, {
+    playOrder: 0,
+  });
   io.emit(`game:announcewinner:${gameLobbyID}`, {
     announceWinnerString: announceWinnerString,
   });
