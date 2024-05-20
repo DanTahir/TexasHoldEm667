@@ -63,7 +63,7 @@ export function checkStraightFlush(
         const flushCards = getFlushArray(sortedCards);
 
         if (flushCards) {
-          const sequence = findLongestConsecutiveSequence(flushCards);
+          const sequence = getStraightSequence(flushCards);
 
           if (sequence.length < 5) {
             continue;
@@ -203,7 +203,7 @@ export function checkStraight(
         const playerCards: Array<CardValue> = cards[player.player_id];
         const sortedCards: Array<CardValue> = sortCards(playerCards);
 
-        const sequence = findLongestConsecutiveSequence(sortedCards);
+        const sequence = getStraightSequence(sortedCards);
 
         if (sequence.length < 5) {
           continue;
@@ -432,9 +432,7 @@ function sortCards(cards: Array<CardValue>): Array<CardValue> {
   return sortedCards;
 }
 
-function findLongestConsecutiveSequence(
-  cards: Array<CardValue>,
-): Array<CardValue> {
+function getStraightSequence(cards: Array<CardValue>): Array<CardValue> {
   if (cards.length === 0) {
     return [];
   }
