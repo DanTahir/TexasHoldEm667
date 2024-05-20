@@ -14,6 +14,7 @@ export type Player = {
   game_lobby_id: string;
   card_1?: string;
   card_2?: string;
+  allin_amount: number;
 };
 
 export type CreatePlayerPayload = {
@@ -199,6 +200,16 @@ export async function updateStatus(player_id: string, status: string) {
   ]);
 }
 
+export async function updateAllInAmount(
+  player_id: string,
+  allInAmount: number,
+) {
+  await db.none("UPDATE players SET allin_amount=$2 WHERE player_id=$1", [
+    player_id,
+    allInAmount,
+  ]);
+}
+
 export async function updateStatusUserAndLobby(
   user_id: string,
   game_lobby_id: string,
@@ -251,7 +262,7 @@ export async function updatePlayer(player: Player) {
   ]);
 }
 
-type PlayerHand = {
+export type PlayerHand = {
   userID: string;
   playerID: string;
   card1: {
@@ -264,7 +275,10 @@ type PlayerHand = {
   };
 };
 
-export async function getPlayerCards(userID: string, gameID: string) {
+export async function getPlayerCards(
+  userID: string,
+  gameID: string,
+): Promise<PlayerHand> {
   const query = `
     SELECT
       p.user_id, p.player_id, c1.game_card_id,
@@ -281,7 +295,7 @@ export async function getPlayerCards(userID: string, gameID: string) {
 
   const result = await db.oneOrNone(query, [userID, gameID]);
 
-  if (!result) return null;
+  if (!result) return result;
 
   const formattedValue: PlayerHand = {
     userID,

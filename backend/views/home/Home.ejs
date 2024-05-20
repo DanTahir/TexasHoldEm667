@@ -21,13 +21,13 @@
         <h1 class="text-6xl border-x border-b border-black shadow-xl text-black w-full text-center p-6">
           Games
         </h1>
-        <div class="flex bg-neutral-400 flex-col items-center gap-5 p-4 w-full h-full overflow-x-hidden overflow-y-auto scrollbar-hide">
+        <div id="games-container" class="flex bg-neutral-400 flex-col items-center gap-5 p-4 w-full h-full overflow-x-hidden overflow-y-auto scrollbar-hide">
           <% if (games.length > 0) { %>
             <% games.forEach(game => { %>
               <%- include("./GameRow.ejs", game) %>
             <% }) %>
           <% } else { %>
-            <h2 class="text-5xl font-bold text-gray-900">There are no games. Please create one!</p>
+            <h2 id="no-games-header" class="text-5xl font-bold text-gray-900">There are no games. Please create one!</p>
           <% } %>
         </div>
       </div>
@@ -155,7 +155,8 @@
         </div>
       </div>
     </dialog>
-
-
+    <template id="game-row-template">
+      <%- include("./GameRow.ejs", {name: "", game_lobby_id: "", num_players: 1}) %>
+    </template>
   </body>
 </html>

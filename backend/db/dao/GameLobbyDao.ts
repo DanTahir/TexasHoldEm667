@@ -1,4 +1,5 @@
 import { db } from "@backend/db/connection.js";
+import { suit } from "./CardDao";
 
 export type GameStage =
   | "waiting"
@@ -184,32 +185,32 @@ export async function resetGame(game_lobby_id: string) {
   await db.none(RESET_SQL, [game_lobby_id]);
 }
 
-type CommunityCards = {
+export type CommunityCards = {
   flop_1: {
-    value: string;
-    suit: string;
+    value: number;
+    suit: suit;
   };
   flop_2: {
-    value: string;
-    suit: string;
+    value: number;
+    suit: suit;
   };
   flop_3: {
-    value: string;
-    suit: string;
+    value: number;
+    suit: suit;
   };
   turn: {
-    value: string;
-    suit: string;
+    value: number;
+    suit: suit;
   };
   river: {
-    value: string;
-    suit: string;
+    value: number;
+    suit: suit;
   };
 };
 
 export async function getCommunityCards(
   gameID: string,
-): Promise<CommunityCards | null> {
+): Promise<CommunityCards> {
   const query = `
     SELECT
       c1.value AS flop_1_value, c1.suit AS flop_1_suit,
@@ -229,7 +230,9 @@ export async function getCommunityCards(
 
   const result = await db.oneOrNone(query, [gameID]);
 
-  if (!result) return null;
+  // When no rows are returned, it resolves to null anyway.
+  // This makes it easier to use the return type of this fn
+  if (!result) return result;
 
   return {
     flop_1: {

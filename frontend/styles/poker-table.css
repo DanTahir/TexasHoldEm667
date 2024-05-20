@@ -35,7 +35,7 @@ svg {
     ". . action-1 . action-2 . ."
     ". . . . . . ."
     "action-6 . . card-area . . action-3"
-    ". . . . . . ."
+    ". . . pot-area . . ."
     ". . action-5 . action-4 . ."
     ". . . . . . .";
   width: 100%;
@@ -89,6 +89,12 @@ svg {
   min-width: 20px;
   min-height: 30px;
 }
+
+.pot {
+  grid-area: pot-area;
+  display: flex;
+}
+
 .seat {
   display: flex;
   justify-content: center;
@@ -99,8 +105,8 @@ svg {
 
 .game-name {
   display: flex;
-  justify-content: center;
   outline: solid;
+  justify-content: space-evenly;
   outline-width: 1px;
 }
 

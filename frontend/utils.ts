@@ -61,3 +61,23 @@ export function fillInCardElements(cardContainer: HTMLDivElement, card: Card) {
     cardReversedNumberElem.textContent = getNumberContent(card.value);
   }
 }
+
+export function removeCardElements(cardContainer: HTMLDivElement) {
+  cardContainer.querySelector(".poker-card-container")?.classList.add("back");
+  const cardSuitElem = cardContainer.querySelector(".card-icon");
+  if (cardSuitElem) {
+    cardSuitElem.textContent = "";
+    cardSuitElem.classList.remove("red");
+    cardSuitElem.classList.remove("black");
+  }
+  const cardNumberElem = cardContainer.querySelector(".card-number");
+  if (cardNumberElem) {
+    cardNumberElem.textContent = "";
+  }
+  const cardReversedNumberElem = cardContainer.querySelector(
+    ".card-number-reversed",
+  );
+  if (cardReversedNumberElem) {
+    cardReversedNumberElem.textContent = "";
+  }
+}

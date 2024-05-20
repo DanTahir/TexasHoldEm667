@@ -3,6 +3,7 @@ import express, { Router, Request, Response, NextFunction } from "express";
 import {
   CreatePlayerPayload,
   Player,
+  PlayerHand,
   createPlayer,
   getPlayerCards,
   getPlayersByLobbyId,
@@ -20,6 +21,7 @@ import {
   getPlayerByGameIDAndPlayOrder,
   getPlayersNotSpectating,
   getPlayerById,
+  updateAllInAmount,
 } from "@backend/db/dao/PlayerDao";
 import {
   GameLobby,
@@ -34,6 +36,7 @@ import {
   GameStage,
   updatePot,
   updateCurrentPlayer,
+  CommunityCards,
 } from "@backend/db/dao/GameLobbyDao";
 import {
   Card,
@@ -51,6 +54,19 @@ import {
 } from "@backend/db/dao/UserDao";
 import signale from "signale";
 import { Socket } from "socket.io";
+import {
+  ICard,
+  checkFlush,
+  checkFourOfAKind,
+  checkFullHouse,
+  checkHighCard,
+  checkOnePair,
+  checkRoyalFlush,
+  checkStraight,
+  checkStraightFlush,
+  checkThreeOfAKind,
+  checkTwoPair,
+} from "@backend/utilities/hand-checker";
 export const router: Router = express.Router();
 
 interface CreateRequestPayload {
@@ -68,10 +84,11 @@ router.post(
     const players = await getPlayersByLobbyId(gameID);
     // Add your logic here to emit the event
     const io = req.app.get("io");
-
+    console.log("checking activatenewplayer");
     for (const player of players) {
       if (userID === player.user_id) {
         if (player.player_id === req.body.currentPlayer) {
+          console.log("emitting activatenewplayer");
           io.to(userID).emit(`game:activatenewplayer:${gameID}`);
         }
       }
@@ -97,15 +114,21 @@ router.get(
 
     // This allows for easier access from EJS. I wouldn't do this otherwise.
     const player_map: Record<string, string | number> = {};
+    let currentPlayer;
     for (const player of players) {
       player_map[`player_${player.play_order}`] =
         `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
+
+      if (player.player_id === request.body.currentPlayer) {
+        currentPlayer = player.play_order;
+      }
     }
     player_map.player_count = players.length;
-
+    console.log(`game pot: $${game.pot}`);
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
+        currentPlayer,
         id: request.params.id,
         players: player_map,
         gameStage: game.game_stage,
@@ -113,6 +136,7 @@ router.get(
         thisPlayerPosition: thisPlayer?.play_order || 0,
         communityCards,
         userName: userName,
+        pot: game.pot,
       });
     } catch (error) {
       next(error);
@@ -151,6 +175,10 @@ router.post(
         gameLobbyID,
       };
       await createPlayer(playerPayload);
+
+      const io: Socket = request.app.get("io");
+
+      io.emit("game:create", { gameLobbyID, name });
 
       response.redirect(`/game/${gameLobbyID}`);
     } catch (error) {
@@ -324,28 +352,27 @@ router.post("/:id/start", async (req, res) => {
     // Set dealer for this round.
     await updateDealer(gameID, dealer.player_id);
 
-    // Take money from big blind and small blind.
     // If not enough money in stake, then kick and abort start.
-    if (smallBlindPlayer.stake < game.big_blind / 2) {
-      await kickPlayer(gameID, smallBlindPlayer, bigBlindPlayer.username, io);
+    let kickedPlayer: boolean = false;
+    for (const player of players) {
+      if (player.stake < game.big_blind) {
+        await kickPlayer(gameID, player, bigBlindPlayer.username, io);
+        kickedPlayer = true;
+      }
+    }
+    if (kickedPlayer) {
       res
         .status(403)
-        .send("Aborting game...small blind did not have enough money");
+        .send("Aborting game...some player(s) did not have enough money");
       return;
     }
+
+    // Take money from big blind and small blind.
     updateBet(smallBlindPlayer.player_id, game.big_blind / 2);
     updateStake(
       smallBlindPlayer.player_id,
       smallBlindPlayer.stake - game.big_blind / 2,
     );
-
-    if (bigBlindPlayer.stake < game.big_blind) {
-      await kickPlayer(gameID, bigBlindPlayer, bigBlindPlayer.username, io);
-      res
-        .status(403)
-        .send("Aborting game...big blind did not have enough money");
-      return;
-    }
     updateBet(bigBlindPlayer.player_id, game.big_blind);
     updateStake(
       bigBlindPlayer.player_id,
@@ -406,7 +433,7 @@ router.post("/:id/start", async (req, res) => {
         playOrder: player.play_order,
       });
     }
-
+    await updateTurnsToZero(gameID);
     getNextPlayer(req, res, bigBlindPlayer.user_id);
   } finally {
     routesCurrentlyStarting[gameID] = false;
@@ -434,7 +461,12 @@ async function getNextPlayer(
 
   const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
   if (playersNotFolded.length === 1) {
-    await awardWinner();
+    const winnerArrayArray: Array<Array<PlayerWithUserInfo>> = new Array<
+      Array<PlayerWithUserInfo>
+    >();
+    winnerArrayArray.push(playersNotFolded);
+
+    await awardWinner(request, response, winnerArrayArray);
     return;
   } else if (playersNotFolded.length === 0) {
     signale.warn("All players folded, no winner left to select");
@@ -443,18 +475,19 @@ async function getNextPlayer(
   }
 
   const playersNotFoldedOrAllIn = await getPlayersNotFoldedOrAllIn(gameLobbyID);
+
   if (playersNotFoldedOrAllIn.length === 1) {
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       if (playersNotFoldedOrAllIn[0].bet === playerMaxBet.bet) {
-        await decideWinner();
+        await decideWinner(request, response, playersNotFolded);
         return;
       }
     } catch (error) {
       signale.warn(error);
     }
   } else if (playersNotFoldedOrAllIn.length === 0) {
-    await decideWinner();
+    await decideWinner(request, response, playersNotFolded);
     return;
   }
 
@@ -480,7 +513,11 @@ async function getNextPlayer(
     return;
   }
 
-  if (gameLobby.turns >= players.length) {
+  if (lastPlayer.status != "all-in" && lastPlayer.status != "folded") {
+    await updateTurnsByOne(gameLobbyID);
+  }
+
+  if (gameLobby.turns >= playersNotFoldedOrAllIn.length) {
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       let newRound = true;
@@ -488,6 +525,7 @@ async function getNextPlayer(
       for (let i = 0; i < playersNotFoldedOrAllIn.length; i++) {
         console.log(`player bet: ${playersNotFoldedOrAllIn[i].bet}`);
         if (playersNotFoldedOrAllIn[i].bet != playerMaxBet.bet) {
+          console.log("newRound set to false");
           newRound = false;
         }
       }
@@ -499,8 +537,6 @@ async function getNextPlayer(
       signale.warn(error);
     }
   }
-
-  await updateTurnsByOne(gameLobbyID);
 
   let nextPlayer: PlayerWithUserInfo | null = null;
   for (let i = 0; i < players.length; i++) {
@@ -524,13 +560,190 @@ async function getNextPlayer(
 
   io.to(nextPlayer?.user_id).emit(`game:activatenewplayer:${gameLobbyID}`);
   io.emit(`game:announcenewplayer:${gameLobbyID}`, {
-    newPlayerName: nextPlayer?.username,
+    playOrder: nextPlayer?.play_order,
   });
 }
 
-async function awardWinner(): Promise<void> {}
+async function awardWinner(
+  request: Request,
+  _response: Response,
+  winners: Array<Array<PlayerWithUserInfo>>,
+): Promise<void> {
+  const gameLobbyID = request.params.id;
+  const lobby = await getGameLobbyById(gameLobbyID);
+  let remainingPot = lobby.pot;
 
-async function decideWinner(): Promise<void> {}
+  const bettingPlayers = await getPlayersByLobbyId(gameLobbyID);
+  for (const player of bettingPlayers) {
+    remainingPot += player.bet;
+    await updateBet(player.player_id, 0);
+  }
+  console.log(`remaining pot: ${remainingPot}`);
+  let rank = 1;
+  let lastAllInAmount = 0;
+  let announceWinnerString = ``;
+  for (let i = 0; i < winners.length; i++) {
+    console.log(`winner is ???, remaining pot: ${remainingPot}`);
+    if (winners[i].length === 1 && winners[i][0].username) {
+      const winner = winners[i][0];
+      if (winner.status != "all-in" || winner.allin_amount >= remainingPot) {
+        console.log(`remaining pot: ${remainingPot}`);
+        await updateStake(winner.player_id, winner.stake + remainingPot);
+        announceWinnerString += `Winner Rank ${rank}: ${winner.username} - winnings: $${remainingPot}\n`;
+        remainingPot = 0;
+        break;
+      } else {
+        const actualAllInAmount = winner.allin_amount - lastAllInAmount;
+        console.log(`remaining pot: ${remainingPot}`);
+        await updateStake(winner.player_id, winner.stake + actualAllInAmount);
+        remainingPot -= actualAllInAmount;
+        console.log(`remaining pot: ${remainingPot}`);
+        lastAllInAmount = winner.allin_amount;
+        announceWinnerString += `Winner Rank ${i + 1}: ${winner.username} - winnings: $${actualAllInAmount}\n`;
+        rank++;
+      }
+    } else if (winners[i].length > 1) {
+      let splitPot = remainingPot / winners[i].length;
+      remainingPot = 0;
+
+      const allInWinners = winners[i].filter(
+        (winner) => winner.status === "all-in",
+      );
+      if (allInWinners.length > 0) {
+        const allInWinnersSorted = allInWinners.sort(
+          (winnerA, winnerB) => winnerA.allin_amount - winnerB.allin_amount,
+        );
+
+        for (const allInWinner of allInWinnersSorted) {
+          const winAmount =
+            allInWinner.allin_amount / winners[i].length -
+            lastAllInAmount / winners[i].length;
+          let reportedWinAmount = 0;
+          if (splitPot <= winAmount) {
+            await updateStake(
+              allInWinner.player_id,
+              allInWinner.stake + splitPot,
+            );
+            reportedWinAmount = splitPot;
+          } else {
+            await updateStake(
+              allInWinner.player_id,
+              allInWinner.stake + winAmount,
+            );
+            remainingPot += splitPot - winAmount;
+            reportedWinAmount = winAmount;
+          }
+          announceWinnerString += `Winner Rank ${i + 1}: ${allInWinner.username} - winnings: $${reportedWinAmount}\n`;
+        }
+        if (allInWinners.length > 0) {
+          lastAllInAmount = 0;
+          for (const allInWinner of allInWinners) {
+            lastAllInAmount += allInWinner.allin_amount / winners[i].length;
+          }
+        }
+      }
+      const playingWinners = winners[i].filter(
+        (winner) => winner.status === "playing",
+      );
+      if (playingWinners.length > 0) {
+        splitPot += remainingPot / playingWinners.length;
+        remainingPot = 0;
+        for (const playingWinner of playingWinners) {
+          await updateStake(
+            playingWinner.player_id,
+            playingWinner.stake + splitPot,
+          );
+          announceWinnerString += `Winner Rank ${i + 1}: ${playingWinner.username} - winnings: $${splitPot}\n`;
+        }
+        break;
+      }
+      rank++;
+    }
+  }
+
+  await updatePot(gameLobbyID, 0);
+  await updateGameStage(gameLobbyID, "final");
+  const io = request.app.get("io");
+  io.emit(`game:updatepot:${gameLobbyID}`, {
+    pot: 0,
+  });
+  io.emit(`game:showresetbutton:${gameLobbyID}`);
+  const cards = await getCommunityCards(gameLobbyID);
+  io.emit(`game:showFlop:${gameLobbyID}`, {
+    card1: cards?.flop_1,
+    card2: cards?.flop_2,
+    card3: cards?.flop_3,
+  });
+  io.emit(`game:showTurn:${gameLobbyID}`, {
+    card: cards?.turn,
+  });
+  io.emit(`game:showRiver:${gameLobbyID}`, {
+    card: cards?.river,
+  });
+  const players = await getPlayersByLobbyId(gameLobbyID);
+  for (const player of players) {
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: player.play_order,
+      playerName: player.username,
+      stake: player.stake,
+      bet: player.bet,
+      status: player.status,
+    });
+    const cards = await getPlayerCards(player.user_id, gameLobbyID);
+    io.emit(`game:deal:${gameLobbyID}`, {
+      cards,
+      playOrder: player.play_order,
+    });
+  }
+  io.emit(`game:announcewinner:${gameLobbyID}`, {
+    announceWinnerString: announceWinnerString,
+  });
+}
+
+async function decideWinner(
+  req: Request,
+  res: Response,
+  players: Array<PlayerWithUserInfo>,
+) {
+  const winners: Array<Array<PlayerWithUserInfo>> = [];
+  const winnerSet: Set<PlayerWithUserInfo> = new Set();
+  const communityCards: CommunityCards = await getCommunityCards(
+    players[0].game_lobby_id,
+  );
+  const cards: Record<string, Array<ICard>> = {};
+
+  await Promise.all(
+    players.map(async (player) => {
+      const playerHand: PlayerHand = await getPlayerCards(
+        player.user_id,
+        player.game_lobby_id,
+      );
+
+      cards[player.player_id] = [
+        playerHand.card1,
+        playerHand.card2,
+        communityCards.flop_1,
+        communityCards.flop_2,
+        communityCards.flop_3,
+        communityCards.turn,
+        communityCards.river,
+      ];
+    }),
+  );
+
+  checkRoyalFlush(winners, winnerSet, players, cards);
+  checkStraightFlush(winners, winnerSet, players, cards);
+  checkFourOfAKind(winners, winnerSet, players, cards);
+  checkFullHouse(winners, winnerSet, players, cards);
+  checkFlush(winners, winnerSet, players, cards);
+  checkStraight(winners, winnerSet, players, cards);
+  checkThreeOfAKind(winners, winnerSet, players, cards);
+  checkTwoPair(winners, winnerSet, players, cards);
+  checkOnePair(winners, winnerSet, players, cards);
+  checkHighCard(winners, winnerSet, players, cards);
+
+  await awardWinner(req, res, winners);
+}
 
 async function startNextRound(
   request: Request,
@@ -538,19 +751,32 @@ async function startNextRound(
   gameLobbyID: string,
 ): Promise<void> {
   const activePlayers = await getPlayersNotSpectating(gameLobbyID);
-  const lobby = await getGameLobbyById(gameLobbyID);
-  let pot = lobby.pot;
 
-  activePlayers.forEach(async (player) => {
-    pot += player.bet;
+  const lobby: GameLobby = await getGameLobbyById(gameLobbyID);
+  let pot: number = lobby.pot;
+  const io = request.app.get("io");
+
+  for (const player of activePlayers) {
+    pot = pot + player.bet;
     await updateBet(player.player_id, 0);
-  });
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: player.play_order,
+      playerName: player.username,
+      stake: player.stake,
+      bet: 0,
+      status: player.status,
+    });
+  }
 
+  console.log(`Pot: ${pot}`);
   await updatePot(gameLobbyID, pot);
+
+  io.emit(`game:updatepot:${gameLobbyID}`, {
+    pot: pot,
+  });
 
   let nextStage: GameStage;
   const cards = await getCommunityCards(gameLobbyID);
-  const io = request.app.get("io");
 
   if (lobby.game_stage === "preflop") {
     nextStage = "flop";
@@ -570,7 +796,9 @@ async function startNextRound(
       card: cards?.river,
     });
   } else {
-    decideWinner();
+    const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
+    await decideWinner(request, response, playersNotFolded);
+
     return;
   }
 
@@ -715,9 +943,28 @@ router.post("/:id/call", async (request: Request, response: Response) => {
     callingPlayer.bet += callingPlayer.stake;
     callingPlayer.stake = 0;
     callingPlayer.status = "all-in";
+    const game = await getGameLobbyById(gameLobbyID);
+    const playersNotSpectating = await getPlayersNotSpectating(gameLobbyID);
+    const playersNotFoldedOrAllIn =
+      await getPlayersNotFoldedOrAllIn(gameLobbyID);
+    callingPlayer.allin_amount = game.pot;
+    for (const playerNotSpectating of playersNotSpectating) {
+      if (
+        playerNotSpectating.status === "all-in" ||
+        playerNotSpectating.status === "folded"
+      ) {
+        callingPlayer.allin_amount += playerNotSpectating.bet;
+      }
+    }
+    callingPlayer.allin_amount +=
+      callingPlayer.bet * playersNotFoldedOrAllIn.length;
     await updateStake(callingPlayer.player_id, callingPlayer.stake);
     await updateBet(callingPlayer.player_id, callingPlayer.bet);
     await updateStatus(callingPlayer.player_id, callingPlayer.status);
+    await updateAllInAmount(
+      callingPlayer.player_id,
+      callingPlayer.allin_amount,
+    );
   } else {
     callingPlayer.bet += difference;
     callingPlayer.stake -= difference;
@@ -774,9 +1021,28 @@ router.post(
       raisingPlayer.bet += raisingPlayer.stake;
       raisingPlayer.stake = 0;
       raisingPlayer.status = "all-in";
+      const game = await getGameLobbyById(gameLobbyID);
+      const playersNotSpectating = await getPlayersNotSpectating(gameLobbyID);
+      const playersNotFoldedOrAllIn =
+        await getPlayersNotFoldedOrAllIn(gameLobbyID);
+      raisingPlayer.allin_amount = game.pot;
+      for (const playerNotSpectating of playersNotSpectating) {
+        if (
+          playerNotSpectating.status === "all-in" ||
+          playerNotSpectating.status === "folded"
+        ) {
+          raisingPlayer.allin_amount += playerNotSpectating.bet;
+        }
+      }
+      raisingPlayer.allin_amount +=
+        raisingPlayer.bet * playersNotFoldedOrAllIn.length;
       await updateStake(raisingPlayer.player_id, raisingPlayer.stake);
       await updateBet(raisingPlayer.player_id, raisingPlayer.bet);
       await updateStatus(raisingPlayer.player_id, raisingPlayer.status);
+      await updateAllInAmount(
+        raisingPlayer.player_id,
+        raisingPlayer.allin_amount,
+      );
     } else {
       raisingPlayer.bet += difference;
       raisingPlayer.stake -= difference;
@@ -797,3 +1063,30 @@ router.post(
     await getNextPlayer(request, response, userID);
   },
 );
+
+router.post("/:id/reset", async (request: Request, response: Response) => {
+  const gameLobbyID = request.params.id;
+  const userID = request.session.user.id;
+  const players = await getPlayersByLobbyId(gameLobbyID);
+  if (!players.some((player) => player.user_id === userID)) {
+    signale.warn(
+      `cannot reset game: player with user ID ${userID} is not in game`,
+    );
+    response.status(403).send("You must be a part of this game to reset it.");
+    return;
+  }
+
+  updateGameStage(gameLobbyID, "waiting");
+  const io = request.app.get("io");
+  for (const player of players) {
+    await updateStatus(player.player_id, "playing");
+    io.emit(`game:foldraisecall:${gameLobbyID}`, {
+      playOrder: player.play_order,
+      playerName: player.username,
+      stake: player.stake,
+      bet: player.bet,
+      status: "playing",
+    });
+  }
+  io.emit(`game:reset:${gameLobbyID}`);
+});
