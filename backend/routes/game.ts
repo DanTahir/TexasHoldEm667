@@ -55,7 +55,7 @@ import {
 import signale from "signale";
 import { Socket } from "socket.io";
 import {
-  ICard,
+  CardValue,
   checkFlush,
   checkFourOfAKind,
   checkFullHouse,
@@ -713,7 +713,7 @@ async function decideWinner(
   const communityCards: CommunityCards = await getCommunityCards(
     players[0].game_lobby_id,
   );
-  const cards: Record<string, Array<ICard>> = {};
+  const cards: Record<string, Array<CardValue>> = {};
 
   await Promise.all(
     players.map(async (player) => {
