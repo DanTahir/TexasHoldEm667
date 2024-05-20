@@ -103,8 +103,16 @@ router.get(
     const userID = request.session.user.id;
 
     const gameID = request.params.id;
-    const userName = request.session.user.username;
     const players = await getPlayersByLobbyId(gameID);
+
+    const username = request.session.user.username;
+
+    // This allows for easier access from EJS. I wouldn't do this otherwise.
+    const player_map: Record<string, PlayerWithUserInfo> = {};
+    for (const player of players) {
+      player_map[`player_${player.play_order}`] = player;
+    }
+
     const thisPlayer = players.find((player) => player.user_id === userID);
 
     const game = await getGameLobbyById(gameID);
@@ -112,31 +120,26 @@ router.get(
 
     const communityCards = await getCommunityCards(gameID);
 
-    // This allows for easier access from EJS. I wouldn't do this otherwise.
-    const player_map: Record<string, string | number> = {};
     let currentPlayer;
     for (const player of players) {
-      player_map[`player_${player.play_order}`] =
-        `${player.username}\n$(${player.stake})\nbet: $${player.bet}\n${player.status}`;
-
       if (player.player_id === request.body.currentPlayer) {
         currentPlayer = player.play_order;
       }
     }
-    player_map.player_count = players.length;
-    console.log(`game pot: $${game.pot}`);
+
     try {
       response.render(Views.GameLobby, {
         gameName: request.body.name,
         currentPlayer,
         id: request.params.id,
         players: player_map,
+        username,
         gameStage: game.game_stage,
         thisPlayerCards,
         thisPlayerPosition: thisPlayer?.play_order || 0,
         communityCards,
-        userName: userName,
         pot: game.pot,
+        playerCount: players.length,
       });
     } catch (error) {
       next(error);

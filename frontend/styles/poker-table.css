@@ -43,6 +43,7 @@ svg {
   top: 0;
   left: 0;
 }
+
 .card-container {
   display: flex;
   width: 67%;
@@ -151,6 +152,7 @@ svg {
 
 .poker-button {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-bottom: 3%;

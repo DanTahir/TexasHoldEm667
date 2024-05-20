@@ -10,6 +10,14 @@
 >
   <% if (typeof link !== 'undefined') { %>
     <a href="<%= link %>" target="_blank" ><%= buttonText %></a>
+  <% } else if (typeof player !== 'undefined') { %>
+
+      <div class="flex flex-col flex-nowrap">
+        <div class="username"><%= player.username %></div>
+        <div class="stake">Stake: $<%= player.stake %></div>
+        <div class="bet">Bet: $<%= player.bet %></div>
+        <div class="status"><%= player.status %></div>
+      </div>
   <% } else { %>
     <%= buttonText %>
   <% } %>
