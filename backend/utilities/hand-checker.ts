@@ -6,11 +6,6 @@ export type ICard = {
   suit: suit;
 };
 
-type Sequence = {
-  length: number;
-  startValue: number;
-};
-
 export function checkRoyalFlush(
   winners: Array<Array<PlayerWithUserInfo>>,
   winnerSet: Set<PlayerWithUserInfo>,
@@ -65,25 +60,23 @@ export function checkStraightFlush(
         const playerCards: Array<ICard> = cards[player.player_id];
         const sortedCards: Array<ICard> = sortCards(playerCards);
 
-        // check for flush
         const flushCards = getFlushArray(sortedCards);
 
         if (flushCards) {
-          let isStraightFlush = true;
-          const sequence: Sequence = findLongestConsecutiveSequence(flushCards);
+          const sequence = findLongestConsecutiveSequence(flushCards);
 
-          if (sequence.length !== 5) {
-            isStraightFlush = false;
+          if (sequence.length < 5) {
+            continue;
           }
 
-          if (isStraightFlush) {
-            if (!straightFlushWinners[sequence.startValue]) {
-              straightFlushWinners[sequence.startValue] = [];
-            }
+          const largestValue = sequence.at(-1)!.value;
 
-            straightFlushWinners[sequence.startValue].push(player);
-            winnerSet.add(player);
+          if (!straightFlushWinners[largestValue]) {
+            straightFlushWinners[largestValue] = [];
           }
+
+          straightFlushWinners[largestValue].push(player);
+          winnerSet.add(player);
         }
       }
     }
@@ -210,18 +203,20 @@ export function checkStraight(
         const playerCards: Array<ICard> = cards[player.player_id];
         const sortedCards: Array<ICard> = sortCards(playerCards);
 
-        // check for straight
-        const sequence: Sequence = findLongestConsecutiveSequence(sortedCards);
-        const sequenceStartValue: number = sequence.startValue;
+        const sequence = findLongestConsecutiveSequence(sortedCards);
 
-        if (sequence.length >= 5) {
-          if (!straightWinners[sequenceStartValue]) {
-            straightWinners[sequenceStartValue] = [];
-          }
-
-          straightWinners[sequenceStartValue].push(player);
-          winnerSet.add(player);
+        if (sequence.length < 5) {
+          continue;
         }
+
+        const largestValue = sequence.at(-1)!.value;
+
+        if (!straightWinners[largestValue]) {
+          straightWinners[largestValue] = [];
+        }
+
+        straightWinners[largestValue].push(player);
+        winnerSet.add(player);
       }
     }
 
@@ -434,28 +429,36 @@ function sortCards(cards: Array<ICard>): Array<ICard> {
   return sortedCards;
 }
 
-function findLongestConsecutiveSequence(cards: Array<ICard>): Sequence {
-  const set = new Set();
-  let longestConsecutiveSequence = 0;
-  let startValue = 0;
-
-  for (const card of cards) {
-    if (!set.has(card.value - 1)) {
-      let currentVal = card.value;
-      let currentSeq = 1;
-      while (set.has(currentVal + 1)) {
-        currentVal += 1;
-        currentSeq += 1;
-      }
-      if (currentSeq > longestConsecutiveSequence) {
-        longestConsecutiveSequence = currentSeq;
-        startValue = card.value;
-      }
-    }
-    set.add(card.value);
+function findLongestConsecutiveSequence(cards: Array<ICard>): Array<ICard> {
+  if (cards.length === 0) {
+    return [];
   }
 
-  return { length: longestConsecutiveSequence, startValue };
+  const uniqueCardsMap = new Map<number, ICard>();
+  cards.forEach((card) => uniqueCardsMap.set(card.value, card));
+  const uniqueCards = Array.from(uniqueCardsMap.values()).sort(
+    (a, b) => a.value - b.value,
+  );
+
+  let longestSequence: ICard[] = [];
+  let currentSequence: ICard[] = [uniqueCards[0]];
+
+  for (let i = 1; i < uniqueCards.length; i++) {
+    if (uniqueCards[i].value === uniqueCards[i - 1].value + 1) {
+      currentSequence.push(uniqueCards[i]);
+    } else {
+      if (currentSequence.length > longestSequence.length) {
+        longestSequence = currentSequence;
+      }
+      currentSequence = [uniqueCards[i]]; // Start a new sequence
+    }
+  }
+
+  if (currentSequence.length > longestSequence.length) {
+    longestSequence = currentSequence;
+  }
+
+  return longestSequence;
 }
 
 function sortWinners(
