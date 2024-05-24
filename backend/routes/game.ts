@@ -54,21 +54,10 @@ import {
 } from "@backend/db/dao/UserDao";
 import signale from "signale";
 import { Socket } from "socket.io";
-import {
-  ICard,
-  checkFlush,
-  checkFourOfAKind,
-  checkFullHouse,
-  checkHighCard,
-  checkOnePair,
-  checkRoyalFlush,
-  checkStraight,
-  checkStraightFlush,
-  checkThreeOfAKind,
-  checkTwoPair,
-} from "@backend/utilities/hand-checker";
+import { Hand, ICard } from "@backend/utilities/hands/BaseCards";
+import { HandFactory } from "@backend/utilities/hands/HandFactory";
+// import { buildWinnerArray } from "@backend/utilities/hands/build-hand";
 export const router: Router = express.Router();
-
 interface CreateRequestPayload {
   name: string;
   stake: number;
@@ -480,14 +469,14 @@ async function getNextPlayer(
     try {
       const playerMaxBet = await getPlayerByMaxBet(gameLobbyID);
       if (playersNotFoldedOrAllIn[0].bet === playerMaxBet.bet) {
-        await decideWinner(request, response, playersNotFolded);
+        // await decideWinner(request, response, playersNotFolded);
         return;
       }
     } catch (error) {
       signale.warn(error);
     }
   } else if (playersNotFoldedOrAllIn.length === 0) {
-    await decideWinner(request, response, playersNotFolded);
+    // await decideWinner(request, response, playersNotFolded);
     return;
   }
 
@@ -700,49 +689,43 @@ async function awardWinner(
   });
 }
 
-async function decideWinner(
-  req: Request,
-  res: Response,
-  players: Array<PlayerWithUserInfo>,
-) {
-  const winners: Array<Array<PlayerWithUserInfo>> = [];
-  const winnerSet: Set<PlayerWithUserInfo> = new Set();
+async function decideWinner(players: Array<PlayerWithUserInfo>) {
   const communityCards: CommunityCards = await getCommunityCards(
     players[0].game_lobby_id,
   );
-  const cards: Record<string, Array<ICard>> = {};
+  const playersMap: Record<
+    PlayerWithUserInfo["player_id"],
+    PlayerWithUserInfo
+  > = {};
+  const playerHandMap: Record<PlayerWithUserInfo["player_id"], Hand> = {};
 
-  await Promise.all(
-    players.map(async (player) => {
-      const playerHand: PlayerHand = await getPlayerCards(
-        player.user_id,
-        player.game_lobby_id,
-      );
+  for (const player of players) {
+    const playerHand: PlayerHand = await getPlayerCards(
+      player.user_id,
+      player.game_lobby_id,
+    );
 
-      cards[player.player_id] = [
-        playerHand.card1,
-        playerHand.card2,
-        communityCards.flop_1,
-        communityCards.flop_2,
-        communityCards.flop_3,
-        communityCards.turn,
-        communityCards.river,
-      ];
-    }),
-  );
+    const playerCards: Array<ICard> = [
+      playerHand.card1,
+      playerHand.card2,
+      communityCards.flop_1,
+      communityCards.flop_2,
+      communityCards.flop_3,
+      communityCards.turn,
+      communityCards.river,
+    ];
 
-  checkRoyalFlush(winners, winnerSet, players, cards);
-  checkStraightFlush(winners, winnerSet, players, cards);
-  checkFourOfAKind(winners, winnerSet, players, cards);
-  checkFullHouse(winners, winnerSet, players, cards);
-  checkFlush(winners, winnerSet, players, cards);
-  checkStraight(winners, winnerSet, players, cards);
-  checkThreeOfAKind(winners, winnerSet, players, cards);
-  checkTwoPair(winners, winnerSet, players, cards);
-  checkOnePair(winners, winnerSet, players, cards);
-  checkHighCard(winners, winnerSet, players, cards);
+    playersMap[player.player_id] = player;
+    playerHandMap[player.player_id] = HandFactory.createHand(
+      playerCards,
+      player,
+    );
+  }
 
-  await awardWinner(req, res, winners);
+  // const winners: Array<Array<PlayerWithUserInfo>> = buildWinnerArray(
+  //   playersMap,
+  //   playerHandMap,
+  // );
 }
 
 async function startNextRound(
@@ -796,8 +779,8 @@ async function startNextRound(
       card: cards?.river,
     });
   } else {
-    const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
-    await decideWinner(request, response, playersNotFolded);
+    // const playersNotFolded = await getPlayersNotFolded(gameLobbyID);
+    // await decideWinner(request, response, playersNotFolded);
 
     return;
   }

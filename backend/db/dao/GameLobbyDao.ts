@@ -1,5 +1,5 @@
 import { db } from "@backend/db/connection.js";
-import { suit } from "./CardDao";
+import { Suit } from "./CardDao";
 
 export type GameStage =
   | "waiting"
@@ -188,23 +188,23 @@ export async function resetGame(game_lobby_id: string) {
 export type CommunityCards = {
   flop_1: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
   flop_2: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
   flop_3: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
   turn: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
   river: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
 };
 

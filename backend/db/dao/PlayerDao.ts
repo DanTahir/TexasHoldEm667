@@ -1,6 +1,6 @@
 import { db } from "@backend/db/connection.js";
 import { User } from "./UserDao";
-import { suit } from "./CardDao";
+import { Suit } from "./CardDao";
 
 export type PlayerStatus = "playing" | "folded" | "all-in" | "spectating";
 
@@ -267,11 +267,11 @@ export type PlayerHand = {
   playerID: string;
   card1: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
   card2: {
     value: number;
-    suit: suit;
+    suit: Suit;
   };
 };
 

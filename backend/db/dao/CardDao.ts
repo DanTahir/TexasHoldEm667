@@ -3,13 +3,13 @@ import pgPromise from "pg-promise";
 
 const pgp = pgPromise();
 
-export type suit = "spades" | "clubs" | "hearts" | "diamonds";
+export type Suit = "spades" | "clubs" | "hearts" | "diamonds";
 
 export interface Card {
   game_card_id: string;
   game_lobby_id: string;
   card_id: number;
-  suit: suit;
+  suit: Suit;
   value: number;
   shuffled_order: number;
 }
@@ -17,7 +17,7 @@ export interface Card {
 type CardWithoutID = Omit<Card, "game_card_id">;
 
 function initDeck(gameLobbyID: string) {
-  const suits: suit[] = ["hearts", "diamonds", "clubs", "spades"];
+  const suits: Suit[] = ["hearts", "diamonds", "clubs", "spades"];
   const deck: Array<CardWithoutID> = [];
   let i = 1;
   for (const suit of suits) {
