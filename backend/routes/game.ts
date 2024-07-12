@@ -455,6 +455,16 @@ async function getNextPlayer(
 ): Promise<void> {
   const gameLobbyID = request.params.id;
 
+  let gameLobby: GameLobby;
+  try {
+    gameLobby = await getGameLobbyById(gameLobbyID);
+  } catch (error) {
+    // TODO: handle error for game not found
+    signale.warn(`game ${gameLobbyID} not found`);
+    response.redirect(Screens.Home);
+    return;
+  }
+
   let lastPlayer: PlayerWithUserInfo;
   try {
     lastPlayer = await getPlayerByUserAndLobbyId(lastPlayerUserID, gameLobbyID);
@@ -499,15 +509,7 @@ async function getNextPlayer(
     return;
   }
 
-  let gameLobby: GameLobby;
-  try {
-    gameLobby = await getGameLobbyById(gameLobbyID);
-  } catch (error) {
-    // TODO: handle error for game not found
-    signale.warn(`game ${gameLobbyID} not found`);
-    response.redirect(Screens.Home);
-    return;
-  }
+
 
   let players: Array<PlayerWithUserInfo> | null = null;
   try {
